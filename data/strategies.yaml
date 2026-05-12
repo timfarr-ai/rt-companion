@@ -202,7 +202,11 @@ sops:
       - "You have all four key numbers: price, down, balloon, closing date"
     how_to:
       - title: "Generate contract parameters"
-        detail: "In Claude Code on Mac: <code>verbal yes on [address]</code>. Returns the full BBC data entry block + addendum language + buyer dispo summary."
+        detail: "Returns the full BBC data entry block + addendum language + buyer dispo summary."
+        command:
+          text: "verbal yes on 1915 Margalene Way, Austin TX"
+          label: "Trigger: contract parameters"
+          hint: "Replace with your deal's address."
       - title: "Enter in BBC → Create Offer"
         detail: "Open BBC Inventory → Create Offer. Fill the data block from Claude's output. Save the offer."
         link: { label: "BBC Inventory", url: "https://buyboxcartel.com/vip/inventory", external: true }
@@ -213,7 +217,11 @@ sops:
       - title: "Start dispo immediately — don't wait"
         detail: "The moment offer is sent, start marketing. Time matters."
       - title: "Generate buyer one-pager"
-        detail: "<code>generate buyer one-pager for [address]</code> — returns a public URL you can DM to out-of-network buyers (Instagram, FB, personal email)."
+        detail: "Returns a public URL you can DM to out-of-network buyers (Instagram, FB, personal email)."
+        command:
+          text: "generate buyer one-pager for 1915 Margalene Way, Austin TX"
+          label: "Trigger: buyer one-pager"
+          hint: "URL is shareable; no login required for the buyer."
       - title: "Submit to BBC Marketplace"
         detail: "BBC Marketplace auto-dispos to BBC's curated buyer network."
         link: { label: "BBC Marketplace", url: "https://buyboxcartel.com/vip/marketplace", external: true }
@@ -400,7 +408,11 @@ strategies:
       - title: "On callback — confirm condition"
         detail: "Ask about roof, foundation, HVAC. Tier B has more rehab risk. If anything looks bad, price down before committing."
       - title: "On verbal yes → contract"
-        detail: "Claude Code: <code>verbal yes on [address]</code>. Confirm inspection period (10 biz days) and EMD ($1K AFTER inspection)."
+        detail: "Confirm inspection period (10 biz days) and EMD ($1K AFTER inspection)."
+        command:
+          text: "verbal yes on 7076 Bentwood Trl, Kalamazoo MI"
+          label: "Trigger: contract parameters"
+          hint: "Replace with your address."
       - title: "Submit"
         detail: "Same as Tier A: BBC Marketplace + Grand In Taylor Creative Form."
     voicemail:
@@ -465,7 +477,11 @@ strategies:
       - title: "Submit cash offer at MAO"
         detail: "Send written offer at 70-80% of asking. Include 10 biz day inspection, $1K EMD after inspection."
       - title: "On verbal yes → contract"
-        detail: "Claude Code: <code>verbal yes on [address]</code>. Standard cash contract (not creative addendum)."
+        detail: "Standard cash contract (not creative addendum)."
+        command:
+          text: "verbal yes on [address] (cash)"
+          label: "Trigger: cash contract parameters"
+          hint: "Append \"(cash)\" so Claude knows to use the cash template."
       - title: "Submit dispo via Cash Alt form"
         detail: "Use Grand In Taylor CASH Alt form (NOT Creative form). BBC Marketplace also auto-dispos."
         link: { label: "Grand In Taylor Cash Alt Form", url: "https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587", external: true }
