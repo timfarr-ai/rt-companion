@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Tier A — Multifamily Checkmate — RT Deal Desk</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-2: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --green: #56d364;
+      --amber: #d29922;
+      --red: #f85149;
+      --tier-a: #ff7b72;
+      --tier-b: #d2a8ff;
+      --tier-c: #56d364;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      -webkit-text-size-adjust: 100%;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:active { opacity: 0.7; }
+    header {
+      position: sticky; top: 0;
+      background: rgba(13, 17, 23, 0.95);
+      backdrop-filter: saturate(180%) blur(10px);
+      -webkit-backdrop-filter: saturate(180%) blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+      z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+    }
+    header h1 { margin: 0; font-size: 18px; font-weight: 600; }
+    header .back { font-size: 14px; color: var(--accent); }
+    main { padding: 16px; max-width: 720px; margin: 0 auto; }
+    .section { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; }
+    .section h2 { margin: 0 0 10px 0; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .tldr { font-size: 17px; line-height: 1.45; color: var(--text); }
+    .when ul { margin: 0; padding-left: 18px; }
+    .when li { margin-bottom: 4px; color: var(--text); }
+    ol.how-to { padding-left: 22px; margin: 0; counter-reset: step; }
+    ol.how-to li {
+      margin-bottom: 12px;
+      padding-left: 4px;
+      line-height: 1.5;
+    }
+    ol.how-to li strong { display: block; color: var(--text); font-size: 15px; font-weight: 600; }
+    .step-detail { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .step-detail code { background: var(--panel-2); padding: 1px 6px; border-radius: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--accent); }
+    .step-link {
+      display: inline-block; margin-top: 6px; font-size: 13px;
+      padding: 5px 10px; background: var(--panel-2); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--accent); text-decoration: none;
+    }
+    .step-link:active { opacity: 0.7; }
+    .script-box {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 14px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-top: 8px;
+    }
+    .script-actions { display: flex; gap: 8px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
+    .copy-btn {
+      background: var(--accent);
+      color: #0d1117;
+      border: 0;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .copy-btn:active { opacity: 0.7; }
+    .copy-btn.copied { background: var(--green); color: #0d1117; }
+    .audio-meta { font-size: 13px; color: var(--muted); }
+    audio { width: 100%; margin-top: 6px; }
+    audio::-webkit-media-controls-panel { background: var(--panel-2); }
+    details { margin-bottom: 8px; }
+    details summary {
+      cursor: pointer;
+      padding: 10px 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-weight: 500;
+      list-style: none;
+    }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::before { content: "▸ "; color: var(--muted); }
+    details[open] summary::before { content: "▾ "; }
+    details[open] summary { border-radius: 8px 8px 0 0; border-bottom: 0; }
+    details .detail-body {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-top: 0;
+      border-radius: 0 0 8px 8px;
+      padding: 12px;
+    }
+    .source-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .source-link .icon { font-size: 20px; flex-shrink: 0; }
+    .source-link .label { flex: 1; }
+    .source-link .arrow { color: var(--muted); }
+    .counter-rule {
+      padding: 10px 12px;
+      background: var(--panel-2);
+      border-left: 3px solid var(--amber);
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    .tier-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .tier-a { background: rgba(255,123,114,0.15); color: var(--tier-a); }
+    .tier-b { background: rgba(210,168,255,0.15); color: var(--tier-b); }
+    .tier-c { background: rgba(86,211,100,0.15); color: var(--tier-c); }
+    nav.bottom { padding: 8px 0 20px; text-align: center; color: var(--muted); font-size: 13px; }
+    nav.bottom a { color: var(--muted); margin: 0 8px; }
+    .briefing-wrap iframe {
+      width: 100%; border: 0; border-radius: 8px;
+      min-height: 400px; background: var(--panel-2);
+    }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .pill {
+      display: inline-block; padding: 4px 10px;
+      background: var(--panel-2); border: 1px solid var(--border);
+      border-radius: 14px; font-size: 13px; color: var(--muted);
+    }
+    @media (min-width: 720px) {
+      body { font-size: 17px; }
+      main { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/rt-companion/" class="back">‹ Back</a>
+    <h1>🎯 Tier A — Multifamily Checkmate</h1>
+    <a href="/" class="back" style="text-align:right;">🏠</a>
+  </header>
+  <main>
+    
+
+<div class="section">
+  <h2>① TL;DR</h2>
+  <p class="tldr">MFH 5+ units, $350K–$1.4M, DOM 90+. DSCR loans fail at 7%+ rates, so seller finance is the only path. Every $50K+ assignment fee Richard has seen comes from this tier.
+</p>
+</div>
+
+<div class="section">
+  <h2>② When to use</h2>
+  <div class="when">
+    <ul>
+      <li>Units: 5+ (multifamily required — FHA fails on 5+)</li><li>Price: $350K–$1.4M</li><li>DOM: 90+ days (the agent is now motivated)</li><li>Standard offer (asking + 10%, 10% down, 0%, 30yr) cash-flows positive</li><li>Down: 10% strict — never higher (kills end-buyer CoC)</li>
+    </ul>
+  </div>
+</div>
+
+
+<div class="section">
+  <h2>③ How to run this play (step-by-step)</h2>
+  <ol class="how-to">
+    
+    <li>
+      <strong>Confirm the listing qualifies</strong>
+      <div class="step-detail">From the morning briefing, verify: unit count ≥ 5, price $350K-$1.4M, DOM ≥ 90 days. If any miss, this isn't Tier A.</div>
+      <a class="step-link" href="https://buyboxcartel.com/vip/lightning-leads" target="_blank" rel="noopener">Open BBC listing ↗</a>
+    </li>
+    
+    <li>
+      <strong>Run the numbers in Offer Oven</strong>
+      <div class="step-detail">Input: <code>Purchase Price = asking + 10%</code>, <code>Down = 10% of offer</code>, <code>Interest = 0%</code>, <code>Term = 30 yr</code>, <code>Balloon = 5 yr</code>. Confirm Monthly CF > $200.</div>
+      <a class="step-link" href="https://www.hmhw.group/tools/offer-oven" target="_blank" rel="noopener">Open Offer Oven ↗</a>
+    </li>
+    
+    <li>
+      <strong>Find the agent's direct number</strong>
+      <div class="step-detail">Zillow listing → click agent name → brokerage page. Use the agent's cell, not the brokerage main line.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Dial once — leave the voicemail (script below)</strong>
+      <div class="step-detail">Don't expect an answer on first call. The voicemail is the pitch — it front-loads the math so the agent decides whether to engage before calling back.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Wait 24-48 hours for callback</strong>
+      <div class="step-detail">If no callback after 48 hrs, dial again. Don't text yet — first contact is voice.</div>
+      
+    </li>
+    
+    <li>
+      <strong>When they call back — run the live call script (below)</strong>
+      <div class="step-detail">Walk through DSCR math: their P&I at 7.25% vs. rent. Make them see why no investor can buy this conventionally.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Handle objections inline</strong>
+      <div class="step-detail">When the agent pushes back, jump to the matching rebuttal below. Don't argue — read the rebuttal calmly.</div>
+      
+    </li>
+    
+    <li>
+      <strong>On verbal yes → generate contract</strong>
+      <div class="step-detail">Tell Claude Code: <code>verbal yes on [address]</code>. You'll get the BBC data entry block + addendum language.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Submit the deal</strong>
+      <div class="step-detail">BBC Marketplace (auto-dispo to BBC buyers) + Grand In Taylor Creative Form. For non-BBC buyers, also: <code>generate buyer one-pager for [address]</code>.</div>
+      <a class="step-link" href="https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78" target="_blank" rel="noopener">Grand In Taylor Creative Form ↗</a>
+    </li>
+    
+  </ol>
+</div>
+
+
+
+<div class="section">
+  <h2>④ The voicemail</h2>
+  <div class="script-box" id="vm-script">"Hey [agent name], my name's Tim. I'm calling you about [address] in [city]. 
+Real interested in this one — I've got some capital gains I need to pour 
+into a new investment.
+
+I'm wondering if your client's doing seller finance. I saw this has been 
+on market for [DOM] days — that's probably because interest rates are 
+higher than they've been in 20-25 years. Nobody can cash flow with the 
+loans that are available, and at the same time, nobody has [price] in 
+cash laying around they want to send.
+
+So what I do is I offer people over their asking price over a 5-year 
+period. I'd be your end buyer on this one — try to get you [asking +10%] 
+over a 5-year period of time. We do a multi-six-figure down payment 
+while giving your client the majority of what this property makes as 
+a rental per month.
+
+I wanted to give you a call and see what the chances are of your client 
+wanting to avoid the capital gains tax they'd pay if they sold for cash, 
+and do some seller financing where they're going to make hundreds of 
+thousands more.
+
+I'll also shoot you a text. Thanks so much. Bye."</div>
+  <div class="script-actions">
+    <button class="copy-btn" data-target="vm-script">📋 Copy script</button>
+    <span class="audio-meta">🎧 Hear Richard say it (1:57)</span>
+  </div>
+  <audio src="https://bkmfdmlzkumnsytpztio.supabase.co/storage/v1/object/public/call-recordings/3d3cf27d-39be-4078-813b-1edb74d381da/1777608318360-4.mp3" preload="none" controls></audio>
+  <p class="audio-meta" style="margin-top:6px;">Source: Voicemail - Seller Finance for Multi Family</p>
+</div>
+
+
+
+<div class="section">
+  <h2>⑤ The live call (when they pick up)</h2>
+  <div class="script-box" id="live-script">"Hey [agent], it's Tim — calling about [address]. You have a moment?
+
+[Yes]
+
+Great. So I've run the numbers on this one and I want to walk you through 
+exactly what I'm seeing — because I think it explains why this property 
+has been sitting for [DOM] days.
+
+This is a [N]-unit property. Anyone buying this is an investor — you can't 
+get an FHA loan on 5+ units, so retail buyers aren't even in the conversation. 
+Investors need a DSCR loan, and at today's rates — about 7.25% — the math 
+just doesn't work.
+
+The property rents for around [gross rent]. Your client's asking [price]. 
+At 80% LTV, 7.25%, 30yr — I'm looking at roughly [P&I]/month just on the 
+loan. Add taxes and insurance, you're at [PITI]. After vacancy and 
+management, you're netting negative every month. The lender hands me 
+a big red X — DSCR doesn't clear.
+
+So the way this gets done — really the only way right now — is if your 
+seller considers taking payments on their equity over time.
+
+What that looks like: we'd offer [asking + 10%]. Multi-six-figure down 
+payment up front. The balance at 0% amortized over 30 years, with a 
+5-year balloon. Your seller gets their full asking plus a premium, 
+their commission paid up front, and the majority of what this rents 
+for hitting their account every month for 5 years.
+
+Was the seller hoping for a house-hacker? Because any investor buying 
+this is going to hit the same DSCR wall I just described. Not sure I'd 
+be the best fit for you here, but I saw the days on market and wanted 
+to give you a call."
+
+[Pause. Let it land.]</div>
+  <div class="script-actions">
+    <button class="copy-btn" data-target="live-script">📋 Copy script</button>
+    <span class="audio-meta">🎧 Full call example (15:16)</span>
+  </div>
+  <audio src="https://bkmfdmlzkumnsytpztio.supabase.co/storage/v1/object/public/call-recordings/3d3cf27d-39be-4078-813b-1edb74d381da/1777608397153-33.mp3" preload="none" controls></audio>
+  <p class="audio-meta" style="margin-top:6px;">Source: Pitch 9 - 2.1m Dollar Deal</p>
+</div>
+
+
+
+
+
+<div class="section">
+  <h2>⑦ Top objections for this play</h2>
+  
+  <details>
+    <summary>"Seller wants cash only"</summary>
+    <div class="detail-body">
+      <div class="script-box" id="obj-1">"I totally understand — and that's exactly what a lot of sellers say 
+when they haven't been walked through the math yet.
+
+The question is: what's more important to them — how they get paid, 
+or what they get paid? Because with this structure, they get [asking + 10%] 
+plus a multi-five or multi-six-figure down payment up front to use 
+toward their next property. That's more than any cash buyer is going 
+to offer right now.
+
+Would it be worth a 10-minute conversation so they can hear the full 
+picture and make an informed decision?"</div>
+      <div class="script-actions">
+        <button class="copy-btn" data-target="obj-1">📋 Copy rebuttal</button>
+      </div>
+    </div>
+  </details>
+  
+  <details>
+    <summary>"We have other offers"</summary>
+    <div class="detail-body">
+      <div class="script-box" id="obj-2">"That's great to hear — I hope one of them works out for your seller.
+
+Out of curiosity, are they conventional? Because I'd love to know how 
+they're clearing DSCR at 7.25% on this one. If they're house-hackers, 
+that changes things — but if they're investors, they're going to hit 
+the same wall.
+
+Our offer is [price + 10%] — above asking. The structure's different, 
+but the number isn't."</div>
+      <div class="script-actions">
+        <button class="copy-btn" data-target="obj-2">📋 Copy rebuttal</button>
+      </div>
+    </div>
+  </details>
+  
+  <details>
+    <summary>"What if you stop making payments and walk away?"</summary>
+    <div class="detail-body">
+      <div class="script-box" id="obj-3">"You're right to ask about that — the quitclaim deed is actually 
+structured to protect YOU, not me. If we miss payments, the property 
+reverts back to your client. Meanwhile, they've kept the down payment 
+and every monthly payment we've made up to that point.
+
+We're not walking away — we have skin in the game. The down payment 
+is real money. The monthly payments come from the tenants we place. 
+This isn't a 'buy nothing down and disappear' scheme — your client 
+keeps the property as collateral, and we're underwriting carefully 
+because if we lose the property, we lose our down payment too."</div>
+      <div class="script-actions">
+        <button class="copy-btn" data-target="obj-3">📋 Copy rebuttal</button>
+      </div>
+    </div>
+  </details>
+  
+</div>
+
+
+
+<div class="section">
+  <h2>⑧ Counter-offer rules</h2>
+  
+  <div class="counter-rule">Seller wants more down → CANNOT exceed 10% for Tier A (kills end-buyer CoC). Push back firmly.</div>
+  
+  <div class="counter-rule">Seller wants interest → drop price to asking. Never give both premium AND rate.</div>
+  
+  <div class="counter-rule">Balloon < 5 years → push back. 7 years is ideal; 5 is the floor.</div>
+  
+  <div class="counter-rule">Seller wants full asking (no premium) → run numbers with 0% at asking. If CF works, accept; if not, reframe.</div>
+  
+</div>
+
+
+
+
+
+<div class="section">
+  <h2>⑨ Sources (go deeper)</h2>
+  
+  <a class="source-link" href="https://www.hmhw.group/course/e258d5b1-57d8-41cc-a2c7-c4268345fcf6" target="_blank" rel="noopener">
+    <span class="icon">📚</span>
+    <span class="label">HMHW Seller Finance Course (full ~1h video)</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+  <a class="source-link" href="https://www.hmhw.group/education" target="_blank" rel="noopener">
+    <span class="icon">🎧</span>
+    <span class="label">All MFH pitch recordings (~12 calls)</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+  <a class="source-link" href="https://www.hmhw.group/tools/offer-oven" target="_blank" rel="noopener">
+    <span class="icon">🧮</span>
+    <span class="label">Run numbers in Offer Oven</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+  <a class="source-link" href="https://www.hmhw.group/tools/seller-finance" target="_blank" rel="noopener">
+    <span class="icon">🧮</span>
+    <span class="label">Seller Finance Calculator</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+  <a class="source-link" href="https://buyboxcartel.com/vip/lightning-leads" target="_blank" rel="noopener">
+    <span class="icon">🏦</span>
+    <span class="label">Find more Tier A deals in BBC Lightning Leads</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+</div>
+
+
+
+  </main>
+  <nav class="bottom">
+    <a href="/">Home</a> ·
+    <a href="/strategy/tier-a-multifamily-checkmate.html">Tier A</a> ·
+    <a href="/strategy/tier-b-cheap-sfh-stale.html">Tier B</a> ·
+    <a href="/strategy/tier-c-cash-buyer.html">Tier C</a> ·
+    <a href="/strategy/objections.html">Objections</a> ·
+    <a href="/strategy/contract-close.html">Contract</a>
+  </nav>
+  <script>
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const target = document.getElementById(btn.dataset.target);
+        if (!target) return;
+        try {
+          await navigator.clipboard.writeText(target.innerText);
+          const orig = btn.textContent;
+          btn.textContent = '✓ Copied';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+        } catch (e) {
+          // Fallback: select text
+          const range = document.createRange();
+          range.selectNode(target);
+          window.getSelection().removeAllRanges();
+          window.getSelection().addRange(range);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

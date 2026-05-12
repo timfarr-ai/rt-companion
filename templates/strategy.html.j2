@@ -1,0 +1,123 @@
+{% extends "base.html.j2" %}
+{% block content %}
+
+<div class="section">
+  <h2>① TL;DR</h2>
+  <p class="tldr">{{ strategy.tldr }}</p>
+</div>
+
+<div class="section">
+  <h2>② When to use</h2>
+  <div class="when">
+    <ul>
+      {% for w in strategy.when %}<li>{{ w }}</li>{% endfor %}
+    </ul>
+  </div>
+</div>
+
+{% if strategy.how_to %}
+<div class="section">
+  <h2>③ How to run this play (step-by-step)</h2>
+  <ol class="how-to">
+    {% for step in strategy.how_to %}
+    <li>
+      <strong>{{ step.title }}</strong>
+      {% if step.detail %}<div class="step-detail">{{ step.detail | safe }}</div>{% endif %}
+      {% if step.link %}<a class="step-link" href="{{ step.link.url }}" {% if step.link.external %}target="_blank" rel="noopener"{% endif %}>{{ step.link.label }}{% if step.link.external %} ↗{% endif %}</a>{% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</div>
+{% endif %}
+
+{% if strategy.voicemail %}
+<div class="section">
+  <h2>④ The voicemail</h2>
+  <div class="script-box" id="vm-script">{{ strategy.voicemail.script_text }}</div>
+  <div class="script-actions">
+    <button class="copy-btn" data-target="vm-script">📋 Copy script</button>
+    <span class="audio-meta">🎧 Hear Richard say it ({{ strategy.voicemail.duration }})</span>
+  </div>
+  <audio src="{{ strategy.voicemail.audio_url }}" preload="none" controls></audio>
+  <p class="audio-meta" style="margin-top:6px;">Source: {{ strategy.voicemail.audio_title }}</p>
+</div>
+{% endif %}
+
+{% if strategy.live_call %}
+<div class="section">
+  <h2>⑤ The live call (when they pick up)</h2>
+  <div class="script-box" id="live-script">{{ strategy.live_call.script_text }}</div>
+  <div class="script-actions">
+    <button class="copy-btn" data-target="live-script">📋 Copy script</button>
+    <span class="audio-meta">🎧 Full call example ({{ strategy.live_call.duration }})</span>
+  </div>
+  <audio src="{{ strategy.live_call.audio_url }}" preload="none" controls></audio>
+  <p class="audio-meta" style="margin-top:6px;">Source: {{ strategy.live_call.audio_title }}</p>
+</div>
+{% endif %}
+
+{% if strategy.alt_script %}
+<div class="section">
+  <h2>{{ strategy.alt_script.heading_number or '⑥' }} {{ strategy.alt_script.heading }}</h2>
+  <div class="script-box" id="alt-script">{{ strategy.alt_script.script_text }}</div>
+  <div class="script-actions">
+    <button class="copy-btn" data-target="alt-script">📋 Copy script</button>
+    {% if strategy.alt_script.duration %}<span class="audio-meta">🎧 {{ strategy.alt_script.duration }}</span>{% endif %}
+  </div>
+  {% if strategy.alt_script.audio_url %}
+  <audio src="{{ strategy.alt_script.audio_url }}" preload="none" controls></audio>
+  <p class="audio-meta" style="margin-top:6px;">Source: {{ strategy.alt_script.audio_title }}</p>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if strategy.top_objections %}
+<div class="section">
+  <h2>⑦ Top objections for this play</h2>
+  {% for obj in strategy.top_objections %}
+  <details>
+    <summary>{{ obj.title }}</summary>
+    <div class="detail-body">
+      <div class="script-box" id="obj-{{ loop.index }}">{{ obj.rebuttal_text }}</div>
+      <div class="script-actions">
+        <button class="copy-btn" data-target="obj-{{ loop.index }}">📋 Copy rebuttal</button>
+      </div>
+    </div>
+  </details>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if strategy.counter_rules %}
+<div class="section">
+  <h2>⑧ Counter-offer rules</h2>
+  {% for rule in strategy.counter_rules %}
+  <div class="counter-rule">{{ rule.text }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if strategy.contract_addendum %}
+<div class="section">
+  <h2>Contract addendum language</h2>
+  <div class="script-box" id="addendum">{{ strategy.contract_addendum }}</div>
+  <div class="script-actions">
+    <button class="copy-btn" data-target="addendum">📋 Copy</button>
+  </div>
+</div>
+{% endif %}
+
+{% if strategy.sources %}
+<div class="section">
+  <h2>⑨ Sources (go deeper)</h2>
+  {% for src in strategy.sources %}
+  <a class="source-link" href="{{ src.url }}" target="_blank" rel="noopener">
+    <span class="icon">{{ src.icon }}</span>
+    <span class="label">{{ src.label }}</span>
+    <span class="arrow">↗</span>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

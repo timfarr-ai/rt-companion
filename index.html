@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Home — RT Deal Desk</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-2: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --green: #56d364;
+      --amber: #d29922;
+      --red: #f85149;
+      --tier-a: #ff7b72;
+      --tier-b: #d2a8ff;
+      --tier-c: #56d364;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      -webkit-text-size-adjust: 100%;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:active { opacity: 0.7; }
+    header {
+      position: sticky; top: 0;
+      background: rgba(13, 17, 23, 0.95);
+      backdrop-filter: saturate(180%) blur(10px);
+      -webkit-backdrop-filter: saturate(180%) blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+      z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+    }
+    header h1 { margin: 0; font-size: 18px; font-weight: 600; }
+    header .back { font-size: 14px; color: var(--accent); }
+    main { padding: 16px; max-width: 720px; margin: 0 auto; }
+    .section { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; }
+    .section h2 { margin: 0 0 10px 0; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .tldr { font-size: 17px; line-height: 1.45; color: var(--text); }
+    .when ul { margin: 0; padding-left: 18px; }
+    .when li { margin-bottom: 4px; color: var(--text); }
+    ol.how-to { padding-left: 22px; margin: 0; counter-reset: step; }
+    ol.how-to li {
+      margin-bottom: 12px;
+      padding-left: 4px;
+      line-height: 1.5;
+    }
+    ol.how-to li strong { display: block; color: var(--text); font-size: 15px; font-weight: 600; }
+    .step-detail { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .step-detail code { background: var(--panel-2); padding: 1px 6px; border-radius: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--accent); }
+    .step-link {
+      display: inline-block; margin-top: 6px; font-size: 13px;
+      padding: 5px 10px; background: var(--panel-2); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--accent); text-decoration: none;
+    }
+    .step-link:active { opacity: 0.7; }
+    .script-box {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 14px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-top: 8px;
+    }
+    .script-actions { display: flex; gap: 8px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
+    .copy-btn {
+      background: var(--accent);
+      color: #0d1117;
+      border: 0;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .copy-btn:active { opacity: 0.7; }
+    .copy-btn.copied { background: var(--green); color: #0d1117; }
+    .audio-meta { font-size: 13px; color: var(--muted); }
+    audio { width: 100%; margin-top: 6px; }
+    audio::-webkit-media-controls-panel { background: var(--panel-2); }
+    details { margin-bottom: 8px; }
+    details summary {
+      cursor: pointer;
+      padding: 10px 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-weight: 500;
+      list-style: none;
+    }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::before { content: "▸ "; color: var(--muted); }
+    details[open] summary::before { content: "▾ "; }
+    details[open] summary { border-radius: 8px 8px 0 0; border-bottom: 0; }
+    details .detail-body {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-top: 0;
+      border-radius: 0 0 8px 8px;
+      padding: 12px;
+    }
+    .source-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .source-link .icon { font-size: 20px; flex-shrink: 0; }
+    .source-link .label { flex: 1; }
+    .source-link .arrow { color: var(--muted); }
+    .counter-rule {
+      padding: 10px 12px;
+      background: var(--panel-2);
+      border-left: 3px solid var(--amber);
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    .tier-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .tier-a { background: rgba(255,123,114,0.15); color: var(--tier-a); }
+    .tier-b { background: rgba(210,168,255,0.15); color: var(--tier-b); }
+    .tier-c { background: rgba(86,211,100,0.15); color: var(--tier-c); }
+    nav.bottom { padding: 8px 0 20px; text-align: center; color: var(--muted); font-size: 13px; }
+    nav.bottom a { color: var(--muted); margin: 0 8px; }
+    .briefing-wrap iframe {
+      width: 100%; border: 0; border-radius: 8px;
+      min-height: 400px; background: var(--panel-2);
+    }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .pill {
+      display: inline-block; padding: 4px 10px;
+      background: var(--panel-2); border: 1px solid var(--border);
+      border-radius: 14px; font-size: 13px; color: var(--muted);
+    }
+    @media (min-width: 720px) {
+      body { font-size: 17px; }
+      main { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span style="width:40px"></span>
+    <h1>RT Deal Desk</h1>
+    <a href="/" class="back" style="text-align:right;">🏠</a>
+  </header>
+  <main>
+    
+
+<div class="section">
+  <h2>📋 Today's Briefing</h2>
+  <div class="briefing-wrap">
+    <iframe src="/rt-companion/briefings/latest.html" loading="lazy"></iframe>
+  </div>
+  <p style="margin-top:8px; font-size:13px;">
+    Briefing publishes weekday 8am AEST.
+    <a href="/rt-companion/briefings/" style="margin-left:6px;">Past briefings →</a>
+  </p>
+</div>
+
+<div class="section">
+  <h2>Strategy Playbooks</h2>
+  
+  <a class="source-link" href="/rt-companion/strategy/tier-a-multifamily-checkmate.html">
+    <span class="icon">🎯</span>
+    <span class="label">Tier A — Multifamily Checkmate</span>
+    <span class="arrow">›</span>
+  </a>
+  
+  <a class="source-link" href="/rt-companion/strategy/tier-b-cheap-sfh-stale.html">
+    <span class="icon">🏘️</span>
+    <span class="label">Tier B — Cheap SFH Stale</span>
+    <span class="arrow">›</span>
+  </a>
+  
+  <a class="source-link" href="/rt-companion/strategy/tier-c-cash-buyer.html">
+    <span class="icon">💵</span>
+    <span class="label">Tier C — Cash Buyer (no seller finance)</span>
+    <span class="arrow">›</span>
+  </a>
+  
+  <a class="source-link" href="/rt-companion/strategy/objections.html">
+    <span class="icon">🛡️</span>
+    <span class="label">Objection Handling (cross-strategy)</span>
+    <span class="arrow">›</span>
+  </a>
+  
+  <a class="source-link" href="/rt-companion/strategy/contract-close.html">
+    <span class="icon">📝</span>
+    <span class="label">Contract &amp; Close</span>
+    <span class="arrow">›</span>
+  </a>
+  
+</div>
+
+<div class="section">
+  <h2>External Tools</h2>
+  <a class="source-link" href="https://buyboxcartel.com/vip/dashboard" target="_blank" rel="noopener">
+    <span class="icon">🏦</span><span class="label">BBC Dashboard</span><span class="arrow">↗</span>
+  </a>
+  <a class="source-link" href="https://buyboxcartel.com/vip/inventory" target="_blank" rel="noopener">
+    <span class="icon">📊</span><span class="label">BBC Inventory (pipeline)</span><span class="arrow">↗</span>
+  </a>
+  <a class="source-link" href="https://buyboxcartel.com/vip/marketplace" target="_blank" rel="noopener">
+    <span class="icon">📤</span><span class="label">BBC Marketplace (dispo)</span><span class="arrow">↗</span>
+  </a>
+  <a class="source-link" href="https://www.hmhw.group/tools" target="_blank" rel="noopener">
+    <span class="icon">🧮</span><span class="label">HMHW Calculators (incl. Offer Oven)</span><span class="arrow">↗</span>
+  </a>
+  <a class="source-link" href="https://www.hmhw.group/education" target="_blank" rel="noopener">
+    <span class="icon">🎧</span><span class="label">HMHW Full Recordings (82)</span><span class="arrow">↗</span>
+  </a>
+  <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78" target="_blank" rel="noopener">
+    <span class="icon">📋</span><span class="label">Grand In Taylor — Creative Form</span><span class="arrow">↗</span>
+  </a>
+  <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587" target="_blank" rel="noopener">
+    <span class="icon">📋</span><span class="label">Grand In Taylor — Cash Alt Form</span><span class="arrow">↗</span>
+  </a>
+  <a class="source-link" href="https://claude.ai/code/routines/trig_01DXdZ22PfZsyJjmTkiWPanC" target="_blank" rel="noopener">
+    <span class="icon">🤖</span><span class="label">Claude routine runs (briefing transcript)</span><span class="arrow">↗</span>
+  </a>
+</div>
+
+
+  </main>
+  <nav class="bottom">
+    <a href="/">Home</a> ·
+    <a href="/strategy/tier-a-multifamily-checkmate.html">Tier A</a> ·
+    <a href="/strategy/tier-b-cheap-sfh-stale.html">Tier B</a> ·
+    <a href="/strategy/tier-c-cash-buyer.html">Tier C</a> ·
+    <a href="/strategy/objections.html">Objections</a> ·
+    <a href="/strategy/contract-close.html">Contract</a>
+  </nav>
+  <script>
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const target = document.getElementById(btn.dataset.target);
+        if (!target) return;
+        try {
+          await navigator.clipboard.writeText(target.innerText);
+          const orig = btn.textContent;
+          btn.textContent = '✓ Copied';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+        } catch (e) {
+          // Fallback: select text
+          const range = document.createRange();
+          range.selectNode(target);
+          window.getSelection().removeAllRanges();
+          window.getSelection().addRange(range);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

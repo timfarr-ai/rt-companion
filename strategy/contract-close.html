@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Contract & Close — RT Deal Desk</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-2: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --green: #56d364;
+      --amber: #d29922;
+      --red: #f85149;
+      --tier-a: #ff7b72;
+      --tier-b: #d2a8ff;
+      --tier-c: #56d364;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      -webkit-text-size-adjust: 100%;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:active { opacity: 0.7; }
+    header {
+      position: sticky; top: 0;
+      background: rgba(13, 17, 23, 0.95);
+      backdrop-filter: saturate(180%) blur(10px);
+      -webkit-backdrop-filter: saturate(180%) blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+      z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+    }
+    header h1 { margin: 0; font-size: 18px; font-weight: 600; }
+    header .back { font-size: 14px; color: var(--accent); }
+    main { padding: 16px; max-width: 720px; margin: 0 auto; }
+    .section { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; }
+    .section h2 { margin: 0 0 10px 0; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .tldr { font-size: 17px; line-height: 1.45; color: var(--text); }
+    .when ul { margin: 0; padding-left: 18px; }
+    .when li { margin-bottom: 4px; color: var(--text); }
+    ol.how-to { padding-left: 22px; margin: 0; counter-reset: step; }
+    ol.how-to li {
+      margin-bottom: 12px;
+      padding-left: 4px;
+      line-height: 1.5;
+    }
+    ol.how-to li strong { display: block; color: var(--text); font-size: 15px; font-weight: 600; }
+    .step-detail { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .step-detail code { background: var(--panel-2); padding: 1px 6px; border-radius: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--accent); }
+    .step-link {
+      display: inline-block; margin-top: 6px; font-size: 13px;
+      padding: 5px 10px; background: var(--panel-2); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--accent); text-decoration: none;
+    }
+    .step-link:active { opacity: 0.7; }
+    .script-box {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 14px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-top: 8px;
+    }
+    .script-actions { display: flex; gap: 8px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
+    .copy-btn {
+      background: var(--accent);
+      color: #0d1117;
+      border: 0;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .copy-btn:active { opacity: 0.7; }
+    .copy-btn.copied { background: var(--green); color: #0d1117; }
+    .audio-meta { font-size: 13px; color: var(--muted); }
+    audio { width: 100%; margin-top: 6px; }
+    audio::-webkit-media-controls-panel { background: var(--panel-2); }
+    details { margin-bottom: 8px; }
+    details summary {
+      cursor: pointer;
+      padding: 10px 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-weight: 500;
+      list-style: none;
+    }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::before { content: "▸ "; color: var(--muted); }
+    details[open] summary::before { content: "▾ "; }
+    details[open] summary { border-radius: 8px 8px 0 0; border-bottom: 0; }
+    details .detail-body {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-top: 0;
+      border-radius: 0 0 8px 8px;
+      padding: 12px;
+    }
+    .source-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .source-link .icon { font-size: 20px; flex-shrink: 0; }
+    .source-link .label { flex: 1; }
+    .source-link .arrow { color: var(--muted); }
+    .counter-rule {
+      padding: 10px 12px;
+      background: var(--panel-2);
+      border-left: 3px solid var(--amber);
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    .tier-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .tier-a { background: rgba(255,123,114,0.15); color: var(--tier-a); }
+    .tier-b { background: rgba(210,168,255,0.15); color: var(--tier-b); }
+    .tier-c { background: rgba(86,211,100,0.15); color: var(--tier-c); }
+    nav.bottom { padding: 8px 0 20px; text-align: center; color: var(--muted); font-size: 13px; }
+    nav.bottom a { color: var(--muted); margin: 0 8px; }
+    .briefing-wrap iframe {
+      width: 100%; border: 0; border-radius: 8px;
+      min-height: 400px; background: var(--panel-2);
+    }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .pill {
+      display: inline-block; padding: 4px 10px;
+      background: var(--panel-2); border: 1px solid var(--border);
+      border-radius: 14px; font-size: 13px; color: var(--muted);
+    }
+    @media (min-width: 720px) {
+      body { font-size: 17px; }
+      main { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/rt-companion/" class="back">‹ Back</a>
+    <h1>📝 Contract & Close</h1>
+    <a href="/" class="back" style="text-align:right;">🏠</a>
+  </header>
+  <main>
+    
+
+<div class="section">
+  <h2>① TL;DR</h2>
+  <p class="tldr">Once verbal yes is in, the contract addendum has very specific language. EMD is $1,000, submitted AFTER inspection. Inspection period is 7-10 business days.
+</p>
+</div>
+
+<div class="section">
+  <h2>② When to use</h2>
+  <div class="when">
+    <ul>
+      <li>Agent or seller agrees verbally to terms</li><li>Ready to send contract</li><li>Trigger Claude Code: "verbal yes on [address]" to get contract parameters</li>
+    </ul>
+  </div>
+</div>
+
+
+<div class="section">
+  <h2>③ How to run this play (step-by-step)</h2>
+  <ol class="how-to">
+    
+    <li>
+      <strong>Generate contract parameters in Claude Code</strong>
+      <div class="step-detail">On Mac: <code>verbal yes on [address]</code>. Returns BBC data entry block + addendum language + buyer disposition summary.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Enter in BBC → Create Offer</strong>
+      <div class="step-detail">Open BBC Inventory → Create Offer button. Fill: Purchase Price, Seller Carryback, Down, Interest Rate, Amortization (30yr), Balloon (5-7yr), EMD ($1K), Inspection (10 biz days), Closing Date (30 days).</div>
+      <a class="step-link" href="https://buyboxcartel.com/vip/inventory" target="_blank" rel="noopener">BBC Inventory ↗</a>
+    </li>
+    
+    <li>
+      <strong>Paste the addendum language</strong>
+      <div class="step-detail">Copy from below into the BBC contract template. Customize address and amounts.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Send to agent for execution</strong>
+      <div class="step-detail">BBC handles e-signature. Agent forwards to seller. Expect 24-72 hours for return.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Once executed → start dispo immediately</strong>
+      <div class="step-detail">Don't wait for inspection to begin marketing. Time matters.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Submit BBC Marketplace + Grand In Taylor</strong>
+      <div class="step-detail">BBC Marketplace auto-dispos to BBC's buyer network. Grand In Taylor Creative form taps Richard's wider buyer pool.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Generate buyer one-pager for out-of-network</strong>
+      <div class="step-detail">Claude Code: <code>generate buyer one-pager for [address]</code>. Get a shareable URL you can DM to Instagram/FB/email buyers.</div>
+      
+    </li>
+    
+    <li>
+      <strong>EMD timing — DO NOT submit early</strong>
+      <div class="step-detail">EMD ($1,000) is submitted ONLY AFTER inspection period ends. Inspection is 10 biz days (7 minimum). Richard's company often covers EMD for assigned buyers.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Close in 30 days from execution</strong>
+      <div class="step-detail">Title transfer happens at closing. If using Land Trust structure, Buyer is named as beneficiary.</div>
+      
+    </li>
+    
+  </ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<div class="section">
+  <h2>⑧ Counter-offer rules</h2>
+  
+  <div class="counter-rule">EMD: $1,000, submitted AFTER inspection period ends (not at execution).</div>
+  
+  <div class="counter-rule">Inspection: 10 business days preferred, 7 minimum. Richard's company often covers EMD.</div>
+  
+  <div class="counter-rule">Closing: 30 days from execution.</div>
+  
+  <div class="counter-rule">Assignment fee: $5K standard. Track separately from purchase price.</div>
+  
+</div>
+
+
+
+<div class="section">
+  <h2>Contract addendum language</h2>
+  <div class="script-box" id="addendum">Seller agrees to carry a note for $[Loan Amount].
+Interest Rate: [X]% per annum. (or "0% interest.")
+Loan amortized over 30 years.
+Balloon Payment due [X] years from date of closing. (omit if none)
+Contract and all rights herein are assignable to Buyer's assignee.
+Title to transfer into a Land Trust at closing, with Buyer named as beneficiary. (if applicable)
+</div>
+  <div class="script-actions">
+    <button class="copy-btn" data-target="addendum">📋 Copy</button>
+  </div>
+</div>
+
+
+
+<div class="section">
+  <h2>⑨ Sources (go deeper)</h2>
+  
+  <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78" target="_blank" rel="noopener">
+    <span class="icon">📤</span>
+    <span class="label">Grand In Taylor Creative Form (submit deal)</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+  <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587" target="_blank" rel="noopener">
+    <span class="icon">📤</span>
+    <span class="label">Grand In Taylor Cash Alt Form</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+  <a class="source-link" href="https://buyboxcartel.com/vip/marketplace" target="_blank" rel="noopener">
+    <span class="icon">🏦</span>
+    <span class="label">BBC Marketplace (auto-dispo to BBC buyers)</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+  <a class="source-link" href="https://buyboxcartel.com/vip/inventory" target="_blank" rel="noopener">
+    <span class="icon">🏦</span>
+    <span class="label">BBC Inventory (pipeline tracker)</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+</div>
+
+
+
+  </main>
+  <nav class="bottom">
+    <a href="/">Home</a> ·
+    <a href="/strategy/tier-a-multifamily-checkmate.html">Tier A</a> ·
+    <a href="/strategy/tier-b-cheap-sfh-stale.html">Tier B</a> ·
+    <a href="/strategy/tier-c-cash-buyer.html">Tier C</a> ·
+    <a href="/strategy/objections.html">Objections</a> ·
+    <a href="/strategy/contract-close.html">Contract</a>
+  </nav>
+  <script>
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const target = document.getElementById(btn.dataset.target);
+        if (!target) return;
+        try {
+          await navigator.clipboard.writeText(target.innerText);
+          const orig = btn.textContent;
+          btn.textContent = '✓ Copied';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+        } catch (e) {
+          // Fallback: select text
+          const range = document.createRange();
+          range.selectNode(target);
+          window.getSelection().removeAllRanges();
+          window.getSelection().addRange(range);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

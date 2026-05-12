@@ -1,0 +1,339 @@
+# Single source of truth for what appears on each strategy page.
+# publish.py reads this + outreach-scripts.md + deal-criteria.md and renders strategy HTML.
+
+# Supabase storage base for call recordings (public, no auth)
+audio_base: "https://bkmfdmlzkumnsytpztio.supabase.co/storage/v1/object/public/call-recordings"
+
+# External URLs (link out, never rehost)
+sources_lib:
+  hmhw_sf_course: "https://www.hmhw.group/course/e258d5b1-57d8-41cc-a2c7-c4268345fcf6"
+  hmhw_cash_course: "https://www.hmhw.group/course/096ebb43-7285-459a-90a7-20686dffb942"
+  hmhw_mt_course: "https://www.hmhw.group/course/4053e4c6-a9bf-4dfb-bb3d-03d765b175bd"
+  hmhw_education: "https://www.hmhw.group/education"
+  hmhw_tools: "https://www.hmhw.group/tools"
+  hmhw_offer_oven: "https://www.hmhw.group/tools/offer-oven"
+  hmhw_sf_calc: "https://www.hmhw.group/tools/seller-finance"
+  hmhw_mt_calc: "https://www.hmhw.group/tools/mortgage-takeover"
+  hmhw_section8_calc: "https://www.hmhw.group/tools/section-8"
+  hmhw_fnf_calc: "https://www.hmhw.group/tools/fix-and-flip"
+  bbc_lightning: "https://buyboxcartel.com/vip/lightning-leads"
+  bbc_marketplace: "https://buyboxcartel.com/vip/marketplace"
+  bbc_buyerslist: "https://buyboxcartel.com/vip/buyerslist"
+  bbc_dealchecker: "https://buyboxcartel.com/vip/deal-checker"
+  bbc_inventory: "https://buyboxcartel.com/vip/inventory"
+  git_creative_form: "https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78"
+  git_cash_form: "https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587"
+
+strategies:
+
+  # ─────────────────────────────────────────────────────────────────
+  - slug: tier-a-multifamily-checkmate
+    emoji: "🎯"
+    title: "Tier A — Multifamily Checkmate"
+    tier_badge: "tier-a"
+    tldr: >
+      MFH 5+ units, $350K–$1.4M, DOM 90+. DSCR loans fail at 7%+ rates,
+      so seller finance is the only path. Every $50K+ assignment fee
+      Richard has seen comes from this tier.
+    when:
+      - "Units: 5+ (multifamily required — FHA fails on 5+)"
+      - "Price: $350K–$1.4M"
+      - "DOM: 90+ days (the agent is now motivated)"
+      - "Standard offer (asking + 10%, 10% down, 0%, 30yr) cash-flows positive"
+      - "Down: 10% strict — never higher (kills end-buyer CoC)"
+    how_to:
+      - title: "Confirm the listing qualifies"
+        detail: "From the morning briefing, verify: unit count ≥ 5, price $350K-$1.4M, DOM ≥ 90 days. If any miss, this isn't Tier A."
+        link: { label: "Open BBC listing", url: "https://buyboxcartel.com/vip/lightning-leads", external: true }
+      - title: "Run the numbers in Offer Oven"
+        detail: "Input: <code>Purchase Price = asking + 10%</code>, <code>Down = 10% of offer</code>, <code>Interest = 0%</code>, <code>Term = 30 yr</code>, <code>Balloon = 5 yr</code>. Confirm Monthly CF > $200."
+        link: { label: "Open Offer Oven", url: "https://www.hmhw.group/tools/offer-oven", external: true }
+      - title: "Find the agent's direct number"
+        detail: "Zillow listing → click agent name → brokerage page. Use the agent's cell, not the brokerage main line."
+      - title: "Dial once — leave the voicemail (script below)"
+        detail: "Don't expect an answer on first call. The voicemail is the pitch — it front-loads the math so the agent decides whether to engage before calling back."
+      - title: "Wait 24-48 hours for callback"
+        detail: "If no callback after 48 hrs, dial again. Don't text yet — first contact is voice."
+      - title: "When they call back — run the live call script (below)"
+        detail: "Walk through DSCR math: their P&I at 7.25% vs. rent. Make them see why no investor can buy this conventionally."
+      - title: "Handle objections inline"
+        detail: "When the agent pushes back, jump to the matching rebuttal below. Don't argue — read the rebuttal calmly."
+      - title: "On verbal yes → generate contract"
+        detail: "Tell Claude Code: <code>verbal yes on [address]</code>. You'll get the BBC data entry block + addendum language."
+      - title: "Submit the deal"
+        detail: "BBC Marketplace (auto-dispo to BBC buyers) + Grand In Taylor Creative Form. For non-BBC buyers, also: <code>generate buyer one-pager for [address]</code>."
+        link: { label: "Grand In Taylor Creative Form", url: "https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78", external: true }
+    voicemail:
+      script_section: "outreach-scripts.md#tier-a1"
+      audio_file_path: "3d3cf27d-39be-4078-813b-1edb74d381da/1777608318360-4.mp3"
+      audio_title: "Voicemail - Seller Finance for Multi Family"
+      duration: "1:57"
+    live_call:
+      script_section: "outreach-scripts.md#tier-a2"
+      audio_file_path: "3d3cf27d-39be-4078-813b-1edb74d381da/1777608397153-33.mp3"
+      audio_title: "Pitch 9 - 2.1m Dollar Deal"
+      duration: "15:16"
+    top_objections:
+      - title: "\"Seller wants cash only\""
+        section: "outreach-scripts.md#obj-cash-only"
+      - title: "\"We have other offers\""
+        section: "outreach-scripts.md#obj-other-offers"
+      - title: "\"What if you stop making payments and walk away?\""
+        section: "outreach-scripts.md#obj-walk-away"
+    counter_rules:
+      - text: "Seller wants more down → CANNOT exceed 10% for Tier A (kills end-buyer CoC). Push back firmly."
+      - text: "Seller wants interest → drop price to asking. Never give both premium AND rate."
+      - text: "Balloon < 5 years → push back. 7 years is ideal; 5 is the floor."
+      - text: "Seller wants full asking (no premium) → run numbers with 0% at asking. If CF works, accept; if not, reframe."
+    sources:
+      - label: "HMHW Seller Finance Course (full ~1h video)"
+        url_key: "hmhw_sf_course"
+        icon: "📚"
+      - label: "All MFH pitch recordings (~12 calls)"
+        url_key: "hmhw_education"
+        icon: "🎧"
+      - label: "Run numbers in Offer Oven"
+        url_key: "hmhw_offer_oven"
+        icon: "🧮"
+      - label: "Seller Finance Calculator"
+        url_key: "hmhw_sf_calc"
+        icon: "🧮"
+      - label: "Find more Tier A deals in BBC Lightning Leads"
+        url_key: "bbc_lightning"
+        icon: "🏦"
+
+  # ─────────────────────────────────────────────────────────────────
+  - slug: tier-b-cheap-sfh-stale
+    emoji: "🏘️"
+    title: "Tier B — Cheap SFH Stale"
+    tier_badge: "tier-b"
+    tldr: >
+      Cheap SFH (<$100K) in markets like Flint MI, Detroit, parts of
+      OH/AL that have sat 90+ days. Lower scale than Tier A but easier
+      negotiations — sellers are tired.
+    when:
+      - "Price: <$100K (max $150K)"
+      - "DOM: 90+ days (ideally 150+)"
+      - "Property type: SFH"
+      - "Down: 10–14% acceptable (cheap properties tolerate more down)"
+      - "Markets sweet spot: MI, OH, AL — Flint, Detroit, Cleveland, Birmingham"
+    how_to:
+      - title: "Confirm Tier B qualifies"
+        detail: "Price under $100K, DOM ≥ 90, SFH (not MFH). If MFH, route to Tier A instead."
+      - title: "Quick comp check on Zillow"
+        detail: "Open the Zillow listing. Confirm rent estimate. If Zillow rent is null/zero, run a Rentometer check before calling."
+      - title: "Run the numbers"
+        detail: "Input to Offer Oven: <code>Price = asking + 20%</code>, <code>Down = 12-14%</code>, <code>0% interest</code>, <code>7yr balloon</code>. Check CF > $200."
+        link: { label: "Open Offer Oven", url: "https://www.hmhw.group/tools/offer-oven", external: true }
+      - title: "Section 8 angle? (decide before dialing)"
+        detail: "If property is in a Section-8-friendly area, use the alt script (S8 angle). Section 8 rents are typically above market and add to your pitch."
+      - title: "Dial once — leave the One-Liner voicemail (below)"
+        detail: "Keep it under 2 minutes. The key phrase: <em>'I negotiate backwards here — but there's a good reason for it.'</em>"
+      - title: "Wait 24-48 hours; follow up if no callback"
+        detail: "Cheap markets have slower agents. Two follow-up dials over 5 days is reasonable."
+      - title: "On callback — confirm condition"
+        detail: "Ask about roof, foundation, HVAC. Tier B has more rehab risk. If anything looks bad, price down before committing."
+      - title: "On verbal yes → contract"
+        detail: "Claude Code: <code>verbal yes on [address]</code>. Confirm inspection period (10 biz days) and EMD ($1K AFTER inspection)."
+      - title: "Submit"
+        detail: "Same as Tier A: BBC Marketplace + Grand In Taylor Creative Form."
+    voicemail:
+      script_section: "outreach-scripts.md#tier-b1"
+      audio_file_path: "3d3cf27d-39be-4078-813b-1edb74d381da/1777608317075-3.mp3"
+      audio_title: "Voicemail - Seller Finance One Liner"
+      duration: "1:57"
+    alt_script:
+      heading_number: "④"
+      heading: "Section-8 angle (when property is in S8-friendly area)"
+      script_section: "outreach-scripts.md#tier-b2"
+      audio_file_path: "3d3cf27d-39be-4078-813b-1edb74d381da/1777608319546-5.mp3"
+      audio_title: "Voicemail - Seller Finance One Liners 2"
+      duration: "2:22"
+    top_objections:
+      - title: "\"Seller wants cash only\""
+        section: "outreach-scripts.md#obj-cash-only"
+      - title: "\"Can you get a lower rate?\""
+        section: "outreach-scripts.md#obj-lower-rate"
+    counter_rules:
+      - text: "Seller wants more down → up to 14% OK on Tier B (cheap property exception)."
+      - text: "Seller wants interest → drop premium, offer asking at 4-6.5%."
+      - text: "If condition flags appear (roof, foundation), price down BEFORE submitting."
+    sources:
+      - label: "HMHW Seller Finance Course (full)"
+        url_key: "hmhw_sf_course"
+        icon: "📚"
+      - label: "Section 8 Calculator"
+        url_key: "hmhw_section8_calc"
+        icon: "🧮"
+      - label: "Offer Oven (general)"
+        url_key: "hmhw_offer_oven"
+        icon: "🧮"
+      - label: "Find more Tier B deals in BBC"
+        url_key: "bbc_lightning"
+        icon: "🏦"
+
+  # ─────────────────────────────────────────────────────────────────
+  - slug: tier-c-cash-buyer
+    emoji: "💵"
+    title: "Tier C — Cash Buyer (no seller finance)"
+    tier_badge: "tier-c"
+    tldr: >
+      SFH that already cash-flows at retail. DO NOT pitch seller finance —
+      Richard explicit: "Strong cash-flowing deals usually don't need seller
+      financing." Submit cash offer at 70–80% of asking via Grand In Taylor.
+    when:
+      - "Property type: SFH"
+      - "Already cash-flows for a cash buyer at full ask (CF > $200/mo)"
+      - "DOM: 60+ days"
+      - "Strategy: wholesale at a cash discount, NOT creative finance"
+    how_to:
+      - title: "Confirm Tier C — cash-flow check"
+        detail: "Does this SFH cash-flow at asking? If yes, you do NOT pitch seller finance. If it only works with seller finance, it's actually Tier A or B."
+      - title: "Calculate Max Allowable Offer"
+        detail: "MAO = 70-80% of asking price (depends on market and rehab). Use Fix & Flip Calculator if condition needs work."
+        link: { label: "Fix & Flip Calculator", url: "https://www.hmhw.group/tools/fix-and-flip", external: true }
+      - title: "Find motivation BEFORE offering"
+        detail: "Tier C only works with motivated sellers. Ask: divorce, inheritance, tired landlord, job relocation? No motivation = pass."
+      - title: "First contact — qualify, don't pitch"
+        detail: "Use the C1 script below. Ask about flexibility on price. Listen for motivation signals."
+      - title: "Submit cash offer at MAO"
+        detail: "Send written offer at 70-80% of asking. Include 10 biz day inspection, $1K EMD after inspection."
+      - title: "On verbal yes → contract"
+        detail: "Claude Code: <code>verbal yes on [address]</code>. Standard cash contract (not creative addendum)."
+      - title: "Submit dispo via Cash Alt form"
+        detail: "Use Grand In Taylor CASH Alt form (NOT Creative form). BBC Marketplace also auto-dispos."
+        link: { label: "Grand In Taylor Cash Alt Form", url: "https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587", external: true }
+      - title: "If cash rejected — pivot to seller finance"
+        detail: "If seller won't take cash discount, try Tier A or B structure. The pivot recording (Pitch 29) shows how Richard transitions."
+    voicemail:
+      script_section: "outreach-scripts.md#tier-c1"
+      audio_file_path: "3d3cf27d-39be-4078-813b-1edb74d381da/1777608335336-12.mp3"
+      audio_title: "Pitch 29 - Cash & Seller Finance (pivot example)"
+      duration: "3:14"
+    counter_rules:
+      - text: "If seller refuses to negotiate to 70–80%, pivot to Tier A/B seller-finance offer (if structure fits)."
+      - text: "Seller motivation matters here more than price — divorces, inherited, tired landlords are best."
+      - text: "Submit via Grand In Taylor Cash Alt form, not Creative form."
+    sources:
+      - label: "HMHW Cash Course (Section 8 + Fix&Flip)"
+        url_key: "hmhw_cash_course"
+        icon: "📚"
+      - label: "Grand In Taylor Cash Alt form"
+        url_key: "git_cash_form"
+        icon: "📤"
+      - label: "Fix & Flip Calculator (for distressed C)"
+        url_key: "hmhw_fnf_calc"
+        icon: "🧮"
+      - label: "Find Tier C deals in BBC Lightning Leads"
+        url_key: "bbc_lightning"
+        icon: "🏦"
+
+  # ─────────────────────────────────────────────────────────────────
+  - slug: objections
+  # ─────────────────────────────────────────────────────────────────
+    emoji: "🛡️"
+    title: "Objection Handling (cross-strategy)"
+    tldr: >
+      Every objection has a Richard-tested rebuttal. Pull this up
+      mid-call — find the matching objection, read the rebuttal,
+      keep moving.
+    when:
+      - "Agent or seller pushes back during pitch or follow-up"
+      - "Use as a fast lookup, not a script to recite verbatim"
+    how_to:
+      - title: "Identify which objection you're getting"
+        detail: "Listen for the exact phrasing. Map it to one of the 7 below. If it doesn't fit, ask: <em>'Can you tell me a bit more about that?'</em>"
+      - title: "Pause before responding"
+        detail: "Don't rush the rebuttal. A 2-second pause signals you're considering it, not reading a script."
+      - title: "Tap the matching objection card → copy the rebuttal"
+        detail: "The cards below have Richard's actual rebuttals. Read calmly, in your own voice."
+      - title: "End the rebuttal with a question"
+        detail: "Don't lecture. After delivering the rebuttal, ask: <em>'Does that make sense?'</em> or <em>'Would it be worth a 10-minute conversation with your seller about this?'</em>"
+      - title: "If they're still firm — concede gracefully"
+        detail: "Don't burn the bridge. <em>'I get it — appreciate your time. If anything changes, you've got my number.'</em> Many of these come back in 30-60 days."
+    top_objections:
+      - title: "\"Seller wants cash only\""
+        section: "outreach-scripts.md#obj-cash-only"
+      - title: "\"We have other offers\""
+        section: "outreach-scripts.md#obj-other-offers"
+      - title: "\"Can you get a lower rate?\""
+        section: "outreach-scripts.md#obj-lower-rate"
+      - title: "\"The interest rate is too low\" / \"2% is ridiculous\""
+        section: "outreach-scripts.md#obj-rate-too-low"
+      - title: "\"What if you stop paying and walk away?\""
+        section: "outreach-scripts.md#obj-walk-away"
+      - title: "\"IRS requires interest — 0% isn't legal\""
+        section: "outreach-scripts.md#obj-irs"
+      - title: "\"I'm too busy to look at it right now\""
+        section: "outreach-scripts.md#obj-too-busy"
+    live_call:
+      script_section: "outreach-scripts.md#obj-rate-too-low"
+      audio_file_path: "3d3cf27d-39be-4078-813b-1edb74d381da/1777608305864-0.mp3"
+      audio_title: "Negotiations - Disliking 2% Interest Rate (Richard's actual call)"
+      duration: "5:55"
+    sources:
+      - label: "Full HMHW Seller Finance Course"
+        url_key: "hmhw_sf_course"
+        icon: "📚"
+      - label: "All negotiation recordings on HMHW"
+        url_key: "hmhw_education"
+        icon: "🎧"
+
+  # ─────────────────────────────────────────────────────────────────
+  - slug: contract-close
+  # ─────────────────────────────────────────────────────────────────
+    emoji: "📝"
+    title: "Contract & Close"
+    tldr: >
+      Once verbal yes is in, the contract addendum has very specific
+      language. EMD is $1,000, submitted AFTER inspection. Inspection
+      period is 7-10 business days.
+    when:
+      - "Agent or seller agrees verbally to terms"
+      - "Ready to send contract"
+      - "Trigger Claude Code: \"verbal yes on [address]\" to get contract parameters"
+    how_to:
+      - title: "Generate contract parameters in Claude Code"
+        detail: "On Mac: <code>verbal yes on [address]</code>. Returns BBC data entry block + addendum language + buyer disposition summary."
+      - title: "Enter in BBC → Create Offer"
+        detail: "Open BBC Inventory → Create Offer button. Fill: Purchase Price, Seller Carryback, Down, Interest Rate, Amortization (30yr), Balloon (5-7yr), EMD ($1K), Inspection (10 biz days), Closing Date (30 days)."
+        link: { label: "BBC Inventory", url: "https://buyboxcartel.com/vip/inventory", external: true }
+      - title: "Paste the addendum language"
+        detail: "Copy from below into the BBC contract template. Customize address and amounts."
+      - title: "Send to agent for execution"
+        detail: "BBC handles e-signature. Agent forwards to seller. Expect 24-72 hours for return."
+      - title: "Once executed → start dispo immediately"
+        detail: "Don't wait for inspection to begin marketing. Time matters."
+      - title: "Submit BBC Marketplace + Grand In Taylor"
+        detail: "BBC Marketplace auto-dispos to BBC's buyer network. Grand In Taylor Creative form taps Richard's wider buyer pool."
+      - title: "Generate buyer one-pager for out-of-network"
+        detail: "Claude Code: <code>generate buyer one-pager for [address]</code>. Get a shareable URL you can DM to Instagram/FB/email buyers."
+      - title: "EMD timing — DO NOT submit early"
+        detail: "EMD ($1,000) is submitted ONLY AFTER inspection period ends. Inspection is 10 biz days (7 minimum). Richard's company often covers EMD for assigned buyers."
+      - title: "Close in 30 days from execution"
+        detail: "Title transfer happens at closing. If using Land Trust structure, Buyer is named as beneficiary."
+    contract_addendum: |
+      Seller agrees to carry a note for $[Loan Amount].
+      Interest Rate: [X]% per annum. (or "0% interest.")
+      Loan amortized over 30 years.
+      Balloon Payment due [X] years from date of closing. (omit if none)
+      Contract and all rights herein are assignable to Buyer's assignee.
+      Title to transfer into a Land Trust at closing, with Buyer named as beneficiary. (if applicable)
+    counter_rules:
+      - text: "EMD: $1,000, submitted AFTER inspection period ends (not at execution)."
+      - text: "Inspection: 10 business days preferred, 7 minimum. Richard's company often covers EMD."
+      - text: "Closing: 30 days from execution."
+      - text: "Assignment fee: $5K standard. Track separately from purchase price."
+    sources:
+      - label: "Grand In Taylor Creative Form (submit deal)"
+        url_key: "git_creative_form"
+        icon: "📤"
+      - label: "Grand In Taylor Cash Alt Form"
+        url_key: "git_cash_form"
+        icon: "📤"
+      - label: "BBC Marketplace (auto-dispo to BBC buyers)"
+        url_key: "bbc_marketplace"
+        icon: "🏦"
+      - label: "BBC Inventory (pipeline tracker)"
+        url_key: "bbc_inventory"
+        icon: "🏦"

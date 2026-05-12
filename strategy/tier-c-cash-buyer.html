@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Tier C — Cash Buyer (no seller finance) — RT Deal Desk</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-2: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --green: #56d364;
+      --amber: #d29922;
+      --red: #f85149;
+      --tier-a: #ff7b72;
+      --tier-b: #d2a8ff;
+      --tier-c: #56d364;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      -webkit-text-size-adjust: 100%;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:active { opacity: 0.7; }
+    header {
+      position: sticky; top: 0;
+      background: rgba(13, 17, 23, 0.95);
+      backdrop-filter: saturate(180%) blur(10px);
+      -webkit-backdrop-filter: saturate(180%) blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+      z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+    }
+    header h1 { margin: 0; font-size: 18px; font-weight: 600; }
+    header .back { font-size: 14px; color: var(--accent); }
+    main { padding: 16px; max-width: 720px; margin: 0 auto; }
+    .section { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; }
+    .section h2 { margin: 0 0 10px 0; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .tldr { font-size: 17px; line-height: 1.45; color: var(--text); }
+    .when ul { margin: 0; padding-left: 18px; }
+    .when li { margin-bottom: 4px; color: var(--text); }
+    ol.how-to { padding-left: 22px; margin: 0; counter-reset: step; }
+    ol.how-to li {
+      margin-bottom: 12px;
+      padding-left: 4px;
+      line-height: 1.5;
+    }
+    ol.how-to li strong { display: block; color: var(--text); font-size: 15px; font-weight: 600; }
+    .step-detail { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .step-detail code { background: var(--panel-2); padding: 1px 6px; border-radius: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--accent); }
+    .step-link {
+      display: inline-block; margin-top: 6px; font-size: 13px;
+      padding: 5px 10px; background: var(--panel-2); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--accent); text-decoration: none;
+    }
+    .step-link:active { opacity: 0.7; }
+    .script-box {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 14px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-top: 8px;
+    }
+    .script-actions { display: flex; gap: 8px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
+    .copy-btn {
+      background: var(--accent);
+      color: #0d1117;
+      border: 0;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .copy-btn:active { opacity: 0.7; }
+    .copy-btn.copied { background: var(--green); color: #0d1117; }
+    .audio-meta { font-size: 13px; color: var(--muted); }
+    audio { width: 100%; margin-top: 6px; }
+    audio::-webkit-media-controls-panel { background: var(--panel-2); }
+    details { margin-bottom: 8px; }
+    details summary {
+      cursor: pointer;
+      padding: 10px 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-weight: 500;
+      list-style: none;
+    }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::before { content: "▸ "; color: var(--muted); }
+    details[open] summary::before { content: "▾ "; }
+    details[open] summary { border-radius: 8px 8px 0 0; border-bottom: 0; }
+    details .detail-body {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-top: 0;
+      border-radius: 0 0 8px 8px;
+      padding: 12px;
+    }
+    .source-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .source-link .icon { font-size: 20px; flex-shrink: 0; }
+    .source-link .label { flex: 1; }
+    .source-link .arrow { color: var(--muted); }
+    .counter-rule {
+      padding: 10px 12px;
+      background: var(--panel-2);
+      border-left: 3px solid var(--amber);
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    .tier-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .tier-a { background: rgba(255,123,114,0.15); color: var(--tier-a); }
+    .tier-b { background: rgba(210,168,255,0.15); color: var(--tier-b); }
+    .tier-c { background: rgba(86,211,100,0.15); color: var(--tier-c); }
+    nav.bottom { padding: 8px 0 20px; text-align: center; color: var(--muted); font-size: 13px; }
+    nav.bottom a { color: var(--muted); margin: 0 8px; }
+    .briefing-wrap iframe {
+      width: 100%; border: 0; border-radius: 8px;
+      min-height: 400px; background: var(--panel-2);
+    }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .pill {
+      display: inline-block; padding: 4px 10px;
+      background: var(--panel-2); border: 1px solid var(--border);
+      border-radius: 14px; font-size: 13px; color: var(--muted);
+    }
+    @media (min-width: 720px) {
+      body { font-size: 17px; }
+      main { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/rt-companion/" class="back">‹ Back</a>
+    <h1>💵 Tier C — Cash Buyer (no seller finance)</h1>
+    <a href="/" class="back" style="text-align:right;">🏠</a>
+  </header>
+  <main>
+    
+
+<div class="section">
+  <h2>① TL;DR</h2>
+  <p class="tldr">SFH that already cash-flows at retail. DO NOT pitch seller finance — Richard explicit: "Strong cash-flowing deals usually don't need seller financing." Submit cash offer at 70–80% of asking via Grand In Taylor.
+</p>
+</div>
+
+<div class="section">
+  <h2>② When to use</h2>
+  <div class="when">
+    <ul>
+      <li>Property type: SFH</li><li>Already cash-flows for a cash buyer at full ask (CF > $200/mo)</li><li>DOM: 60+ days</li><li>Strategy: wholesale at a cash discount, NOT creative finance</li>
+    </ul>
+  </div>
+</div>
+
+
+<div class="section">
+  <h2>③ How to run this play (step-by-step)</h2>
+  <ol class="how-to">
+    
+    <li>
+      <strong>Confirm Tier C — cash-flow check</strong>
+      <div class="step-detail">Does this SFH cash-flow at asking? If yes, you do NOT pitch seller finance. If it only works with seller finance, it's actually Tier A or B.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Calculate Max Allowable Offer</strong>
+      <div class="step-detail">MAO = 70-80% of asking price (depends on market and rehab). Use Fix & Flip Calculator if condition needs work.</div>
+      <a class="step-link" href="https://www.hmhw.group/tools/fix-and-flip" target="_blank" rel="noopener">Fix & Flip Calculator ↗</a>
+    </li>
+    
+    <li>
+      <strong>Find motivation BEFORE offering</strong>
+      <div class="step-detail">Tier C only works with motivated sellers. Ask: divorce, inheritance, tired landlord, job relocation? No motivation = pass.</div>
+      
+    </li>
+    
+    <li>
+      <strong>First contact — qualify, don't pitch</strong>
+      <div class="step-detail">Use the C1 script below. Ask about flexibility on price. Listen for motivation signals.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Submit cash offer at MAO</strong>
+      <div class="step-detail">Send written offer at 70-80% of asking. Include 10 biz day inspection, $1K EMD after inspection.</div>
+      
+    </li>
+    
+    <li>
+      <strong>On verbal yes → contract</strong>
+      <div class="step-detail">Claude Code: <code>verbal yes on [address]</code>. Standard cash contract (not creative addendum).</div>
+      
+    </li>
+    
+    <li>
+      <strong>Submit dispo via Cash Alt form</strong>
+      <div class="step-detail">Use Grand In Taylor CASH Alt form (NOT Creative form). BBC Marketplace also auto-dispos.</div>
+      <a class="step-link" href="https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587" target="_blank" rel="noopener">Grand In Taylor Cash Alt Form ↗</a>
+    </li>
+    
+    <li>
+      <strong>If cash rejected — pivot to seller finance</strong>
+      <div class="step-detail">If seller won't take cash discount, try Tier A or B structure. The pivot recording (Pitch 29) shows how Richard transitions.</div>
+      
+    </li>
+    
+  </ol>
+</div>
+
+
+
+<div class="section">
+  <h2>④ The voicemail</h2>
+  <div class="script-box" id="vm-script">"Hey [agent], it's Tim. Calling about [address]. You have a moment? 
+
+I'm an investor — looking to put together an offer this one. Before I 
+run my numbers, can you tell me a bit about the seller's situation? 
+Are they flexible on price, or pretty firm at [asking]?"</div>
+  <div class="script-actions">
+    <button class="copy-btn" data-target="vm-script">📋 Copy script</button>
+    <span class="audio-meta">🎧 Hear Richard say it (3:14)</span>
+  </div>
+  <audio src="https://bkmfdmlzkumnsytpztio.supabase.co/storage/v1/object/public/call-recordings/3d3cf27d-39be-4078-813b-1edb74d381da/1777608335336-12.mp3" preload="none" controls></audio>
+  <p class="audio-meta" style="margin-top:6px;">Source: Pitch 29 - Cash & Seller Finance (pivot example)</p>
+</div>
+
+
+
+
+
+
+
+
+
+<div class="section">
+  <h2>⑧ Counter-offer rules</h2>
+  
+  <div class="counter-rule">If seller refuses to negotiate to 70–80%, pivot to Tier A/B seller-finance offer (if structure fits).</div>
+  
+  <div class="counter-rule">Seller motivation matters here more than price — divorces, inherited, tired landlords are best.</div>
+  
+  <div class="counter-rule">Submit via Grand In Taylor Cash Alt form, not Creative form.</div>
+  
+</div>
+
+
+
+
+
+<div class="section">
+  <h2>⑨ Sources (go deeper)</h2>
+  
+  <a class="source-link" href="https://www.hmhw.group/course/096ebb43-7285-459a-90a7-20686dffb942" target="_blank" rel="noopener">
+    <span class="icon">📚</span>
+    <span class="label">HMHW Cash Course (Section 8 + Fix&Flip)</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+  <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587" target="_blank" rel="noopener">
+    <span class="icon">📤</span>
+    <span class="label">Grand In Taylor Cash Alt form</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+  <a class="source-link" href="https://www.hmhw.group/tools/fix-and-flip" target="_blank" rel="noopener">
+    <span class="icon">🧮</span>
+    <span class="label">Fix & Flip Calculator (for distressed C)</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+  <a class="source-link" href="https://buyboxcartel.com/vip/lightning-leads" target="_blank" rel="noopener">
+    <span class="icon">🏦</span>
+    <span class="label">Find Tier C deals in BBC Lightning Leads</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+</div>
+
+
+
+  </main>
+  <nav class="bottom">
+    <a href="/">Home</a> ·
+    <a href="/strategy/tier-a-multifamily-checkmate.html">Tier A</a> ·
+    <a href="/strategy/tier-b-cheap-sfh-stale.html">Tier B</a> ·
+    <a href="/strategy/tier-c-cash-buyer.html">Tier C</a> ·
+    <a href="/strategy/objections.html">Objections</a> ·
+    <a href="/strategy/contract-close.html">Contract</a>
+  </nav>
+  <script>
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const target = document.getElementById(btn.dataset.target);
+        if (!target) return;
+        try {
+          await navigator.clipboard.writeText(target.innerText);
+          const orig = btn.textContent;
+          btn.textContent = '✓ Copied';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+        } catch (e) {
+          // Fallback: select text
+          const range = document.createRange();
+          range.selectNode(target);
+          window.getSelection().removeAllRanges();
+          window.getSelection().addRange(range);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

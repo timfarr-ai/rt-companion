@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Tier B — Cheap SFH Stale — RT Deal Desk</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-2: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --green: #56d364;
+      --amber: #d29922;
+      --red: #f85149;
+      --tier-a: #ff7b72;
+      --tier-b: #d2a8ff;
+      --tier-c: #56d364;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      -webkit-text-size-adjust: 100%;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:active { opacity: 0.7; }
+    header {
+      position: sticky; top: 0;
+      background: rgba(13, 17, 23, 0.95);
+      backdrop-filter: saturate(180%) blur(10px);
+      -webkit-backdrop-filter: saturate(180%) blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+      z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+    }
+    header h1 { margin: 0; font-size: 18px; font-weight: 600; }
+    header .back { font-size: 14px; color: var(--accent); }
+    main { padding: 16px; max-width: 720px; margin: 0 auto; }
+    .section { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; }
+    .section h2 { margin: 0 0 10px 0; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .tldr { font-size: 17px; line-height: 1.45; color: var(--text); }
+    .when ul { margin: 0; padding-left: 18px; }
+    .when li { margin-bottom: 4px; color: var(--text); }
+    ol.how-to { padding-left: 22px; margin: 0; counter-reset: step; }
+    ol.how-to li {
+      margin-bottom: 12px;
+      padding-left: 4px;
+      line-height: 1.5;
+    }
+    ol.how-to li strong { display: block; color: var(--text); font-size: 15px; font-weight: 600; }
+    .step-detail { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .step-detail code { background: var(--panel-2); padding: 1px 6px; border-radius: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--accent); }
+    .step-link {
+      display: inline-block; margin-top: 6px; font-size: 13px;
+      padding: 5px 10px; background: var(--panel-2); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--accent); text-decoration: none;
+    }
+    .step-link:active { opacity: 0.7; }
+    .script-box {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 14px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-top: 8px;
+    }
+    .script-actions { display: flex; gap: 8px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
+    .copy-btn {
+      background: var(--accent);
+      color: #0d1117;
+      border: 0;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .copy-btn:active { opacity: 0.7; }
+    .copy-btn.copied { background: var(--green); color: #0d1117; }
+    .audio-meta { font-size: 13px; color: var(--muted); }
+    audio { width: 100%; margin-top: 6px; }
+    audio::-webkit-media-controls-panel { background: var(--panel-2); }
+    details { margin-bottom: 8px; }
+    details summary {
+      cursor: pointer;
+      padding: 10px 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-weight: 500;
+      list-style: none;
+    }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::before { content: "▸ "; color: var(--muted); }
+    details[open] summary::before { content: "▾ "; }
+    details[open] summary { border-radius: 8px 8px 0 0; border-bottom: 0; }
+    details .detail-body {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-top: 0;
+      border-radius: 0 0 8px 8px;
+      padding: 12px;
+    }
+    .source-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .source-link .icon { font-size: 20px; flex-shrink: 0; }
+    .source-link .label { flex: 1; }
+    .source-link .arrow { color: var(--muted); }
+    .counter-rule {
+      padding: 10px 12px;
+      background: var(--panel-2);
+      border-left: 3px solid var(--amber);
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    .tier-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .tier-a { background: rgba(255,123,114,0.15); color: var(--tier-a); }
+    .tier-b { background: rgba(210,168,255,0.15); color: var(--tier-b); }
+    .tier-c { background: rgba(86,211,100,0.15); color: var(--tier-c); }
+    nav.bottom { padding: 8px 0 20px; text-align: center; color: var(--muted); font-size: 13px; }
+    nav.bottom a { color: var(--muted); margin: 0 8px; }
+    .briefing-wrap iframe {
+      width: 100%; border: 0; border-radius: 8px;
+      min-height: 400px; background: var(--panel-2);
+    }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .pill {
+      display: inline-block; padding: 4px 10px;
+      background: var(--panel-2); border: 1px solid var(--border);
+      border-radius: 14px; font-size: 13px; color: var(--muted);
+    }
+    @media (min-width: 720px) {
+      body { font-size: 17px; }
+      main { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/rt-companion/" class="back">‹ Back</a>
+    <h1>🏘️ Tier B — Cheap SFH Stale</h1>
+    <a href="/" class="back" style="text-align:right;">🏠</a>
+  </header>
+  <main>
+    
+
+<div class="section">
+  <h2>① TL;DR</h2>
+  <p class="tldr">Cheap SFH (<$100K) in markets like Flint MI, Detroit, parts of OH/AL that have sat 90+ days. Lower scale than Tier A but easier negotiations — sellers are tired.
+</p>
+</div>
+
+<div class="section">
+  <h2>② When to use</h2>
+  <div class="when">
+    <ul>
+      <li>Price: <$100K (max $150K)</li><li>DOM: 90+ days (ideally 150+)</li><li>Property type: SFH</li><li>Down: 10–14% acceptable (cheap properties tolerate more down)</li><li>Markets sweet spot: MI, OH, AL — Flint, Detroit, Cleveland, Birmingham</li>
+    </ul>
+  </div>
+</div>
+
+
+<div class="section">
+  <h2>③ How to run this play (step-by-step)</h2>
+  <ol class="how-to">
+    
+    <li>
+      <strong>Confirm Tier B qualifies</strong>
+      <div class="step-detail">Price under $100K, DOM ≥ 90, SFH (not MFH). If MFH, route to Tier A instead.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Quick comp check on Zillow</strong>
+      <div class="step-detail">Open the Zillow listing. Confirm rent estimate. If Zillow rent is null/zero, run a Rentometer check before calling.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Run the numbers</strong>
+      <div class="step-detail">Input to Offer Oven: <code>Price = asking + 20%</code>, <code>Down = 12-14%</code>, <code>0% interest</code>, <code>7yr balloon</code>. Check CF > $200.</div>
+      <a class="step-link" href="https://www.hmhw.group/tools/offer-oven" target="_blank" rel="noopener">Open Offer Oven ↗</a>
+    </li>
+    
+    <li>
+      <strong>Section 8 angle? (decide before dialing)</strong>
+      <div class="step-detail">If property is in a Section-8-friendly area, use the alt script (S8 angle). Section 8 rents are typically above market and add to your pitch.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Dial once — leave the One-Liner voicemail (below)</strong>
+      <div class="step-detail">Keep it under 2 minutes. The key phrase: <em>'I negotiate backwards here — but there's a good reason for it.'</em></div>
+      
+    </li>
+    
+    <li>
+      <strong>Wait 24-48 hours; follow up if no callback</strong>
+      <div class="step-detail">Cheap markets have slower agents. Two follow-up dials over 5 days is reasonable.</div>
+      
+    </li>
+    
+    <li>
+      <strong>On callback — confirm condition</strong>
+      <div class="step-detail">Ask about roof, foundation, HVAC. Tier B has more rehab risk. If anything looks bad, price down before committing.</div>
+      
+    </li>
+    
+    <li>
+      <strong>On verbal yes → contract</strong>
+      <div class="step-detail">Claude Code: <code>verbal yes on [address]</code>. Confirm inspection period (10 biz days) and EMD ($1K AFTER inspection).</div>
+      
+    </li>
+    
+    <li>
+      <strong>Submit</strong>
+      <div class="step-detail">Same as Tier A: BBC Marketplace + Grand In Taylor Creative Form.</div>
+      
+    </li>
+    
+  </ol>
+</div>
+
+
+
+<div class="section">
+  <h2>④ The voicemail</h2>
+  <div class="script-box" id="vm-script">"Hi there, I'm calling for an agent on the [agent team name] regarding 
+[address]. I'm real interested in this one — I just had a couple questions 
+about it. However, I'll let you know a little bit of what we're looking 
+to do over the phone here.
+
+Instead of the [asking], I actually wanted to offer [asking + 20%]. 
+I know that's kind of crazy — I negotiate backwards here, but there's 
+a good reason for it.
+
+Interest rates are higher than they've been in 25 years. We can't cash 
+flow, so I'm calling sellers and I'm offering way over list price to 
+incentivize them taking a set of payments here.
+
+I'd give them payments that are as if they decided to rent this out 
+themselves — so maybe they've considered renting it. Maybe not. After 
+[DOM] days on market, that may have been a thought they had. I want to 
+see if we could go ahead and offer [over-asking], give them payments 
+in the range of what they'd make as a rental, and triple my down payment 
+compared to what I'd have to put down on other loans elsewhere.
+
+Anyways, not sure if I'd be a good option for your seller, but I just 
+wanted to reach out and give you a call to see if that made any sense 
+in presenting. Thanks so much for your time."</div>
+  <div class="script-actions">
+    <button class="copy-btn" data-target="vm-script">📋 Copy script</button>
+    <span class="audio-meta">🎧 Hear Richard say it (1:57)</span>
+  </div>
+  <audio src="https://bkmfdmlzkumnsytpztio.supabase.co/storage/v1/object/public/call-recordings/3d3cf27d-39be-4078-813b-1edb74d381da/1777608317075-3.mp3" preload="none" controls></audio>
+  <p class="audio-meta" style="margin-top:6px;">Source: Voicemail - Seller Finance One Liner</p>
+</div>
+
+
+
+
+
+<div class="section">
+  <h2>④ Section-8 angle (when property is in S8-friendly area)</h2>
+  <div class="script-box" id="alt-script">"Hi [agent], calling about your listing on [address]. Had a couple 
+questions — mainly just about the roof, saw some stuff growing on it, 
+wanted to know if there are any leaks in place.
+
+Anyways, I'm actually going to offer [asking + 20%] on this. I know 
+that's kind of crazy — $[X] above your client's asking. The reason 
+is I want to make them payments, because I know [asking] in cash up 
+front is definitely what they're looking for.
+
+I'm looking for a Section 8 rental, and at today's interest rates 
+there's just no cash flow on it for me. Rates have been the highest 
+in 20 years. So I'm offering homeowners above asking to see if I can 
+deal with them instead of the bank.
+
+Here's what I'm thinking: instead of [asking], we do [asking + 20%]. 
+I triple the down payment I'd put down elsewhere — quite literally 
+triple. I pay your commission up front, cover closing costs, and then 
+pay them the majority of what this property makes as a rental.
+
+If it sounds too good to be true, I'm happy to send over the portfolio 
+of other deals we've done this on."</div>
+  <div class="script-actions">
+    <button class="copy-btn" data-target="alt-script">📋 Copy script</button>
+    <span class="audio-meta">🎧 2:22</span>
+  </div>
+  
+  <audio src="https://bkmfdmlzkumnsytpztio.supabase.co/storage/v1/object/public/call-recordings/3d3cf27d-39be-4078-813b-1edb74d381da/1777608319546-5.mp3" preload="none" controls></audio>
+  <p class="audio-meta" style="margin-top:6px;">Source: Voicemail - Seller Finance One Liners 2</p>
+  
+</div>
+
+
+
+<div class="section">
+  <h2>⑦ Top objections for this play</h2>
+  
+  <details>
+    <summary>"Seller wants cash only"</summary>
+    <div class="detail-body">
+      <div class="script-box" id="obj-1">"I totally understand — and that's exactly what a lot of sellers say 
+when they haven't been walked through the math yet.
+
+The question is: what's more important to them — how they get paid, 
+or what they get paid? Because with this structure, they get [asking + 10%] 
+plus a multi-five or multi-six-figure down payment up front to use 
+toward their next property. That's more than any cash buyer is going 
+to offer right now.
+
+Would it be worth a 10-minute conversation so they can hear the full 
+picture and make an informed decision?"</div>
+      <div class="script-actions">
+        <button class="copy-btn" data-target="obj-1">📋 Copy rebuttal</button>
+      </div>
+    </div>
+  </details>
+  
+  <details>
+    <summary>"Can you get a lower rate?"</summary>
+    <div class="detail-body">
+      <div class="script-box" id="obj-2">"I wish — rates are what they are. The math just doesn't work at 7.25% 
+for this property at this price, even with a rate buydown. That's why 
+the structure has to change, not the rate."</div>
+      <div class="script-actions">
+        <button class="copy-btn" data-target="obj-2">📋 Copy rebuttal</button>
+      </div>
+    </div>
+  </details>
+  
+</div>
+
+
+
+<div class="section">
+  <h2>⑧ Counter-offer rules</h2>
+  
+  <div class="counter-rule">Seller wants more down → up to 14% OK on Tier B (cheap property exception).</div>
+  
+  <div class="counter-rule">Seller wants interest → drop premium, offer asking at 4-6.5%.</div>
+  
+  <div class="counter-rule">If condition flags appear (roof, foundation), price down BEFORE submitting.</div>
+  
+</div>
+
+
+
+
+
+<div class="section">
+  <h2>⑨ Sources (go deeper)</h2>
+  
+  <a class="source-link" href="https://www.hmhw.group/course/e258d5b1-57d8-41cc-a2c7-c4268345fcf6" target="_blank" rel="noopener">
+    <span class="icon">📚</span>
+    <span class="label">HMHW Seller Finance Course (full)</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+  <a class="source-link" href="https://www.hmhw.group/tools/section-8" target="_blank" rel="noopener">
+    <span class="icon">🧮</span>
+    <span class="label">Section 8 Calculator</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+  <a class="source-link" href="https://www.hmhw.group/tools/offer-oven" target="_blank" rel="noopener">
+    <span class="icon">🧮</span>
+    <span class="label">Offer Oven (general)</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+  <a class="source-link" href="https://buyboxcartel.com/vip/lightning-leads" target="_blank" rel="noopener">
+    <span class="icon">🏦</span>
+    <span class="label">Find more Tier B deals in BBC</span>
+    <span class="arrow">↗</span>
+  </a>
+  
+</div>
+
+
+
+  </main>
+  <nav class="bottom">
+    <a href="/">Home</a> ·
+    <a href="/strategy/tier-a-multifamily-checkmate.html">Tier A</a> ·
+    <a href="/strategy/tier-b-cheap-sfh-stale.html">Tier B</a> ·
+    <a href="/strategy/tier-c-cash-buyer.html">Tier C</a> ·
+    <a href="/strategy/objections.html">Objections</a> ·
+    <a href="/strategy/contract-close.html">Contract</a>
+  </nav>
+  <script>
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const target = document.getElementById(btn.dataset.target);
+        if (!target) return;
+        try {
+          await navigator.clipboard.writeText(target.innerText);
+          const orig = btn.textContent;
+          btn.textContent = '✓ Copied';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+        } catch (e) {
+          // Fallback: select text
+          const range = document.createRange();
+          range.selectNode(target);
+          window.getSelection().removeAllRanges();
+          window.getSelection().addRange(range);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
