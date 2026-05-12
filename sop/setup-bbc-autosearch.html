@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="robots" content="noindex, nofollow">
-  <title>Home — RT Deal Desk</title>
+  <title>One-Time Setup — BBC Auto-Search — RT Deal Desk</title>
   <style>
     :root {
       --bg: #0d1117;
@@ -238,135 +238,133 @@
 </head>
 <body>
   <header>
-    <span style="width:40px"></span>
-    <h1>RT Deal Desk</h1>
+    <a href="/rt-companion/" class="back">‹ Back</a>
+    <h1>⚡ One-Time Setup — BBC Auto-Search</h1>
     <a href="/" class="back" style="text-align:right;">🏠</a>
   </header>
   <main>
     
 
-<div class="section">
-  <h2>📋 Today's Briefing</h2>
-  <div class="briefing-wrap">
-    <iframe src="/rt-companion/briefings/latest.html" loading="lazy"></iframe>
-  </div>
-  <p style="margin-top:8px; font-size:13px;">
-    Briefing publishes weekday 8am AEST.
-    <a href="/rt-companion/briefings/" style="margin-left:6px;">Past briefings →</a>
-  </p>
-</div>
-
 <div class="grid-2">
   <div class="section">
-    <h2>Strategy Playbooks (deal-specific plays)</h2>
-    
-    <a class="source-link" href="/rt-companion/strategy/tier-a-multifamily-checkmate.html">
-      <span class="icon">🎯</span>
-      <span class="label">Tier A — Multifamily Checkmate</span>
-      <span class="arrow">›</span>
-    </a>
-    
-    <a class="source-link" href="/rt-companion/strategy/tier-b-cheap-sfh-stale.html">
-      <span class="icon">🏘️</span>
-      <span class="label">Tier B — Cheap SFH Stale</span>
-      <span class="arrow">›</span>
-    </a>
-    
-    <a class="source-link" href="/rt-companion/strategy/tier-c-cash-buyer.html">
-      <span class="icon">💵</span>
-      <span class="label">Tier C — Cash Buyer (no seller finance)</span>
-      <span class="arrow">›</span>
-    </a>
-    
-    <a class="source-link" href="/rt-companion/strategy/objections.html">
-      <span class="icon">🛡️</span>
-      <span class="label">Objection Handling (cross-strategy)</span>
-      <span class="arrow">›</span>
-    </a>
-    
-    <a class="source-link" href="/rt-companion/strategy/contract-close.html">
-      <span class="icon">📝</span>
-      <span class="label">Contract &amp; Close</span>
-      <span class="arrow">›</span>
-    </a>
-    
+    <h2>① TL;DR</h2>
+    <p class="tldr">Install Tampermonkey + one userscript so every "Search BBC ↗" link on daily-brief deal cards auto-fills BBC's search and runs it. Two minutes, do once per device.
+</p>
   </div>
 
   <div class="section">
-    <h2>SOPs (daily workflow)</h2>
+    <h2>② When to use</h2>
+    <div class="when">
+      <ul>
+        <li>First-time setup, on each browser you use (laptop primary; phone optional)</li><li>After install: any 'Search BBC ↗' link from the briefing auto-runs</li><li>Without it, the BBC link just lands on Lightning Leads — you paste the address manually</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<div class="section">
+  <h2>③ How to run this play (step-by-step)</h2>
+  <ol class="how-to two-col">
     
-    <a class="source-link" href="/rt-companion/sop/setup-bbc-autosearch.html">
-      <span class="icon">⚡</span>
-      <span class="label">One-Time Setup — BBC Auto-Search</span>
-      <span class="arrow">›</span>
+    <li>
+      <strong>Install Tampermonkey browser extension</strong>
+      <div class="step-detail">Tampermonkey is a free, well-known browser extension that runs user-supplied scripts on specific sites. Chrome/Edge/Safari/Firefox supported.</div>
+      
+      <a class="step-link" href="https://www.tampermonkey.net/" target="_blank" rel="noopener">tampermonkey.net (pick your browser) ↗</a>
+    </li>
+    
+    <li>
+      <strong>Pin Tampermonkey to the toolbar (optional)</strong>
+      <div class="step-detail">Click the puzzle-piece icon → pin Tampermonkey. Makes it visible so you know it's running.</div>
+      
+      
+    </li>
+    
+    <li>
+      <strong>Install the BBC Auto-Search userscript</strong>
+      <div class="step-detail">Click below — Tampermonkey will open with the script source and an Install button. Click Install.</div>
+      
+      <a class="step-link" href="https://raw.githubusercontent.com/timfarr-ai/rt-companion/main/scripts/bbc-autosearch.user.js" target="_blank" rel="noopener">Install BBC Auto-Search userscript ↗ ↗</a>
+    </li>
+    
+    <li>
+      <strong>Confirm install</strong>
+      <div class="step-detail">Tampermonkey shows the source (~80 lines). Click <strong>Install</strong>. The script auto-updates from the same URL whenever I push changes — no re-install needed.</div>
+      
+      
+    </li>
+    
+    <li>
+      <strong>Test it</strong>
+      <div class="step-detail">Open the dashboard. Tap any 'Search BBC ↗' link on a Tier A/B/C deal card. New tab opens BBC Lightning Leads, search box auto-fills with city + state, Search runs automatically. A small green '🔍 Auto-searched' banner appears top-right of BBC.</div>
+      
+      <a class="step-link" href="/rt-companion/" >Open today's briefing</a>
+    </li>
+    
+    <li>
+      <strong>Troubleshoot</strong>
+      <div class="step-detail">Doesn't run? (a) confirm you're logged into BBC first; (b) Tampermonkey toolbar icon should be colored not gray (= active); (c) check the script is enabled in Tampermonkey dashboard. If BBC redesigns and the selector breaks, the script shows '⚠️ search box not found' — message me to update.</div>
+      
+      
+    </li>
+    
+    <li>
+      <strong>What it does NOT do (yet)</strong>
+      <div class="step-detail">It only auto-fills the search. Agent contact unlock still requires BBC 'cookies' (~$0.50/unlock per property) — tap the listing in BBC and click 'Unlock contact'. Future enhancement could auto-unlock Tier A deals during triage when Tim has cookie balance > 0.</div>
+      
+      
+    </li>
+    
+  </ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<div class="section">
+  <h2>⑧ Counter-offer rules</h2>
+  <div class="counter-grid">
+    
+    <div class="counter-rule">Search uses city + state, not full street — BBC's search works best at metro level. Tim's eye scans the result list for the address.</div>
+    
+    <div class="counter-rule">Userscript version-pinned to the GitHub raw URL — auto-updates on every push to main.</div>
+    
+    <div class="counter-rule">Privacy: the script only runs on buyboxcartel.com/vip/lightning-leads. It can't see any other site or your data.</div>
+    
+  </div>
+</div>
+
+
+
+
+
+<div class="section">
+  <h2>⑨ Sources (go deeper)</h2>
+  <div class="sources-grid">
+    
+    <a class="source-link" href="https://www.tampermonkey.net/faq.php" target="_blank" rel="noopener">
+      <span class="icon">❓</span>
+      <span class="label">Tampermonkey FAQ</span>
+      <span class="arrow">↗</span>
     </a>
     
-    <a class="source-link" href="/rt-companion/sop/deal-lifecycle.html">
-      <span class="icon">🔄</span>
-      <span class="label">Deal Lifecycle — Where Each Deal Lives</span>
-      <span class="arrow">›</span>
-    </a>
-    
-    <a class="source-link" href="/rt-companion/sop/morning-triage.html">
-      <span class="icon">🌅</span>
-      <span class="label">Morning Triage Review (8am)</span>
-      <span class="arrow">›</span>
-    </a>
-    
-    <a class="source-link" href="/rt-companion/sop/call-block.html">
-      <span class="icon">📞</span>
-      <span class="label">Outreach Call Block</span>
-      <span class="arrow">›</span>
-    </a>
-    
-    <a class="source-link" href="/rt-companion/sop/agent-reply.html">
-      <span class="icon">✉️</span>
-      <span class="label">Agent Replied — Counter Analysis</span>
-      <span class="arrow">›</span>
-    </a>
-    
-    <a class="source-link" href="/rt-companion/sop/verbal-yes-to-dispo.html">
-      <span class="icon">✅</span>
-      <span class="label">Verbal Yes → Contract → Dispo</span>
-      <span class="arrow">›</span>
-    </a>
-    
-    <a class="source-link" href="/rt-companion/sop/weekly-review.html">
-      <span class="icon">📅</span>
-      <span class="label">Weekly Pipeline Review (Friday)</span>
-      <span class="arrow">›</span>
+    <a class="source-link" href="https://github.com/timfarr-ai/rt-companion/blob/main/scripts/bbc-autosearch.user.js" target="_blank" rel="noopener">
+      <span class="icon">📄</span>
+      <span class="label">Userscript source (review before install)</span>
+      <span class="arrow">↗</span>
     </a>
     
   </div>
 </div>
 
-<div class="section">
-  <h2>External Tools</h2>
-  <a class="source-link" href="https://buyboxcartel.com/vip/dashboard" target="_blank" rel="noopener">
-    <span class="icon">🏦</span><span class="label">BBC Dashboard</span><span class="arrow">↗</span>
-  </a>
-  <a class="source-link" href="https://buyboxcartel.com/vip/inventory" target="_blank" rel="noopener">
-    <span class="icon">📊</span><span class="label">BBC Inventory (pipeline)</span><span class="arrow">↗</span>
-  </a>
-  <a class="source-link" href="https://buyboxcartel.com/vip/marketplace" target="_blank" rel="noopener">
-    <span class="icon">📤</span><span class="label">BBC Marketplace (dispo)</span><span class="arrow">↗</span>
-  </a>
-  <a class="source-link" href="https://www.hmhw.group/tools" target="_blank" rel="noopener">
-    <span class="icon">🧮</span><span class="label">HMHW Calculators (incl. Offer Oven)</span><span class="arrow">↗</span>
-  </a>
-  <a class="source-link" href="https://www.hmhw.group/education" target="_blank" rel="noopener">
-    <span class="icon">🎧</span><span class="label">HMHW Full Recordings (82)</span><span class="arrow">↗</span>
-  </a>
-  <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78" target="_blank" rel="noopener">
-    <span class="icon">📋</span><span class="label">Grand In Taylor — Creative Form</span><span class="arrow">↗</span>
-  </a>
-  <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587" target="_blank" rel="noopener">
-    <span class="icon">📋</span><span class="label">Grand In Taylor — Cash Alt Form</span><span class="arrow">↗</span>
-  </a>
-  <a class="source-link" href="https://claude.ai/code/routines/trig_01DXdZ22PfZsyJjmTkiWPanC" target="_blank" rel="noopener">
-    <span class="icon">🤖</span><span class="label">Claude routine runs (briefing transcript)</span><span class="arrow">↗</span>
-  </a>
-</div>
 
 
   </main>

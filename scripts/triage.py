@@ -119,6 +119,7 @@ def score(p):
     addr = p.get('address', {})
     return {'address': f"{addr.get('street','')}, {addr.get('city','')}, {addr.get('state','')}",
             'state': addr.get('state',''), 'type': addr.get('propertyType','') or 'Unknown',
+            'deal_type': cd.get('dealType', 'sellerFinance'),
             'price': lp, 'cf': cf, 'coc': coc, 'dom': dom,
             'dom_flag': '🔥🔥' if dom>=150 else ('🔥' if dom>=90 else ''),
             'entry_fee': round(entry), 'entry_pct': round(entry/op*100,1) if op>0 else 0,
@@ -189,11 +190,18 @@ def render_deal(d, t):
                 'C':'/rt-companion/strategy/tier-c-cash-buyer.html'}[t]
     bl = f'<div style="color:#56d364;font-size:13px;margin-top:6px;">🎯 BUYER MATCH: {", ".join(d["buyer_matches"])}</div>' if d['buyer_matches'] else ''
     z = f' <a class="zillow" href="{d["zillow"]}" target="_blank">Zillow ↗</a>' if d['zillow'] else ''
-    addr_only = d['address'].split(',')[0].strip()
-    copy_btn = f' <button class="addr-copy" data-addr="{addr_only}" type="button">Copy address ↗ BBC</button>'
+    city_state = ', '.join(d['address'].split(',')[1:]).strip()
+    # BBC search URL with #auto: hash — userscript on BBC side auto-fills + searches
+    bbc_search = f'https://www.buyboxcartel.com/vip/lightning-leads#auto:{urllib.parse.quote(city_state)}'
+    bbc_link = f' <a class="zillow" href="{bbc_search}" target="_blank">Search BBC ↗</a>'
     pipe = ' <span class="pill" style="background:#1a4d2e;color:#56d364;">in pipeline</span>' if d.get('in_pipeline') else ''
+    # Deal type pill (human readable from BBC's dealType field)
+    dt_map = {'sellerFinance': 'Seller Finance', 'mortgageTakeover': 'Mortgage Takeover', 'section8': 'Section 8', 'fixAndFlip': 'Fix & Flip', 'cash': 'Cash'}
+    dt_label = dt_map.get(d.get('deal_type',''), d.get('deal_type','') or '')
+    dt_pill = f' <span class="pill" style="background:#1e2c44;color:#79c0ff;border-color:#1e2c44;">{dt_label}</span>' if dt_label else ''
+    pt_pill = f' <span class="pill" style="background:#1a2c1a;color:#7ee787;border-color:#1a2c1a;">{d["type"]}</span>' if d.get('type') and d['type']!='Unknown' else ''
     cf_label = 'Cash CF' if t == 'C' else 'CF'
-    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}</div><div class="meta">{d["units"]} units · {d["type"]}</div><div class="nums"><span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span><span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span></div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{z}{copy_btn}{bl}</div>'
+    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}</div><div class="meta">{d["units"]} units · {d["type"]}</div><div class="nums">{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span><span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span></div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{z}{bbc_link}{bl}</div>'
 
 section_a = ('<h2>🎯 TIER A — Multifamily Checkmate ($350K-$1.4M, 5+ units, DOM 90+)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
 section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale (<$100K, DOM 90+)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
@@ -205,7 +213,7 @@ if buckets['REJECT']:
 
 summary = f'{len(all_leads)} leads · {len(buckets["A"])} Tier A · {len(buckets["B"])} Tier B · {len(buckets["C"])} Tier C · {pushed} → watchlist'
 CSS = 'body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:12px;font-size:15px;line-height:1.5;}h2{font-size:14px;color:#8b949e;text-transform:uppercase;letter-spacing:0.04em;margin:18px 0 8px;}.summary{background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:14px;}.deal{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px;margin-bottom:10px;}.deal .addr{font-weight:600;font-size:15px;margin-bottom:4px;}.deal .meta{font-size:13px;color:#8b949e;margin-bottom:6px;}.deal .nums{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}.pill{background:#1c2128;border:1px solid #30363d;border-radius:12px;padding:2px 9px;font-size:12px;color:#8b949e;}.play-link{display:inline-block;padding:8px 12px;background:#58a6ff;color:#0d1117;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;margin-top:4px;}.tier-A{border-left:3px solid #ff7b72;}.tier-B{border-left:3px solid #d2a8ff;}.tier-C{border-left:3px solid #56d364;}a.zillow{color:#58a6ff;font-size:12px;margin-left:8px;}.rejected{color:#8b949e;font-size:13px;padding:4px 0;}.date{color:#8b949e;font-size:13px;}.addr-copy{display:inline-block;margin-left:8px;padding:2px 9px;font-size:12px;background:#1c2128;border:1px solid #30363d;color:#58a6ff;border-radius:12px;cursor:pointer;font-family:inherit;}.addr-copy:hover{background:#21262d;}.addr-copy.copied{background:#1a4d2e;color:#56d364;border-color:#1a4d2e;}'
-html = f'<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Triage {date_iso}</title><style>{CSS}</style></head><body><p class="date">📋 {date_human} · TN/TX/GA/OH/MI &nbsp;·&nbsp; <a href="https://www.buyboxcartel.com/vip/lightning-leads" target="_blank" style="color:#58a6ff;">Open BBC Lightning Leads ↗</a></p><div class="summary">{summary}</div>{section_a}{section_b}{section_c}{rej_section}''' + '''<script>document.querySelectorAll(".addr-copy").forEach(b=>{b.addEventListener("click",async e=>{e.preventDefault();const a=b.dataset.addr;try{await navigator.clipboard.writeText(a);b.textContent="✓ Copied (paste in BBC)";b.classList.add("copied");setTimeout(()=>{b.textContent="Copy address ↗ BBC";b.classList.remove("copied")},2000)}catch(err){alert("Copy this: "+a)}})});</script></body></html>'''
+html = f'<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Triage {date_iso}</title><style>{CSS}</style></head><body><p class="date">📋 {date_human} · TN/TX/GA/OH/MI &nbsp;·&nbsp; <a href="https://www.buyboxcartel.com/vip/lightning-leads" target="_blank" style="color:#58a6ff;">Open BBC Lightning Leads ↗</a></p><div class="summary">{summary}</div>{section_a}{section_b}{section_c}{rej_section}</body></html>'
 
 # 8. Publish
 b64 = base64.b64encode(html.encode()).decode()

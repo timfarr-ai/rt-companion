@@ -27,6 +27,48 @@ sources_lib:
 sops:
 
   # ─────────────────────────────────────────────────────────────────
+  - slug: setup-bbc-autosearch
+    emoji: "⚡"
+    title: "One-Time Setup — BBC Auto-Search"
+    tldr: >
+      Install Tampermonkey + one userscript so every "Search BBC ↗" link
+      on daily-brief deal cards auto-fills BBC's search and runs it. Two
+      minutes, do once per device.
+    when:
+      - "First-time setup, on each browser you use (laptop primary; phone optional)"
+      - "After install: any 'Search BBC ↗' link from the briefing auto-runs"
+      - "Without it, the BBC link just lands on Lightning Leads — you paste the address manually"
+    how_to:
+      - title: "Install Tampermonkey browser extension"
+        detail: "Tampermonkey is a free, well-known browser extension that runs user-supplied scripts on specific sites. Chrome/Edge/Safari/Firefox supported."
+        link: { label: "tampermonkey.net (pick your browser)", url: "https://www.tampermonkey.net/", external: true }
+      - title: "Pin Tampermonkey to the toolbar (optional)"
+        detail: "Click the puzzle-piece icon → pin Tampermonkey. Makes it visible so you know it's running."
+      - title: "Install the BBC Auto-Search userscript"
+        detail: "Click below — Tampermonkey will open with the script source and an Install button. Click Install."
+        link: { label: "Install BBC Auto-Search userscript ↗", url: "https://raw.githubusercontent.com/timfarr-ai/rt-companion/main/scripts/bbc-autosearch.user.js", external: true }
+      - title: "Confirm install"
+        detail: "Tampermonkey shows the source (~80 lines). Click <strong>Install</strong>. The script auto-updates from the same URL whenever I push changes — no re-install needed."
+      - title: "Test it"
+        detail: "Open the dashboard. Tap any 'Search BBC ↗' link on a Tier A/B/C deal card. New tab opens BBC Lightning Leads, search box auto-fills with city + state, Search runs automatically. A small green '🔍 Auto-searched' banner appears top-right of BBC."
+        link: { label: "Open today's briefing", url: "/rt-companion/", external: false }
+      - title: "Troubleshoot"
+        detail: "Doesn't run? (a) confirm you're logged into BBC first; (b) Tampermonkey toolbar icon should be colored not gray (= active); (c) check the script is enabled in Tampermonkey dashboard. If BBC redesigns and the selector breaks, the script shows '⚠️ search box not found' — message me to update."
+      - title: "What it does NOT do (yet)"
+        detail: "It only auto-fills the search. Agent contact unlock still requires BBC 'cookies' (~$0.50/unlock per property) — tap the listing in BBC and click 'Unlock contact'. Future enhancement could auto-unlock Tier A deals during triage when Tim has cookie balance > 0."
+    counter_rules:
+      - text: "Search uses city + state, not full street — BBC's search works best at metro level. Tim's eye scans the result list for the address."
+      - text: "Userscript version-pinned to the GitHub raw URL — auto-updates on every push to main."
+      - text: "Privacy: the script only runs on buyboxcartel.com/vip/lightning-leads. It can't see any other site or your data."
+    sources:
+      - label: "Tampermonkey FAQ"
+        url: "https://www.tampermonkey.net/faq.php"
+        icon: "❓"
+      - label: "Userscript source (review before install)"
+        url: "https://github.com/timfarr-ai/rt-companion/blob/main/scripts/bbc-autosearch.user.js"
+        icon: "📄"
+
+  # ─────────────────────────────────────────────────────────────────
   - slug: deal-lifecycle
     emoji: "🔄"
     title: "Deal Lifecycle — Where Each Deal Lives"
