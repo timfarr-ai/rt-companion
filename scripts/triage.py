@@ -148,6 +148,20 @@ def score(p):
     coc = round((cf*12)/entry*100, 1) if entry > 0 else 0
     dom = int(p.get('daysOnMarket') or 0)
     addr = p.get('address', {})
+    # Listing freshness — BBC's market_status is always "Active" for filtered results,
+    # but the gap between last_listed (lifetime days) and daysOnMarket (current spell)
+    # reveals if the listing was paused/relisted (typically because it went under contract).
+    last_listed = int(p.get('last_listed') or dom)
+    relisted_gap = max(0, last_listed - dom)
+    is_zillow_active = bool(p.get('is_zillow_active'))
+    if not is_zillow_active:
+        status_state = 'off-zillow'  # red — listing removed from Zillow
+    elif relisted_gap >= 30:
+        status_state = 'relisted'    # amber — likely went under contract previously, verify
+    elif relisted_gap >= 14:
+        status_state = 'paused'      # gentle warning — short paused gap
+    else:
+        status_state = 'active'      # green — fresh, no pause history
     return {'address': f"{addr.get('street','')}, {addr.get('city','')}, {addr.get('state','')}",
             'state': addr.get('state',''), 'type': addr.get('propertyType','') or 'Unknown',
             'deal_type': cd.get('dealType', 'sellerFinance'),
@@ -155,7 +169,12 @@ def score(p):
             'dom_flag': '🔥🔥' if dom>=150 else ('🔥' if dom>=90 else ''),
             'entry_fee': round(entry), 'entry_pct': round(entry/op*100,1) if op>0 else 0,
             'equity': int(float(cd.get('equity') or 0)), 'zillow': p.get('zillowUrl'), 'pid': p.get('pid',''), 'in_pipeline': bool(p.get('isPropertyAlreadyInPipeline')),
-            'units': units(p)}
+            'units': units(p),
+            'market_status': p.get('market_status', 'Active'),
+            'last_listed': last_listed,
+            'relisted_gap': relisted_gap,
+            'is_zillow_active': is_zillow_active,
+            'status_state': status_state}
 
 def tier(s):
     pt = s['type'].lower()
@@ -272,6 +291,16 @@ def render_deal(d, t):
     dt_label = dt_map.get(d.get('deal_type',''), d.get('deal_type','') or '')
     dt_pill = f' <span class="pill" style="background:#1e2c44;color:#79c0ff;border-color:#1e2c44;">{dt_label}</span>' if dt_label else ''
     pt_pill = f' <span class="pill" style="background:#1a2c1a;color:#7ee787;border-color:#1a2c1a;">{d["type"]}</span>' if d.get('type') and d['type']!='Unknown' else ''
+    # Status pill — critical signal: BBC says "Active" but Zillow may show "Under Contract".
+    # We detect this via the relisted_gap (last_listed - daysOnMarket). Gap >= 30 days = likely went under contract previously.
+    status_styles = {
+        'active':    ('#1a4d2e', '#56d364', '✓ Active'),
+        'paused':    ('#3d2e0e', '#d2a857', f'⚠ Paused {d.get("relisted_gap",0)}d (verify Zillow)'),
+        'relisted':  ('#4d1e1e', '#ff7b72', f'⚠ RELISTED {d.get("relisted_gap",0)}d gap — likely under contract (verify Zillow)'),
+        'off-zillow':('#2c2c2c', '#8b949e', '✗ Off Zillow'),
+    }
+    bg, fg, label = status_styles.get(d.get('status_state','active'), status_styles['active'])
+    status_pill = f' <span class="pill" style="background:{bg};color:{fg};border-color:{bg};font-weight:600;">{label}</span>'
     cf_label = 'Cash CF' if t == 'C' else 'CF'
     # Local time pill — updated live by JS (data-tz = IANA timezone)
     tz_pill = f' <span class="pill local-time" data-tz="{d["tz"]}">--:-- local</span>'
@@ -285,7 +314,7 @@ def render_deal(d, t):
         op_link = f' &nbsp; <a href="openphone://call?number={phone_clean}" style="color:#79c0ff;">via OpenPhone</a>' if phone_clean else ''
         email_link = f' &nbsp; <a href="mailto:{a["email"]}" style="color:#8b949e;">✉ {a["email"]}</a>' if a.get('email') and a['email'] != 'Not Available' else ''
         agent_block = f'<div style="margin-top:8px;padding:8px 10px;background:#0d2818;border:1px solid #1a4d2e;border-radius:6px;font-size:13px;"><div style="color:#7ee787;font-weight:600;margin-bottom:2px;">🔓 {a["name"]}</div><div>{tel_link}{op_link}{email_link}</div></div>'
-    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}</div><div class="meta">{d["units"]} units · {d["type"]}</div><div class="nums">{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span><span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{z}{bbc_link}{oven_link}{bl}{agent_block}</div>'
+    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div><div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span><span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{z}{bbc_link}{oven_link}{bl}{agent_block}</div>'
 
 section_a = ('<h2>🎯 TIER A — Multifamily Checkmate ($350K-$1.4M, 5+ units, DOM 90+)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
 section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale (<$100K, DOM 90+)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
