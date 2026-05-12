@@ -289,17 +289,31 @@
     </li>
     
     <li>
-      <strong>Confirm install</strong>
-      <div class="step-detail">Tampermonkey shows the source (~80 lines). Click <strong>Install</strong>. The script auto-updates from the same URL whenever I push changes — no re-install needed.</div>
+      <strong>Install the Offer Oven Prefill userscript</strong>
+      <div class="step-detail">Same flow — opens Tampermonkey with the prefill script. Click Install. Powers the 'Verify in Offer Oven ↗' link on every Tier A/B card — auto-fills price/down/rate/term/balloon/rent/assignment/closing into Offer Oven.</div>
+      
+      <a class="step-link" href="https://raw.githubusercontent.com/timfarr-ai/rt-companion/main/scripts/offer-oven-prefill.user.js" target="_blank" rel="noopener">Install Offer Oven Prefill userscript ↗ ↗</a>
+    </li>
+    
+    <li>
+      <strong>Confirm both installs</strong>
+      <div class="step-detail">Open Tampermonkey dashboard — you should see TWO enabled scripts: 'BBC Lightning Leads — Auto-Search from URL hash' and 'HMHW Offer Oven — Prefill from briefing'. Both auto-update from the same URLs whenever I push changes — no re-install needed.</div>
       
       
     </li>
     
     <li>
-      <strong>Test it</strong>
-      <div class="step-detail">Open the dashboard. Tap any 'Search BBC ↗' link on a Tier A/B/C deal card. New tab opens BBC Lightning Leads, search box auto-fills with city + state, Search runs automatically. A small green '🔍 Auto-searched' banner appears top-right of BBC.</div>
+      <strong>Test BBC auto-search</strong>
+      <div class="step-detail">Open the dashboard. Tap any 'Search BBC ↗' link on a deal card → BBC opens with city/state pre-typed and Search auto-runs. Green '🔍 Auto-searched' banner top-right confirms.</div>
       
       <a class="step-link" href="/rt-companion/" >Open today's briefing</a>
+    </li>
+    
+    <li>
+      <strong>Test Offer Oven prefill</strong>
+      <div class="step-detail">Tap 'Verify in Offer Oven ↗' on any Tier A or Tier B card → Offer Oven opens, fields auto-fill with the standard offer (Tier A: asking+10%, 10% down; Tier B: asking+20%, 12% down). Green '✓ Offer Oven prefilled' banner confirms which fields matched.</div>
+      
+      
     </li>
     
     <li>
