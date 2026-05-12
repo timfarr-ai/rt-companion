@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investment Opportunity — 4521 Elm Street</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f6f9; color: #1a2332; font-size: 14px; }
+  .page { max-width: 800px; margin: 0 auto; background: #fff; }
+
+  /* Header */
+  .header { background: #0f1f3d; color: #fff; padding: 28px 36px; }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .badge { background: #2ecc71; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 3px; }
+  .header h1 { font-size: 22px; font-weight: 700; margin-top: 10px; }
+  .header .subtitle { color: #a8b8cc; font-size: 13px; margin-top: 4px; }
+
+  /* Deal Snapshot */
+  .snapshot { display: grid; grid-template-columns: repeat(5, 1fr); background: #1a2d50; }
+  .snap-item { padding: 16px 12px; text-align: center; border-right: 1px solid #243a5e; }
+  .snap-item:last-child { border-right: none; }
+  .snap-label { color: #7a9ab8; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .snap-value { color: #fff; font-size: 18px; font-weight: 700; }
+  .snap-value.green { color: #2ecc71; }
+  .snap-sub { color: #5a7a99; font-size: 11px; margin-top: 3px; }
+
+  /* Body */
+  .body { padding: 28px 36px; }
+
+  /* Section headers */
+  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #0f1f3d; border-bottom: 2px solid #0f1f3d; padding-bottom: 6px; margin-bottom: 14px; }
+
+  /* Two-column layout */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+
+  /* Property details */
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .detail-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #f0f2f5; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { color: #7a8a9a; }
+  .detail-value { font-weight: 600; color: #1a2332; }
+
+  /* Financial table */
+  .fin-col { background: #f8fafc; border-radius: 6px; padding: 16px; }
+  .fin-col h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #5a6a7a; margin-bottom: 10px; }
+  .fin-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; border-bottom: 1px solid #edf0f3; }
+  .fin-row:last-child { border-bottom: none; font-weight: 700; }
+  .fin-row.total { margin-top: 6px; padding-top: 8px; border-top: 2px solid #dde3ea; border-bottom: none; }
+  .fin-row.deduct { color: #e74c3c; }
+  .fin-row.income { color: #27ae60; }
+
+  /* Cash flow result */
+  .cf-result { background: #0f1f3d; color: #fff; border-radius: 8px; padding: 18px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+  .cf-result .cf-label { font-size: 13px; color: #a8b8cc; }
+  .cf-result .cf-number { font-size: 32px; font-weight: 700; color: #2ecc71; }
+  .cf-result .cf-sub { font-size: 11px; color: #5a7a99; margin-top: 2px; }
+
+  /* Terms */
+  .terms-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+  .term-box { background: #f8fafc; border: 1px solid #e8ecf0; border-radius: 6px; padding: 12px; text-align: center; }
+  .term-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #7a8a9a; margin-bottom: 4px; }
+  .term-value { font-size: 16px; font-weight: 700; color: #0f1f3d; }
+
+  /* ROI highlight */
+  .roi-box { background: #f0f9f4; border: 2px solid #2ecc71; border-radius: 8px; padding: 18px 24px; margin-bottom: 24px; }
+  .roi-box h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #27ae60; margin-bottom: 12px; }
+  .roi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+  .roi-item { text-align: center; padding: 0 16px; border-right: 1px solid #c8e8d4; }
+  .roi-item:last-child { border-right: none; }
+  .roi-item .ri-label { font-size: 11px; color: #5a8a6a; margin-bottom: 4px; }
+  .roi-item .ri-value { font-size: 22px; font-weight: 700; color: #1a6a3a; }
+  .roi-item .ri-sub { font-size: 10px; color: #7aaa8a; margin-top: 2px; }
+
+  /* Next steps */
+  .next-steps { background: #f8fafc; border-radius: 6px; padding: 16px 20px; margin-bottom: 20px; }
+  .next-steps h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #0f1f3d; margin-bottom: 10px; }
+  .next-steps li { padding: 4px 0; color: #4a5a6a; list-style: none; }
+  .next-steps li::before { content: "→ "; color: #2ecc71; font-weight: 700; }
+
+  /* Footer */
+  .footer { border-top: 1px solid #e8ecf0; padding: 16px 36px; font-size: 11px; color: #9aacbc; display: flex; justify-content: space-between; }
+
+  @media print {
+    body { background: #fff; }
+    .page { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div class="badge">Seller Finance — Available Now</div>
+    </div>
+    <h1>4521 Elm Street</h1>
+    <div class="subtitle">Memphis, TN 38104 &nbsp;·&nbsp; 10bd / 5ba &nbsp;·&nbsp; 5,840 sqft &nbsp;·&nbsp; Multifamily (5-unit)</div>
+  </div>
+
+  <!-- Snapshot Bar -->
+  <div class="snapshot">
+    <div class="snap-item">
+      <div class="snap-label">Your Price</div>
+      <div class="snap-value">$522,500</div>
+    </div>
+    <div class="snap-item">
+      <div class="snap-label">Entry (All-In)</div>
+      <div class="snap-value">$60,250</div>
+      <div class="snap-sub">11.5% of price</div>
+    </div>
+    <div class="snap-item">
+      <div class="snap-label">Monthly Pmt</div>
+      <div class="snap-value">$1,650</div>
+      <div class="snap-sub">PITI</div>
+    </div>
+    <div class="snap-item">
+      <div class="snap-label">Cash Flow</div>
+      <div class="snap-value green">$1,750</div>
+      <div class="snap-sub">per month</div>
+    </div>
+    <div class="snap-item">
+      <div class="snap-label">CoC Return</div>
+      <div class="snap-value green">34.9%</div>
+      <div class="snap-sub">cash-on-cash</div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- Property Details -->
+    <div class="section-title">Property Details</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0; margin-bottom:24px;">
+      <div class="detail-row"><span class="detail-label">Property Type</span><span class="detail-value">Multifamily (5-unit)</span></div>
+      <div class="detail-row"><span class="detail-label">Year Built</span><span class="detail-value">1962</span></div>
+      <div class="detail-row"><span class="detail-label">Bedrooms / Baths</span><span class="detail-value">10 / 5</span></div>
+      <div class="detail-row"><span class="detail-label">Sq Footage</span><span class="detail-value">5,840 sqft</span></div>
+      <div class="detail-row"><span class="detail-label">Condition</span><span class="detail-value">Turnkey — last reno 2022</span></div>
+      <div class="detail-row"><span class="detail-label">Occupancy</span><span class="detail-value">Fully occupied (5/5 leased)</span></div>
+      <div class="detail-row"><span class="detail-label">Days on Market</span><span class="detail-value">132 days</span></div>
+      <div class="detail-row"><span class="detail-label">Equity</span><span class="detail-value">100%</span></div>
+    </div>
+
+    <!-- Financial Breakdown -->
+    <div class="section-title">Financial Breakdown</div>
+    <div class="two-col" style="margin-bottom:12px;">
+      <div class="fin-col">
+        <h4>Income</h4>
+        <div class="fin-row income"><span>Estimated Rent</span><span>$4,250/mo</span></div>
+        <div class="fin-row deduct"><span>Vacancy + Expenses (20%)</span><span>-$850/mo</span></div>
+        <div class="fin-row total"><span>Net Operating Income</span><span>$3,400/mo</span></div>
+      </div>
+      <div class="fin-col">
+        <h4>Expenses</h4>
+        <div class="fin-row"><span>Principal &amp; Interest</span><span>$1,306/mo</span></div>
+        <div class="fin-row"><span>Property Taxes</span><span>$237/mo</span></div>
+        <div class="fin-row"><span>Insurance</span><span>$107/mo</span></div>
+        <div class="fin-row total"><span>Total PITI</span><span>$1,650/mo</span></div>
+      </div>
+    </div>
+
+    <div class="cf-result">
+      <div>
+        <div class="cf-label">Monthly Cash Flow</div>
+        <div class="cf-sub">Net Operating Income minus Total PITI</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="cf-number">+$1,750/mo</div>
+        <div class="cf-sub">$21,000/year</div>
+      </div>
+    </div>
+
+    <!-- Creative Finance Terms -->
+    <div class="section-title">Creative Finance Terms</div>
+    <div class="terms-grid" style="margin-bottom:24px;">
+      <div class="term-box">
+        <div class="term-label">Purchase Price</div>
+        <div class="term-value">$522,500</div>
+      </div>
+      <div class="term-box">
+        <div class="term-label">Down Payment</div>
+        <div class="term-value">$52,250 <span style="font-size:12px; color:#7a8a9a;">(10%)</span></div>
+      </div>
+      <div class="term-box">
+        <div class="term-label">Seller Carryback</div>
+        <div class="term-value">$470,250</div>
+      </div>
+      <div class="term-box">
+        <div class="term-label">Interest Rate</div>
+        <div class="term-value">0%</div>
+      </div>
+      <div class="term-box">
+        <div class="term-label">Amortization</div>
+        <div class="term-value">30 Years</div>
+      </div>
+      <div class="term-box">
+        <div class="term-label">Balloon</div>
+        <div class="term-value">5 Years</div>
+      </div>
+    </div>
+
+    <!-- ROI Summary -->
+    <div class="roi-box">
+      <h3>Return on Investment</h3>
+      <div class="roi-grid">
+        <div class="roi-item">
+          <div class="ri-label">Total Cash In</div>
+          <div class="ri-value">$60,250</div>
+          <div class="ri-sub">down + closing + fee</div>
+        </div>
+        <div class="roi-item">
+          <div class="ri-label">Annual Cash Flow</div>
+          <div class="ri-value">$21,000</div>
+          <div class="ri-sub">$1,750/mo × 12</div>
+        </div>
+        <div class="roi-item">
+          <div class="ri-label">Cash-on-Cash Return</div>
+          <div class="ri-value">34.9%</div>
+          <div class="ri-sub">vs. S&amp;P 500 avg ~10%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Next Steps -->
+    <div class="next-steps">
+      <h4>How to Move Forward</h4>
+      <ul>
+        <li>Reach out to secure your position: <strong>Tim Farr</strong> — timfarr@me.com</li>
+        <li>Contract is assignable — review available upon request</li>
+        <li>EMD: $1,000 due after 10-business-day inspection period</li>
+        <li>Closing timeline: 30 days from contract execution</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>4521 Elm Street, Memphis TN — Creative Finance Assignment</span>
+    <span>Generated May 12, 2026</span>
+  </div>
+
+</div>
+</body>
+</html>
