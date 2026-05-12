@@ -70,6 +70,36 @@
       border-radius: 6px; color: var(--accent); text-decoration: none;
     }
     .step-link:active { opacity: 0.7; }
+    /* Command-box: pre-filled editable input + Copy button. Tim edits placeholders, taps Copy, pastes into Claude Code. */
+    .cmd-box {
+      display: flex; flex-direction: column; gap: 6px;
+      margin-top: 8px; padding: 10px;
+      background: #0b0f15; border: 1px solid var(--border); border-radius: 8px;
+    }
+    .cmd-box-label {
+      font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .cmd-box-label .where { color: var(--accent); text-transform: none; letter-spacing: 0; font-weight: 500; }
+    .cmd-input {
+      width: 100%; box-sizing: border-box;
+      background: var(--panel-2); color: var(--text);
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 14px; line-height: 1.4;
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 8px 10px; resize: vertical; min-height: 38px;
+    }
+    .cmd-input:focus { outline: none; border-color: var(--accent); }
+    .cmd-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .cmd-copy {
+      background: var(--accent); color: #0d1117; border: 0;
+      border-radius: 6px; padding: 6px 14px;
+      font-weight: 600; font-size: 13px; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cmd-copy:active { opacity: 0.7; }
+    .cmd-copy.copied { background: var(--green); }
+    .cmd-hint { font-size: 12px; color: var(--muted); }
     .script-box {
       background: var(--panel-2);
       border: 1px solid var(--border);
@@ -241,17 +271,20 @@
       <strong>Confirm Tier B qualifies</strong>
       <div class="step-detail">Price under $100K, DOM ≥ 90, SFH (not MFH). If MFH, route to Tier A instead.</div>
       
+      
     </li>
     
     <li>
       <strong>Quick comp check on Zillow</strong>
       <div class="step-detail">Open the Zillow listing. Confirm rent estimate. If Zillow rent is null/zero, run a Rentometer check before calling.</div>
       
+      
     </li>
     
     <li>
       <strong>Run the numbers</strong>
       <div class="step-detail">Input to Offer Oven: <code>Price = asking + 20%</code>, <code>Down = 12-14%</code>, <code>0% interest</code>, <code>7yr balloon</code>. Check CF > $200.</div>
+      
       <a class="step-link" href="https://www.hmhw.group/tools/offer-oven" target="_blank" rel="noopener">Open Offer Oven ↗</a>
     </li>
     
@@ -259,11 +292,13 @@
       <strong>Section 8 angle? (decide before dialing)</strong>
       <div class="step-detail">If property is in a Section-8-friendly area, use the alt script (S8 angle). Section 8 rents are typically above market and add to your pitch.</div>
       
+      
     </li>
     
     <li>
       <strong>Dial once — leave the One-Liner voicemail (below)</strong>
       <div class="step-detail">Keep it under 2 minutes. The key phrase: <em>'I negotiate backwards here — but there's a good reason for it.'</em></div>
+      
       
     </li>
     
@@ -271,11 +306,13 @@
       <strong>Wait 24-48 hours; follow up if no callback</strong>
       <div class="step-detail">Cheap markets have slower agents. Two follow-up dials over 5 days is reasonable.</div>
       
+      
     </li>
     
     <li>
       <strong>On callback — confirm condition</strong>
       <div class="step-detail">Ask about roof, foundation, HVAC. Tier B has more rehab risk. If anything looks bad, price down before committing.</div>
+      
       
     </li>
     
@@ -283,11 +320,13 @@
       <strong>On verbal yes → contract</strong>
       <div class="step-detail">Claude Code: <code>verbal yes on [address]</code>. Confirm inspection period (10 biz days) and EMD ($1K AFTER inspection).</div>
       
+      
     </li>
     
     <li>
       <strong>Submit</strong>
       <div class="step-detail">Same as Tier A: BBC Marketplace + Grand In Taylor Creative Form.</div>
+      
       
     </li>
     
@@ -467,6 +506,22 @@ the structure has to change, not the rate."</div>
     <a href="/rt-companion/strategy/contract-close.html">Contract</a>
   </nav>
   <script>
+    // Command-box copy buttons (find sibling textarea/input)
+    document.querySelectorAll('.cmd-copy').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const input = btn.closest('.cmd-box').querySelector('.cmd-input');
+        if (!input) return;
+        try {
+          await navigator.clipboard.writeText(input.value);
+          const orig = btn.textContent;
+          btn.textContent = '✓ Copied';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+        } catch (e) {
+          input.select();
+        }
+      });
+    });
     document.querySelectorAll('.copy-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
         const target = document.getElementById(btn.dataset.target);

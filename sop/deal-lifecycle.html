@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="robots" content="noindex, nofollow">
-  <title>Morning Triage Review (8am) — RT Deal Desk</title>
+  <title>Deal Lifecycle — Where Each Deal Lives — RT Deal Desk</title>
   <style>
     :root {
       --bg: #0d1117;
@@ -239,7 +239,7 @@
 <body>
   <header>
     <a href="/rt-companion/" class="back">‹ Back</a>
-    <h1>🌅 Morning Triage Review (8am)</h1>
+    <h1>🔄 Deal Lifecycle — Where Each Deal Lives</h1>
     <a href="/" class="back" style="text-align:right;">🏠</a>
   </header>
   <main>
@@ -248,7 +248,7 @@
 <div class="grid-2">
   <div class="section">
     <h2>① TL;DR</h2>
-    <p class="tldr">Each weekday at 8am AEST the cloud routine pushes a tier-organized briefing to the dashboard. This SOP is how you scan it in <10 min and set your call list for the day.
+    <p class="tldr">The daily briefing is INBOX. BBC Inventory is PIPELINE. Airtable Watchlist is COLD-WATCH. Each deal has one canonical home at each stage.
 </p>
   </div>
 
@@ -256,7 +256,7 @@
     <h2>② When to use</h2>
     <div class="when">
       <ul>
-        <li>Every weekday morning before any deal work</li><li>Briefing arrives ~8:05am AEST after cloud routine runs</li>
+        <li>Before working any deal — understand where to track its state</li><li>Confused about whether to use BBC, Airtable, or somewhere else</li>
       </ul>
     </div>
   </div>
@@ -268,50 +268,50 @@
   <ol class="how-to two-col">
     
     <li>
-      <strong>Open the dashboard on phone or laptop</strong>
-      <div class="step-detail">Bookmark already on home screen. Tap to open.</div>
+      <strong>Stage 0 — Briefing INBOX (8am each weekday)</strong>
+      <div class="step-detail">Daily briefing on the dashboard. Ephemeral — refreshed each morning. Don't track state here; this is just what's NEW today. <strong>Action: scan and decide which deals to act on.</strong></div>
       
-      <a class="step-link" href="https://timfarr-ai.github.io/rt-companion/" target="_blank" rel="noopener">Open dashboard ↗</a>
+      <a class="step-link" href="/rt-companion/" >Today's briefing</a>
     </li>
     
     <li>
-      <strong>Read Tier A deals first (top priority)</strong>
-      <div class="step-detail">Tier A = MFH 5+ units $350K-$1.4M, DOM 90+. These have the highest assignment fee potential ($50K+). Cap your morning call list at 2-3 Tier A deals.</div>
+      <strong>Stage 1 — First call → BBC Inventory</strong>
+      <div class="step-detail">The moment you dial an agent (even a voicemail), move that deal into <strong>BBC Inventory</strong> at Stage 1 (Prospecting). Use BBC's notes field to log: date called, voicemail or live, agent name, agent phone. This is the canonical pipeline.</div>
       
-      
+      <a class="step-link" href="https://buyboxcartel.com/vip/inventory" target="_blank" rel="noopener">BBC Inventory ↗</a>
     </li>
     
     <li>
-      <strong>Then Tier B (cheap stale SFH)</strong>
-      <div class="step-detail">Lower-effort calls. Aim for 3-5 Tier B voicemails in a single sitting.</div>
-      
-      
-    </li>
-    
-    <li>
-      <strong>Tier C (cash buyer SFH) — only if quota for the week is light</strong>
-      <div class="step-detail">Cash offers are lower yield. Skip if Tier A/B fills your block.</div>
+      <strong>Stage 2 — Offer sent → BBC Inventory advance</strong>
+      <div class="step-detail">Once you submit a written offer through BBC, advance the card from Prospecting → Offer Sent. BBC tracks the contract state from here.</div>
       
       
     </li>
     
     <li>
-      <strong>Copy each script before dialing</strong>
-      <div class="step-detail">Tap the deal → Tier playbook → 'Copy script' button. Paste into Notes app for during-call reference.</div>
+      <strong>Stage 3 — Under contract → BBC Inventory + start dispo</strong>
+      <div class="step-detail">Contract executed. Move to Under Contract stage. Trigger one-pager generation and submit to dispo channels (see Verbal Yes → Dispo SOP).</div>
       
       
     </li>
     
     <li>
-      <strong>Find agent phone numbers via Zillow</strong>
-      <div class="step-detail">Tap the Zillow link on each briefing card → agent name → cell phone. Save to your call list.</div>
+      <strong>Stage 4 — Closed / assigned</strong>
+      <div class="step-detail">Final stage. Log final assignment fee. Add buyer to Airtable Known Buyers if they're a new contact worth keeping for future deals.</div>
       
       
     </li>
     
     <li>
-      <strong>Skip data-incomplete deals for now</strong>
-      <div class="step-detail">Deals with missing rent/PITI need Zillow or Rentometer enrichment. Park them for a 'data cleanup' block later in the day.</div>
+      <strong>REJECTED deals → Airtable Rejected Watchlist (passive)</strong>
+      <div class="step-detail">Deals from the briefing that didn't qualify (CF<$200 or wrong tier) auto-push to <strong>Airtable Watchlist</strong>. Deal Monitor checks them every 48h for price drops. <strong>Action: nothing — it's automated.</strong></div>
+      
+      <a class="step-link" href="https://airtable.com/appv6jhEzhGaAITcs/tbluV0qAWYNAFkD5S" target="_blank" rel="noopener">Airtable Watchlist ↗</a>
+    </li>
+    
+    <li>
+      <strong>DEAD deals (after 90 days no movement) → archive</strong>
+      <div class="step-detail">BBC Inventory cards that stale at Prospecting for 90+ days with no agent response → archive in BBC. Don't keep dead leads cluttering the active view.</div>
       
       
     </li>
@@ -329,6 +329,21 @@
 
 
 
+<div class="section">
+  <h2>⑧ Counter-offer rules</h2>
+  <div class="counter-grid">
+    
+    <div class="counter-rule">DO NOT track active pipeline in Airtable. Airtable is for (a) Known Buyers (your network) and (b) Rejected Watchlist (price-drop monitoring). NOT pipeline.</div>
+    
+    <div class="counter-rule">DO NOT track briefing-only deals — the briefing refreshes every morning. If a deal matters, move it to BBC Inventory immediately.</div>
+    
+    <div class="counter-rule">DO use BBC Inventory notes liberally — agent names, call dates, response patterns all live there.</div>
+    
+    <div class="counter-rule">If a Watchlist deal goes 'Newly Qualified' (Deal Monitor flags it), move it to BBC Inventory Stage 1 manually.</div>
+    
+  </div>
+</div>
+
 
 
 
@@ -337,27 +352,21 @@
   <h2>⑨ Sources (go deeper)</h2>
   <div class="sources-grid">
     
-    <a class="source-link" href="https://timfarr-ai.github.io/rt-companion/briefings/latest.html" target="_blank" rel="noopener">
-      <span class="icon">📋</span>
-      <span class="label">Open today's briefing</span>
-      <span class="arrow">↗</span>
-    </a>
-    
-    <a class="source-link" href="https://timfarr-ai.github.io/rt-companion/briefings/" target="_blank" rel="noopener">
-      <span class="icon">📚</span>
-      <span class="label">Past briefings archive</span>
-      <span class="arrow">↗</span>
-    </a>
-    
-    <a class="source-link" href="https://claude.ai/code/routines/trig_01DXdZ22PfZsyJjmTkiWPanC" target="_blank" rel="noopener">
-      <span class="icon">🤖</span>
-      <span class="label">Cloud routine logs (claude.ai)</span>
-      <span class="arrow">↗</span>
-    </a>
-    
-    <a class="source-link" href="https://buyboxcartel.com/vip/lightning-leads" target="_blank" rel="noopener">
+    <a class="source-link" href="https://buyboxcartel.com/vip/inventory" target="_blank" rel="noopener">
       <span class="icon">🏦</span>
-      <span class="label">BBC Lightning Leads (manual browse)</span>
+      <span class="label">BBC Inventory (canonical pipeline)</span>
+      <span class="arrow">↗</span>
+    </a>
+    
+    <a class="source-link" href="https://airtable.com/appv6jhEzhGaAITcs/tbluV0qAWYNAFkD5S" target="_blank" rel="noopener">
+      <span class="icon">📒</span>
+      <span class="label">Airtable Watchlist (passive monitoring)</span>
+      <span class="arrow">↗</span>
+    </a>
+    
+    <a class="source-link" href="https://airtable.com/appv6jhEzhGaAITcs/tblh40Mq2rHwfe1I2" target="_blank" rel="noopener">
+      <span class="icon">👥</span>
+      <span class="label">Airtable Known Buyers (your network)</span>
       <span class="arrow">↗</span>
     </a>
     

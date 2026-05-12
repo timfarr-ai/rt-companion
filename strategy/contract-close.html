@@ -70,6 +70,36 @@
       border-radius: 6px; color: var(--accent); text-decoration: none;
     }
     .step-link:active { opacity: 0.7; }
+    /* Command-box: pre-filled editable input + Copy button. Tim edits placeholders, taps Copy, pastes into Claude Code. */
+    .cmd-box {
+      display: flex; flex-direction: column; gap: 6px;
+      margin-top: 8px; padding: 10px;
+      background: #0b0f15; border: 1px solid var(--border); border-radius: 8px;
+    }
+    .cmd-box-label {
+      font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .cmd-box-label .where { color: var(--accent); text-transform: none; letter-spacing: 0; font-weight: 500; }
+    .cmd-input {
+      width: 100%; box-sizing: border-box;
+      background: var(--panel-2); color: var(--text);
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 14px; line-height: 1.4;
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 8px 10px; resize: vertical; min-height: 38px;
+    }
+    .cmd-input:focus { outline: none; border-color: var(--accent); }
+    .cmd-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .cmd-copy {
+      background: var(--accent); color: #0d1117; border: 0;
+      border-radius: 6px; padding: 6px 14px;
+      font-weight: 600; font-size: 13px; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cmd-copy:active { opacity: 0.7; }
+    .cmd-copy.copied { background: var(--green); }
+    .cmd-hint { font-size: 12px; color: var(--muted); }
     .script-box {
       background: var(--panel-2);
       border: 1px solid var(--border);
@@ -239,13 +269,27 @@
     
     <li>
       <strong>Generate contract parameters in Claude Code</strong>
-      <div class="step-detail">On Mac: <code>verbal yes on [address]</code>. Returns BBC data entry block + addendum language + buyer disposition summary.</div>
+      <div class="step-detail">Returns BBC data entry block + addendum language + buyer disposition summary.</div>
+      
+      <div class="cmd-box">
+        <div class="cmd-box-label">
+          <span>Trigger: contract parameters</span>
+          <span class="where">→ paste into Claude Code (Mac)</span>
+        </div>
+        <textarea class="cmd-input" rows="1" spellcheck="false">verbal yes on 1915 Margalene Way, Austin TX</textarea>
+        <div class="cmd-actions">
+          <button class="cmd-copy">📋 Copy command</button>
+          <span class="cmd-hint">Replace with your actual address.</span>
+        </div>
+      </div>
+      
       
     </li>
     
     <li>
       <strong>Enter in BBC → Create Offer</strong>
       <div class="step-detail">Open BBC Inventory → Create Offer button. Fill: Purchase Price, Seller Carryback, Down, Interest Rate, Amortization (30yr), Balloon (5-7yr), EMD ($1K), Inspection (10 biz days), Closing Date (30 days).</div>
+      
       <a class="step-link" href="https://buyboxcartel.com/vip/inventory" target="_blank" rel="noopener">BBC Inventory ↗</a>
     </li>
     
@@ -253,11 +297,13 @@
       <strong>Paste the addendum language</strong>
       <div class="step-detail">Copy from below into the BBC contract template. Customize address and amounts.</div>
       
+      
     </li>
     
     <li>
       <strong>Send to agent for execution</strong>
       <div class="step-detail">BBC handles e-signature. Agent forwards to seller. Expect 24-72 hours for return.</div>
+      
       
     </li>
     
@@ -265,17 +311,32 @@
       <strong>Once executed → start dispo immediately</strong>
       <div class="step-detail">Don't wait for inspection to begin marketing. Time matters.</div>
       
+      
     </li>
     
     <li>
       <strong>Submit BBC Marketplace + Grand In Taylor</strong>
       <div class="step-detail">BBC Marketplace auto-dispos to BBC's buyer network. Grand In Taylor Creative form taps Richard's wider buyer pool.</div>
       
+      
     </li>
     
     <li>
       <strong>Generate buyer one-pager for out-of-network</strong>
-      <div class="step-detail">Claude Code: <code>generate buyer one-pager for [address]</code>. Get a shareable URL you can DM to Instagram/FB/email buyers.</div>
+      <div class="step-detail">Get a shareable URL you can DM to Instagram/FB/email buyers.</div>
+      
+      <div class="cmd-box">
+        <div class="cmd-box-label">
+          <span>Trigger: buyer one-pager</span>
+          <span class="where">→ paste into Claude Code (Mac)</span>
+        </div>
+        <textarea class="cmd-input" rows="1" spellcheck="false">generate buyer one-pager for 1915 Margalene Way, Austin TX</textarea>
+        <div class="cmd-actions">
+          <button class="cmd-copy">📋 Copy command</button>
+          <span class="cmd-hint">Returns a public URL ready to share.</span>
+        </div>
+      </div>
+      
       
     </li>
     
@@ -283,11 +344,13 @@
       <strong>EMD timing — DO NOT submit early</strong>
       <div class="step-detail">EMD ($1,000) is submitted ONLY AFTER inspection period ends. Inspection is 10 biz days (7 minimum). Richard's company often covers EMD for assigned buyers.</div>
       
+      
     </li>
     
     <li>
       <strong>Close in 30 days from execution</strong>
       <div class="step-detail">Title transfer happens at closing. If using Land Trust structure, Buyer is named as beneficiary.</div>
+      
       
     </li>
     
@@ -380,6 +443,22 @@ Title to transfer into a Land Trust at closing, with Buyer named as beneficiary.
     <a href="/rt-companion/strategy/contract-close.html">Contract</a>
   </nav>
   <script>
+    // Command-box copy buttons (find sibling textarea/input)
+    document.querySelectorAll('.cmd-copy').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const input = btn.closest('.cmd-box').querySelector('.cmd-input');
+        if (!input) return;
+        try {
+          await navigator.clipboard.writeText(input.value);
+          const orig = btn.textContent;
+          btn.textContent = '✓ Copied';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+        } catch (e) {
+          input.select();
+        }
+      });
+    });
     document.querySelectorAll('.copy-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
         const target = document.getElementById(btn.dataset.target);

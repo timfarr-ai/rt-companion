@@ -25,6 +25,19 @@
     <li>
       <strong>{{ step.title }}</strong>
       {% if step.detail %}<div class="step-detail">{{ step.detail | safe }}</div>{% endif %}
+      {% if step.command %}
+      <div class="cmd-box">
+        <div class="cmd-box-label">
+          <span>{{ step.command.label or 'Claude Code command' }}</span>
+          <span class="where">→ paste into {{ step.command.target or 'Claude Code (Mac)' }}</span>
+        </div>
+        <textarea class="cmd-input" rows="{{ step.command.rows or 1 }}" spellcheck="false">{{ step.command.text }}</textarea>
+        <div class="cmd-actions">
+          <button class="cmd-copy">📋 Copy command</button>
+          {% if step.command.hint %}<span class="cmd-hint">{{ step.command.hint | safe }}</span>{% endif %}
+        </div>
+      </div>
+      {% endif %}
       {% if step.link %}<a class="step-link" href="{{ step.link.url }}" {% if step.link.external %}target="_blank" rel="noopener"{% endif %}>{{ step.link.label }}{% if step.link.external %} ↗{% endif %}</a>{% endif %}
     </li>
     {% endfor %}

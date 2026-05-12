@@ -70,6 +70,36 @@
       border-radius: 6px; color: var(--accent); text-decoration: none;
     }
     .step-link:active { opacity: 0.7; }
+    /* Command-box: pre-filled editable input + Copy button. Tim edits placeholders, taps Copy, pastes into Claude Code. */
+    .cmd-box {
+      display: flex; flex-direction: column; gap: 6px;
+      margin-top: 8px; padding: 10px;
+      background: #0b0f15; border: 1px solid var(--border); border-radius: 8px;
+    }
+    .cmd-box-label {
+      font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .cmd-box-label .where { color: var(--accent); text-transform: none; letter-spacing: 0; font-weight: 500; }
+    .cmd-input {
+      width: 100%; box-sizing: border-box;
+      background: var(--panel-2); color: var(--text);
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 14px; line-height: 1.4;
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 8px 10px; resize: vertical; min-height: 38px;
+    }
+    .cmd-input:focus { outline: none; border-color: var(--accent); }
+    .cmd-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .cmd-copy {
+      background: var(--accent); color: #0d1117; border: 0;
+      border-radius: 6px; padding: 6px 14px;
+      font-weight: 600; font-size: 13px; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cmd-copy:active { opacity: 0.7; }
+    .cmd-copy.copied { background: var(--green); }
+    .cmd-hint { font-size: 12px; color: var(--muted); }
     .script-box {
       background: var(--panel-2);
       border: 1px solid var(--border);
@@ -241,11 +271,25 @@
       <strong>Capture the agent's exact words</strong>
       <div class="step-detail">Copy the text/email verbatim. For voicemail, type out what they said.</div>
       
+      
     </li>
     
     <li>
-      <strong>In Claude Code on Mac OR claude.ai iOS app — paste:</strong>
-      <div class="step-detail"><code>agent replied: [paste their message]</code> — Claude pulls the deal from context (or asks for the address), reparses the proposed terms, and runs the math.</div>
+      <strong>In Claude Code on Mac OR claude.ai iOS app — paste this trigger with the agent's message:</strong>
+      <div class="step-detail">Claude pulls the deal from context (or asks for the address), reparses the proposed terms, and runs the math.</div>
+      
+      <div class="cmd-box">
+        <div class="cmd-box-label">
+          <span>Trigger: counter-offer analysis</span>
+          <span class="where">→ paste into Claude Code (Mac)</span>
+        </div>
+        <textarea class="cmd-input" rows="2" spellcheck="false">agent replied: "We'd accept your offer but seller wants 15% down instead of 10%."</textarea>
+        <div class="cmd-actions">
+          <button class="cmd-copy">📋 Copy command</button>
+          <span class="cmd-hint">Replace the quoted message with what the agent actually said.</span>
+        </div>
+      </div>
+      
       
     </li>
     
@@ -253,11 +297,13 @@
       <strong>Review Claude's analysis</strong>
       <div class="step-detail">You'll see: revised CF, revised CoC, whether deal still qualifies, recommendation (PROCEED / COUNTER BACK / KILL), and a response script.</div>
       
+      
     </li>
     
     <li>
       <strong>Apply Tier-specific rules before agreeing</strong>
       <div class="step-detail">Tier A: NEVER exceed 10% down. Never give both premium AND interest. Push back firmly on these even if Claude approves CF-wise.<br>Tier B: 12-14% down is OK. Interest at 4-6.5% is OK if price drops to asking.</div>
+      
       
     </li>
     
@@ -265,17 +311,20 @@
       <strong>Send response</strong>
       <div class="step-detail">Copy Claude's response script. Customize 1-2 phrases to sound human. Send via the same channel the agent used (text → text, email → email).</div>
       
+      
     </li>
     
     <li>
       <strong>Log the round</strong>
       <div class="step-detail">Save the agent's message + your response in Notes/Airtable so you can reconstruct the negotiation history.</div>
       
+      
     </li>
     
     <li>
       <strong>If COUNTER BACK — schedule follow-up</strong>
       <div class="step-detail">Most counters take 24-48 hours to resolve. Set a calendar reminder for 48h to check status.</div>
+      
       
     </li>
     
@@ -327,6 +376,22 @@
     <a href="/rt-companion/strategy/contract-close.html">Contract</a>
   </nav>
   <script>
+    // Command-box copy buttons (find sibling textarea/input)
+    document.querySelectorAll('.cmd-copy').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const input = btn.closest('.cmd-box').querySelector('.cmd-input');
+        if (!input) return;
+        try {
+          await navigator.clipboard.writeText(input.value);
+          const orig = btn.textContent;
+          btn.textContent = '✓ Copied';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+        } catch (e) {
+          input.select();
+        }
+      });
+    });
     document.querySelectorAll('.copy-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
         const target = document.getElementById(btn.dataset.target);

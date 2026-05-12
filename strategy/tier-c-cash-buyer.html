@@ -70,6 +70,36 @@
       border-radius: 6px; color: var(--accent); text-decoration: none;
     }
     .step-link:active { opacity: 0.7; }
+    /* Command-box: pre-filled editable input + Copy button. Tim edits placeholders, taps Copy, pastes into Claude Code. */
+    .cmd-box {
+      display: flex; flex-direction: column; gap: 6px;
+      margin-top: 8px; padding: 10px;
+      background: #0b0f15; border: 1px solid var(--border); border-radius: 8px;
+    }
+    .cmd-box-label {
+      font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .cmd-box-label .where { color: var(--accent); text-transform: none; letter-spacing: 0; font-weight: 500; }
+    .cmd-input {
+      width: 100%; box-sizing: border-box;
+      background: var(--panel-2); color: var(--text);
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 14px; line-height: 1.4;
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 8px 10px; resize: vertical; min-height: 38px;
+    }
+    .cmd-input:focus { outline: none; border-color: var(--accent); }
+    .cmd-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .cmd-copy {
+      background: var(--accent); color: #0d1117; border: 0;
+      border-radius: 6px; padding: 6px 14px;
+      font-weight: 600; font-size: 13px; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cmd-copy:active { opacity: 0.7; }
+    .cmd-copy.copied { background: var(--green); }
+    .cmd-hint { font-size: 12px; color: var(--muted); }
     .script-box {
       background: var(--panel-2);
       border: 1px solid var(--border);
@@ -241,11 +271,13 @@
       <strong>Confirm Tier C — cash-flow check</strong>
       <div class="step-detail">Does this SFH cash-flow at asking? If yes, you do NOT pitch seller finance. If it only works with seller finance, it's actually Tier A or B.</div>
       
+      
     </li>
     
     <li>
       <strong>Calculate Max Allowable Offer</strong>
       <div class="step-detail">MAO = 70-80% of asking price (depends on market and rehab). Use Fix & Flip Calculator if condition needs work.</div>
+      
       <a class="step-link" href="https://www.hmhw.group/tools/fix-and-flip" target="_blank" rel="noopener">Fix & Flip Calculator ↗</a>
     </li>
     
@@ -253,11 +285,13 @@
       <strong>Find motivation BEFORE offering</strong>
       <div class="step-detail">Tier C only works with motivated sellers. Ask: divorce, inheritance, tired landlord, job relocation? No motivation = pass.</div>
       
+      
     </li>
     
     <li>
       <strong>First contact — qualify, don't pitch</strong>
       <div class="step-detail">Use the C1 script below. Ask about flexibility on price. Listen for motivation signals.</div>
+      
       
     </li>
     
@@ -265,23 +299,27 @@
       <strong>Submit cash offer at MAO</strong>
       <div class="step-detail">Send written offer at 70-80% of asking. Include 10 biz day inspection, $1K EMD after inspection.</div>
       
+      
     </li>
     
     <li>
       <strong>On verbal yes → contract</strong>
       <div class="step-detail">Claude Code: <code>verbal yes on [address]</code>. Standard cash contract (not creative addendum).</div>
       
+      
     </li>
     
     <li>
       <strong>Submit dispo via Cash Alt form</strong>
       <div class="step-detail">Use Grand In Taylor CASH Alt form (NOT Creative form). BBC Marketplace also auto-dispos.</div>
+      
       <a class="step-link" href="https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587" target="_blank" rel="noopener">Grand In Taylor Cash Alt Form ↗</a>
     </li>
     
     <li>
       <strong>If cash rejected — pivot to seller finance</strong>
       <div class="step-detail">If seller won't take cash discount, try Tier A or B structure. The pivot recording (Pitch 29) shows how Richard transitions.</div>
+      
       
     </li>
     
@@ -373,6 +411,22 @@ Are they flexible on price, or pretty firm at [asking]?"</div>
     <a href="/rt-companion/strategy/contract-close.html">Contract</a>
   </nav>
   <script>
+    // Command-box copy buttons (find sibling textarea/input)
+    document.querySelectorAll('.cmd-copy').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const input = btn.closest('.cmd-box').querySelector('.cmd-input');
+        if (!input) return;
+        try {
+          await navigator.clipboard.writeText(input.value);
+          const orig = btn.textContent;
+          btn.textContent = '✓ Copied';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+        } catch (e) {
+          input.select();
+        }
+      });
+    });
     document.querySelectorAll('.copy-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
         const target = document.getElementById(btn.dataset.target);

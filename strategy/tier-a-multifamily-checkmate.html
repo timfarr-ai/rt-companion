@@ -70,6 +70,36 @@
       border-radius: 6px; color: var(--accent); text-decoration: none;
     }
     .step-link:active { opacity: 0.7; }
+    /* Command-box: pre-filled editable input + Copy button. Tim edits placeholders, taps Copy, pastes into Claude Code. */
+    .cmd-box {
+      display: flex; flex-direction: column; gap: 6px;
+      margin-top: 8px; padding: 10px;
+      background: #0b0f15; border: 1px solid var(--border); border-radius: 8px;
+    }
+    .cmd-box-label {
+      font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .cmd-box-label .where { color: var(--accent); text-transform: none; letter-spacing: 0; font-weight: 500; }
+    .cmd-input {
+      width: 100%; box-sizing: border-box;
+      background: var(--panel-2); color: var(--text);
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 14px; line-height: 1.4;
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 8px 10px; resize: vertical; min-height: 38px;
+    }
+    .cmd-input:focus { outline: none; border-color: var(--accent); }
+    .cmd-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .cmd-copy {
+      background: var(--accent); color: #0d1117; border: 0;
+      border-radius: 6px; padding: 6px 14px;
+      font-weight: 600; font-size: 13px; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cmd-copy:active { opacity: 0.7; }
+    .cmd-copy.copied { background: var(--green); }
+    .cmd-hint { font-size: 12px; color: var(--muted); }
     .script-box {
       background: var(--panel-2);
       border: 1px solid var(--border);
@@ -240,12 +270,14 @@
     <li>
       <strong>Confirm the listing qualifies</strong>
       <div class="step-detail">From the morning briefing, verify: unit count ≥ 5, price $350K-$1.4M, DOM ≥ 90 days. If any miss, this isn't Tier A.</div>
+      
       <a class="step-link" href="https://buyboxcartel.com/vip/lightning-leads" target="_blank" rel="noopener">Open BBC listing ↗</a>
     </li>
     
     <li>
       <strong>Run the numbers in Offer Oven</strong>
       <div class="step-detail">Input: <code>Purchase Price = asking + 10%</code>, <code>Down = 10% of offer</code>, <code>Interest = 0%</code>, <code>Term = 30 yr</code>, <code>Balloon = 5 yr</code>. Confirm Monthly CF > $200.</div>
+      
       <a class="step-link" href="https://www.hmhw.group/tools/offer-oven" target="_blank" rel="noopener">Open Offer Oven ↗</a>
     </li>
     
@@ -253,11 +285,13 @@
       <strong>Find the agent's direct number</strong>
       <div class="step-detail">Zillow listing → click agent name → brokerage page. Use the agent's cell, not the brokerage main line.</div>
       
+      
     </li>
     
     <li>
       <strong>Dial once — leave the voicemail (script below)</strong>
       <div class="step-detail">Don't expect an answer on first call. The voicemail is the pitch — it front-loads the math so the agent decides whether to engage before calling back.</div>
+      
       
     </li>
     
@@ -265,11 +299,13 @@
       <strong>Wait 24-48 hours for callback</strong>
       <div class="step-detail">If no callback after 48 hrs, dial again. Don't text yet — first contact is voice.</div>
       
+      
     </li>
     
     <li>
       <strong>When they call back — run the live call script (below)</strong>
       <div class="step-detail">Walk through DSCR math: their P&I at 7.25% vs. rent. Make them see why no investor can buy this conventionally.</div>
+      
       
     </li>
     
@@ -277,17 +313,44 @@
       <strong>Handle objections inline</strong>
       <div class="step-detail">When the agent pushes back, jump to the matching rebuttal below. Don't argue — read the rebuttal calmly.</div>
       
+      
     </li>
     
     <li>
       <strong>On verbal yes → generate contract</strong>
-      <div class="step-detail">Tell Claude Code: <code>verbal yes on [address]</code>. You'll get the BBC data entry block + addendum language.</div>
+      <div class="step-detail">Returns the BBC data entry block + addendum language + dispo summary.</div>
+      
+      <div class="cmd-box">
+        <div class="cmd-box-label">
+          <span>Trigger: contract parameters</span>
+          <span class="where">→ paste into Claude Code (Mac)</span>
+        </div>
+        <textarea class="cmd-input" rows="1" spellcheck="false">verbal yes on 1915 Margalene Way, Austin TX</textarea>
+        <div class="cmd-actions">
+          <button class="cmd-copy">📋 Copy command</button>
+          <span class="cmd-hint">Replace the address with your deal.</span>
+        </div>
+      </div>
+      
       
     </li>
     
     <li>
       <strong>Submit the deal</strong>
-      <div class="step-detail">BBC Marketplace (auto-dispo to BBC buyers) + Grand In Taylor Creative Form. For non-BBC buyers, also: <code>generate buyer one-pager for [address]</code>.</div>
+      <div class="step-detail">BBC Marketplace (auto-dispo to BBC buyers) + Grand In Taylor Creative Form. For non-BBC out-of-network buyers, generate a shareable one-pager URL:</div>
+      
+      <div class="cmd-box">
+        <div class="cmd-box-label">
+          <span>Trigger: buyer one-pager</span>
+          <span class="where">→ paste into Claude Code (Mac)</span>
+        </div>
+        <textarea class="cmd-input" rows="1" spellcheck="false">generate buyer one-pager for 1915 Margalene Way, Austin TX</textarea>
+        <div class="cmd-actions">
+          <button class="cmd-copy">📋 Copy command</button>
+          <span class="cmd-hint">Returns a public URL to DM out-of-network buyers.</span>
+        </div>
+      </div>
+      
       <a class="step-link" href="https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78" target="_blank" rel="noopener">Grand In Taylor Creative Form ↗</a>
     </li>
     
@@ -510,6 +573,22 @@ because if we lose the property, we lose our down payment too."</div>
     <a href="/rt-companion/strategy/contract-close.html">Contract</a>
   </nav>
   <script>
+    // Command-box copy buttons (find sibling textarea/input)
+    document.querySelectorAll('.cmd-copy').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const input = btn.closest('.cmd-box').querySelector('.cmd-input');
+        if (!input) return;
+        try {
+          await navigator.clipboard.writeText(input.value);
+          const orig = btn.textContent;
+          btn.textContent = '✓ Copied';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+        } catch (e) {
+          input.select();
+        }
+      });
+    });
     document.querySelectorAll('.copy-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
         const target = document.getElementById(btn.dataset.target);

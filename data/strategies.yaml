@@ -27,6 +27,50 @@ sources_lib:
 sops:
 
   # ─────────────────────────────────────────────────────────────────
+  - slug: deal-lifecycle
+    emoji: "🔄"
+    title: "Deal Lifecycle — Where Each Deal Lives"
+    tldr: >
+      The daily briefing is INBOX. BBC Inventory is PIPELINE. Airtable Watchlist
+      is COLD-WATCH. Each deal has one canonical home at each stage.
+    when:
+      - "Before working any deal — understand where to track its state"
+      - "Confused about whether to use BBC, Airtable, or somewhere else"
+    how_to:
+      - title: "Stage 0 — Briefing INBOX (8am each weekday)"
+        detail: "Daily briefing on the dashboard. Ephemeral — refreshed each morning. Don't track state here; this is just what's NEW today. <strong>Action: scan and decide which deals to act on.</strong>"
+        link: { label: "Today's briefing", url: "/rt-companion/", external: false }
+      - title: "Stage 1 — First call → BBC Inventory"
+        detail: "The moment you dial an agent (even a voicemail), move that deal into <strong>BBC Inventory</strong> at Stage 1 (Prospecting). Use BBC's notes field to log: date called, voicemail or live, agent name, agent phone. This is the canonical pipeline."
+        link: { label: "BBC Inventory", url: "https://buyboxcartel.com/vip/inventory", external: true }
+      - title: "Stage 2 — Offer sent → BBC Inventory advance"
+        detail: "Once you submit a written offer through BBC, advance the card from Prospecting → Offer Sent. BBC tracks the contract state from here."
+      - title: "Stage 3 — Under contract → BBC Inventory + start dispo"
+        detail: "Contract executed. Move to Under Contract stage. Trigger one-pager generation and submit to dispo channels (see Verbal Yes → Dispo SOP)."
+      - title: "Stage 4 — Closed / assigned"
+        detail: "Final stage. Log final assignment fee. Add buyer to Airtable Known Buyers if they're a new contact worth keeping for future deals."
+      - title: "REJECTED deals → Airtable Rejected Watchlist (passive)"
+        detail: "Deals from the briefing that didn't qualify (CF<$200 or wrong tier) auto-push to <strong>Airtable Watchlist</strong>. Deal Monitor checks them every 48h for price drops. <strong>Action: nothing — it's automated.</strong>"
+        link: { label: "Airtable Watchlist", url: "https://airtable.com/appv6jhEzhGaAITcs/tbluV0qAWYNAFkD5S", external: true }
+      - title: "DEAD deals (after 90 days no movement) → archive"
+        detail: "BBC Inventory cards that stale at Prospecting for 90+ days with no agent response → archive in BBC. Don't keep dead leads cluttering the active view."
+    counter_rules:
+      - text: "DO NOT track active pipeline in Airtable. Airtable is for (a) Known Buyers (your network) and (b) Rejected Watchlist (price-drop monitoring). NOT pipeline."
+      - text: "DO NOT track briefing-only deals — the briefing refreshes every morning. If a deal matters, move it to BBC Inventory immediately."
+      - text: "DO use BBC Inventory notes liberally — agent names, call dates, response patterns all live there."
+      - text: "If a Watchlist deal goes 'Newly Qualified' (Deal Monitor flags it), move it to BBC Inventory Stage 1 manually."
+    sources:
+      - label: "BBC Inventory (canonical pipeline)"
+        url_key: "bbc_inventory"
+        icon: "🏦"
+      - label: "Airtable Watchlist (passive monitoring)"
+        url: "https://airtable.com/appv6jhEzhGaAITcs/tbluV0qAWYNAFkD5S"
+        icon: "📒"
+      - label: "Airtable Known Buyers (your network)"
+        url: "https://airtable.com/appv6jhEzhGaAITcs/tblh40Mq2rHwfe1I2"
+        icon: "👥"
+
+  # ─────────────────────────────────────────────────────────────────
   - slug: morning-triage
     emoji: "🌅"
     title: "Morning Triage Review (8am)"
@@ -120,8 +164,14 @@ sops:
     how_to:
       - title: "Capture the agent's exact words"
         detail: "Copy the text/email verbatim. For voicemail, type out what they said."
-      - title: "In Claude Code on Mac OR claude.ai iOS app — paste:"
-        detail: "<code>agent replied: [paste their message]</code> — Claude pulls the deal from context (or asks for the address), reparses the proposed terms, and runs the math."
+      - title: "In Claude Code on Mac OR claude.ai iOS app — paste this trigger with the agent's message:"
+        detail: "Claude pulls the deal from context (or asks for the address), reparses the proposed terms, and runs the math."
+        command:
+          text: |-
+            agent replied: "We'd accept your offer but seller wants 15% down instead of 10%."
+          rows: 2
+          label: "Trigger: counter-offer analysis"
+          hint: "Replace the quoted message with what the agent actually said."
       - title: "Review Claude's analysis"
         detail: "You'll see: revised CF, revised CoC, whether deal still qualifies, recommendation (PROCEED / COUNTER BACK / KILL), and a response script."
       - title: "Apply Tier-specific rules before agreeing"
@@ -208,7 +258,11 @@ sops:
         detail: "Open BBC Inventory. For each card, confirm: status accurate? Inspection started? EMD timeline correct? Push verbal-yeses that haven't moved to under-contract."
         link: { label: "BBC Inventory", url: "https://buyboxcartel.com/vip/inventory", external: true }
       - title: "Check the rejected watchlist for price drops"
-        detail: "Tell Claude Code: <code>check price drops</code> — runs the Deal Monitor agent against the rejected-watch.md list. Newly qualified deals get added to next Monday's triage."
+        detail: "Runs the Deal Monitor against the Airtable watchlist (it also auto-runs every 48h)."
+        command:
+          text: "check price drops"
+          label: "Trigger: deal monitor"
+          hint: "Manual trigger — supplements the auto 48h run."
       - title: "Review past week's call log"
         detail: "Open your Notes/Airtable call log. For every call from this week, mark: replied / no-response / dead. Move dead ones to watchlist."
       - title: "Refresh Known Buyers list"
@@ -263,9 +317,17 @@ strategies:
       - title: "Handle objections inline"
         detail: "When the agent pushes back, jump to the matching rebuttal below. Don't argue — read the rebuttal calmly."
       - title: "On verbal yes → generate contract"
-        detail: "Tell Claude Code: <code>verbal yes on [address]</code>. You'll get the BBC data entry block + addendum language."
+        detail: "Returns the BBC data entry block + addendum language + dispo summary."
+        command:
+          text: "verbal yes on 1915 Margalene Way, Austin TX"
+          label: "Trigger: contract parameters"
+          hint: "Replace the address with your deal."
       - title: "Submit the deal"
-        detail: "BBC Marketplace (auto-dispo to BBC buyers) + Grand In Taylor Creative Form. For non-BBC buyers, also: <code>generate buyer one-pager for [address]</code>."
+        detail: "BBC Marketplace (auto-dispo to BBC buyers) + Grand In Taylor Creative Form. For non-BBC out-of-network buyers, generate a shareable one-pager URL:"
+        command:
+          text: "generate buyer one-pager for 1915 Margalene Way, Austin TX"
+          label: "Trigger: buyer one-pager"
+          hint: "Returns a public URL to DM out-of-network buyers."
         link: { label: "Grand In Taylor Creative Form", url: "https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78", external: true }
     voicemail:
       script_section: "outreach-scripts.md#tier-a1"
@@ -498,7 +560,11 @@ strategies:
       - "Trigger Claude Code: \"verbal yes on [address]\" to get contract parameters"
     how_to:
       - title: "Generate contract parameters in Claude Code"
-        detail: "On Mac: <code>verbal yes on [address]</code>. Returns BBC data entry block + addendum language + buyer disposition summary."
+        detail: "Returns BBC data entry block + addendum language + buyer disposition summary."
+        command:
+          text: "verbal yes on 1915 Margalene Way, Austin TX"
+          label: "Trigger: contract parameters"
+          hint: "Replace with your actual address."
       - title: "Enter in BBC → Create Offer"
         detail: "Open BBC Inventory → Create Offer button. Fill: Purchase Price, Seller Carryback, Down, Interest Rate, Amortization (30yr), Balloon (5-7yr), EMD ($1K), Inspection (10 biz days), Closing Date (30 days)."
         link: { label: "BBC Inventory", url: "https://buyboxcartel.com/vip/inventory", external: true }
@@ -511,7 +577,11 @@ strategies:
       - title: "Submit BBC Marketplace + Grand In Taylor"
         detail: "BBC Marketplace auto-dispos to BBC's buyer network. Grand In Taylor Creative form taps Richard's wider buyer pool."
       - title: "Generate buyer one-pager for out-of-network"
-        detail: "Claude Code: <code>generate buyer one-pager for [address]</code>. Get a shareable URL you can DM to Instagram/FB/email buyers."
+        detail: "Get a shareable URL you can DM to Instagram/FB/email buyers."
+        command:
+          text: "generate buyer one-pager for 1915 Margalene Way, Austin TX"
+          label: "Trigger: buyer one-pager"
+          hint: "Returns a public URL ready to share."
       - title: "EMD timing — DO NOT submit early"
         detail: "EMD ($1,000) is submitted ONLY AFTER inspection period ends. Inspection is 10 biz days (7 minimum). Richard's company often covers EMD for assigned buyers."
       - title: "Close in 30 days from execution"

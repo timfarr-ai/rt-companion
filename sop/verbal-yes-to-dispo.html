@@ -70,6 +70,36 @@
       border-radius: 6px; color: var(--accent); text-decoration: none;
     }
     .step-link:active { opacity: 0.7; }
+    /* Command-box: pre-filled editable input + Copy button. Tim edits placeholders, taps Copy, pastes into Claude Code. */
+    .cmd-box {
+      display: flex; flex-direction: column; gap: 6px;
+      margin-top: 8px; padding: 10px;
+      background: #0b0f15; border: 1px solid var(--border); border-radius: 8px;
+    }
+    .cmd-box-label {
+      font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .cmd-box-label .where { color: var(--accent); text-transform: none; letter-spacing: 0; font-weight: 500; }
+    .cmd-input {
+      width: 100%; box-sizing: border-box;
+      background: var(--panel-2); color: var(--text);
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 14px; line-height: 1.4;
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 8px 10px; resize: vertical; min-height: 38px;
+    }
+    .cmd-input:focus { outline: none; border-color: var(--accent); }
+    .cmd-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .cmd-copy {
+      background: var(--accent); color: #0d1117; border: 0;
+      border-radius: 6px; padding: 6px 14px;
+      font-weight: 600; font-size: 13px; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cmd-copy:active { opacity: 0.7; }
+    .cmd-copy.copied { background: var(--green); }
+    .cmd-hint { font-size: 12px; color: var(--muted); }
     .script-box {
       background: var(--panel-2);
       border: 1px solid var(--border);
@@ -241,11 +271,13 @@
       <strong>Generate contract parameters</strong>
       <div class="step-detail">In Claude Code on Mac: <code>verbal yes on [address]</code>. Returns the full BBC data entry block + addendum language + buyer dispo summary.</div>
       
+      
     </li>
     
     <li>
       <strong>Enter in BBC → Create Offer</strong>
       <div class="step-detail">Open BBC Inventory → Create Offer. Fill the data block from Claude's output. Save the offer.</div>
+      
       <a class="step-link" href="https://buyboxcartel.com/vip/inventory" target="_blank" rel="noopener">BBC Inventory ↗</a>
     </li>
     
@@ -253,11 +285,13 @@
       <strong>Paste the addendum language</strong>
       <div class="step-detail">Copy from Claude's output into the BBC contract template. Customize address, dates, amounts.</div>
       
+      
     </li>
     
     <li>
       <strong>Send to agent for execution</strong>
       <div class="step-detail">BBC handles e-signature flow. Agent forwards to seller. Expect 24-72 hours for return.</div>
+      
       
     </li>
     
@@ -265,23 +299,27 @@
       <strong>Start dispo immediately — don't wait</strong>
       <div class="step-detail">The moment offer is sent, start marketing. Time matters.</div>
       
+      
     </li>
     
     <li>
       <strong>Generate buyer one-pager</strong>
       <div class="step-detail"><code>generate buyer one-pager for [address]</code> — returns a public URL you can DM to out-of-network buyers (Instagram, FB, personal email).</div>
       
+      
     </li>
     
     <li>
       <strong>Submit to BBC Marketplace</strong>
       <div class="step-detail">BBC Marketplace auto-dispos to BBC's curated buyer network.</div>
+      
       <a class="step-link" href="https://buyboxcartel.com/vip/marketplace" target="_blank" rel="noopener">BBC Marketplace ↗</a>
     </li>
     
     <li>
       <strong>Submit to Grand In Taylor LLC</strong>
       <div class="step-detail">Creative form for seller finance / sub-to. Cash Alt form for cash deals.</div>
+      
       <a class="step-link" href="https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78" target="_blank" rel="noopener">Grand In Taylor Creative ↗</a>
     </li>
     
@@ -289,11 +327,13 @@
       <strong>DM the buyer one-pager URL to known buyers</strong>
       <div class="step-detail">Once Airtable Known Buyers exists, filter to buyers matching state + entry budget + deal type, then DM each.</div>
       
+      
     </li>
     
     <li>
       <strong>EMD timing — DO NOT submit early</strong>
       <div class="step-detail">EMD ($1,000) submitted ONLY AFTER inspection period ends. Inspection is 10 biz days (min 7). Richard's company often covers EMD.</div>
+      
       
     </li>
     
@@ -301,11 +341,13 @@
       <strong>Move BBC card to 'Under Contract' stage</strong>
       <div class="step-detail">Track in BBC Inventory pipeline. Update status as inspection passes, EMD submitted, closing scheduled.</div>
       
+      
     </li>
     
     <li>
       <strong>Close in 30 days from execution</strong>
       <div class="step-detail">Title transfer at closing. If Land Trust structure, Buyer named as beneficiary.</div>
+      
       
     </li>
     
@@ -369,6 +411,22 @@
     <a href="/rt-companion/strategy/contract-close.html">Contract</a>
   </nav>
   <script>
+    // Command-box copy buttons (find sibling textarea/input)
+    document.querySelectorAll('.cmd-copy').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const input = btn.closest('.cmd-box').querySelector('.cmd-input');
+        if (!input) return;
+        try {
+          await navigator.clipboard.writeText(input.value);
+          const orig = btn.textContent;
+          btn.textContent = '✓ Copied';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+        } catch (e) {
+          input.select();
+        }
+      });
+    });
     document.querySelectorAll('.copy-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
         const target = document.getElementById(btn.dataset.target);
