@@ -190,7 +190,7 @@ def render_index(strategies: list, sops: list, env: Environment, out_dir: Path):
     <iframe src="/rt-companion/briefings/latest.html" loading="lazy"></iframe>
   </div>
   <p style="margin-top:8px; font-size:13px;">
-    Briefing publishes weekday 6am AEST.
+    Briefing publishes weekday 8am AEST.
     <a href="/rt-companion/briefings/" style="margin-left:6px;">Past briefings →</a>
   </p>
 </div>
@@ -271,7 +271,7 @@ def render_briefings_index(out_dir: Path):
     rows = "\n".join(
         f'  <li><a href="/rt-companion/briefings/{f}">{f.replace(".html","")}</a></li>'
         for f in files
-    ) or '  <li style="color:#8b949e;">No briefings yet — first run fires tomorrow 6am AEST.</li>'
+    ) or '  <li style="color:#8b949e;">No briefings yet — first run fires tomorrow 8am AEST.</li>'
     html = f"""<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -299,7 +299,7 @@ def ensure_latest_placeholder(out_dir: Path):
 <style>body{background:#0d1117;color:#8b949e;font-family:-apple-system,sans-serif;padding:24px;text-align:center;}
 .box{padding:24px;background:#161b22;border:1px solid #30363d;border-radius:10px;}</style>
 </head><body><div class="box">
-<p>📅 First briefing publishes weekday 6am AEST.</p>
+<p>📅 First briefing publishes weekday 8am AEST.</p>
 <p style="font-size:13px;">Cloud routine: <code>trig_01DXdZ22PfZsyJjmTkiWPanC</code></p>
 </div></body></html>"""
     latest.write_text(html)

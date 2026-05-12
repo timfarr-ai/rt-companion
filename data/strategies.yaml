@@ -122,12 +122,12 @@ sops:
     emoji: "🌅"
     title: "Morning Triage Review (8am)"
     tldr: >
-      Each weekday at 8am AEST the cloud routine pushes a tier-organized
+      Each weekday at 6am AEST the cloud routine pushes a tier-organized
       briefing to the dashboard. This SOP is how you scan it in <10 min
       and set your call list for the day.
     when:
       - "Every weekday morning before any deal work"
-      - "Briefing arrives ~8:05am AEST after cloud routine runs"
+      - "Briefing arrives ~6:05am AEST after cloud routine runs"
     how_to:
       - title: "Open the dashboard on phone or laptop"
         detail: "Bookmark already on home screen. Tap to open."

@@ -9,7 +9,7 @@ Operator dashboard for the Richard Taylor / HMHW creative-finance deal desk.
 A phone-first dashboard rendering Tim's HMHW skill content into a single coherent surface:
 
 - **Strategy playbooks** — one page per play (Tier A / B / C / Objections / Contract) with TL;DR, when-to-use, step-by-step how-to, scripts (copy buttons), reference audio (Richard's actual recordings), and links to sources
-- **Daily briefing** — published by the cloud routine at 6am AEST weekdays
+- **Daily briefing** — published by the cloud routine at 8am AEST weekdays
 - **Buyer one-pagers** — per-deal HTML pages with unguessable URLs for sharing with out-of-network buyers
 
 Read-only intentionally. All content is generated from local skill markdown + `data/strategies.yaml`.
