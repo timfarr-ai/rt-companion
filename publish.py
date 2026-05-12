@@ -99,13 +99,14 @@ def resolve_source_url(src: dict, sources_lib: dict) -> str:
     return "#"
 
 
-def build_strategies(data: dict) -> list:
-    """For each strategy in YAML, hydrate it with extracted script text + audio URLs."""
+def build_strategies(data: dict, key: str = "strategies") -> list:
+    """For each entry in `data[key]`, hydrate it with extracted script text + audio URLs.
+    Works for both `strategies` and `sops` since they share the same structure."""
     audio_base = data["audio_base"]
     sources_lib = data["sources_lib"]
     out = []
 
-    for s in data["strategies"]:
+    for s in data.get(key, []):
         strat = dict(s)  # shallow copy
 
         # Hydrate voicemail
@@ -159,11 +160,11 @@ def build_strategies(data: dict) -> list:
     return out
 
 
-def render_strategy_pages(strategies: list, env: Environment, out_dir: Path):
-    """Render each strategy to strategy/{slug}.html using the strategy template."""
+def render_strategy_pages(strategies: list, env: Environment, out_dir: Path, sub_dir: str = "strategy"):
+    """Render each strategy/SOP to {sub_dir}/{slug}.html using the strategy template."""
     template = env.get_template("strategy.html.j2")
-    strategy_dir = out_dir / "strategy"
-    strategy_dir.mkdir(exist_ok=True)
+    dest_dir = out_dir / sub_dir
+    dest_dir.mkdir(exist_ok=True)
     for s in strategies:
         html = template.render(
             title=s["title"],
@@ -171,12 +172,12 @@ def render_strategy_pages(strategies: list, env: Environment, out_dir: Path):
             back_link="/rt-companion/",
             strategy=s,
         )
-        path = strategy_dir / f"{s['slug']}.html"
+        path = dest_dir / f"{s['slug']}.html"
         path.write_text(html)
         print(f"  → {path.relative_to(ROOT)}")
 
 
-def render_index(strategies: list, env: Environment, out_dir: Path):
+def render_index(strategies: list, sops: list, env: Environment, out_dir: Path):
     """Render the dashboard root index.html."""
     # The index template lives in the repo (not in templates/), we'll inline a simple one
     # by using base.html.j2 + an index-specific content block.
@@ -195,9 +196,20 @@ def render_index(strategies: list, env: Environment, out_dir: Path):
 </div>
 
 <div class="section">
-  <h2>Strategy Playbooks</h2>
+  <h2>Strategy Playbooks (deal-specific plays)</h2>
   {% for s in strategies %}
   <a class="source-link" href="/rt-companion/strategy/{{ s.slug }}.html">
+    <span class="icon">{{ s.emoji }}</span>
+    <span class="label">{{ s.title }}</span>
+    <span class="arrow">›</span>
+  </a>
+  {% endfor %}
+</div>
+
+<div class="section">
+  <h2>SOPs (daily workflow)</h2>
+  {% for s in sops %}
+  <a class="source-link" href="/rt-companion/sop/{{ s.slug }}.html">
     <span class="icon">{{ s.emoji }}</span>
     <span class="label">{{ s.title }}</span>
     <span class="arrow">›</span>
@@ -242,6 +254,7 @@ def render_index(strategies: list, env: Environment, out_dir: Path):
         header_title="RT Deal Desk",
         back_link=None,
         strategies=strategies,
+        sops=sops,
     )
     (out_dir / "index.html").write_text(html)
     print(f"  → index.html")
@@ -324,7 +337,8 @@ def main():
         sys.exit(1)
 
     data = yaml.safe_load((ROOT / "data" / "strategies.yaml").read_text())
-    strategies = build_strategies(data)
+    strategies = build_strategies(data, "strategies")
+    sops = build_strategies(data, "sops")
 
     env = Environment(
         loader=FileSystemLoader(str(ROOT / "templates")),
@@ -333,8 +347,10 @@ def main():
     )
 
     print(f"\nRendering {len(strategies)} strategy pages:")
-    render_strategy_pages(strategies, env, ROOT)
-    render_index(strategies, env, ROOT)
+    render_strategy_pages(strategies, env, ROOT, "strategy")
+    print(f"\nRendering {len(sops)} SOP pages:")
+    render_strategy_pages(sops, env, ROOT, "sop")
+    render_index(strategies, sops, env, ROOT)
     render_briefings_index(ROOT)
     ensure_latest_placeholder(ROOT)
 

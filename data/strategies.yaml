@@ -24,6 +24,210 @@ sources_lib:
   git_creative_form: "https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78"
   git_cash_form: "https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587"
 
+sops:
+
+  # ─────────────────────────────────────────────────────────────────
+  - slug: morning-triage
+    emoji: "🌅"
+    title: "Morning Triage Review (8am)"
+    tldr: >
+      Each weekday at 8am AEST the cloud routine pushes a tier-organized
+      briefing to the dashboard. This SOP is how you scan it in <10 min
+      and set your call list for the day.
+    when:
+      - "Every weekday morning before any deal work"
+      - "Briefing arrives ~8:05am AEST after cloud routine runs"
+    how_to:
+      - title: "Open the dashboard on phone or laptop"
+        detail: "Bookmark already on home screen. Tap to open."
+        link: { label: "Open dashboard", url: "https://timfarr-ai.github.io/rt-companion/", external: true }
+      - title: "Read Tier A deals first (top priority)"
+        detail: "Tier A = MFH 5+ units $350K-$1.4M, DOM 90+. These have the highest assignment fee potential ($50K+). Cap your morning call list at 2-3 Tier A deals."
+      - title: "Then Tier B (cheap stale SFH)"
+        detail: "Lower-effort calls. Aim for 3-5 Tier B voicemails in a single sitting."
+      - title: "Tier C (cash buyer SFH) — only if quota for the week is light"
+        detail: "Cash offers are lower yield. Skip if Tier A/B fills your block."
+      - title: "Copy each script before dialing"
+        detail: "Tap the deal → Tier playbook → 'Copy script' button. Paste into Notes app for during-call reference."
+      - title: "Find agent phone numbers via Zillow"
+        detail: "Tap the Zillow link on each briefing card → agent name → cell phone. Save to your call list."
+      - title: "Skip data-incomplete deals for now"
+        detail: "Deals with missing rent/PITI need Zillow or Rentometer enrichment. Park them for a 'data cleanup' block later in the day."
+    sources:
+      - label: "Open today's briefing"
+        url: "https://timfarr-ai.github.io/rt-companion/briefings/latest.html"
+        icon: "📋"
+      - label: "Past briefings archive"
+        url: "https://timfarr-ai.github.io/rt-companion/briefings/"
+        icon: "📚"
+      - label: "Cloud routine logs (claude.ai)"
+        url: "https://claude.ai/code/routines/trig_01DXdZ22PfZsyJjmTkiWPanC"
+        icon: "🤖"
+      - label: "BBC Lightning Leads (manual browse)"
+        url_key: "bbc_lightning"
+        icon: "🏦"
+
+  # ─────────────────────────────────────────────────────────────────
+  - slug: call-block
+    emoji: "📞"
+    title: "Outreach Call Block"
+    tldr: >
+      Working through your daily call list. Goal: 10 voicemails + 2-3
+      live conversations per 60-min block. Voicemail is the pitch — not
+      a callback request.
+    when:
+      - "After the morning triage; ideal time: 10am-noon local time of target market"
+      - "Tier A deals: 9am-5pm local for the agent's brokerage"
+      - "Don't call after 5pm — agents are with clients"
+    how_to:
+      - title: "Set up: phone, Notes app, dashboard"
+        detail: "Open the matching tier playbook in dashboard. Have Notes app ready for callbacks and follow-up notes."
+      - title: "Dial the first deal"
+        detail: "Use OpenPhone or Google Voice if you have a US line. Otherwise, mark calls as 'unknown number' — agents callback rate ~10-20% from voicemail."
+      - title: "If voicemail — leave the FULL voicemail script"
+        detail: "Don't shorten. The voicemail IS the pitch. Capital gains frame for Tier A, 'I negotiate backwards' frame for Tier B."
+      - title: "If they answer — use the live call script"
+        detail: "Open the matching tier playbook → Live Call section. Walk through DSCR math for Tier A. Confirm condition + motivation for B/C."
+      - title: "End every call with a hook"
+        detail: "Live: <em>'Can you present that to your seller this week?'</em><br>Voicemail: <em>'I'll also shoot you a text.'</em> (then send a 1-line text with your callback number)."
+      - title: "Track every call in a single doc"
+        detail: "After each call, note: address, agent name, voicemail or live, response, follow-up date. Use Airtable Known Buyers table once set up."
+      - title: "Follow-up cadence"
+        detail: "No callback after 48h → second dial. No response after 5 days → text. No response after 10 days → mark as 'cold' and move to watchlist."
+    sources:
+      - label: "Tier A playbook"
+        url: "/rt-companion/strategy/tier-a-multifamily-checkmate.html"
+        icon: "🎯"
+      - label: "Tier B playbook"
+        url: "/rt-companion/strategy/tier-b-cheap-sfh-stale.html"
+        icon: "🏘️"
+      - label: "Objection handling"
+        url: "/rt-companion/strategy/objections.html"
+        icon: "🛡️"
+
+  # ─────────────────────────────────────────────────────────────────
+  - slug: agent-reply
+    emoji: "✉️"
+    title: "Agent Replied — Counter Analysis"
+    tldr: >
+      When an agent texts, emails, or calls back with new terms, route
+      the message through Claude Code to get an instant counter analysis
+      and response script. Don't reply blind.
+    when:
+      - "Agent texts/emails you with seller's counter terms"
+      - "Agent leaves a voicemail with a partial counter"
+      - "You need to know if the counter still pencils before responding"
+    how_to:
+      - title: "Capture the agent's exact words"
+        detail: "Copy the text/email verbatim. For voicemail, type out what they said."
+      - title: "In Claude Code on Mac OR claude.ai iOS app — paste:"
+        detail: "<code>agent replied: [paste their message]</code> — Claude pulls the deal from context (or asks for the address), reparses the proposed terms, and runs the math."
+      - title: "Review Claude's analysis"
+        detail: "You'll see: revised CF, revised CoC, whether deal still qualifies, recommendation (PROCEED / COUNTER BACK / KILL), and a response script."
+      - title: "Apply Tier-specific rules before agreeing"
+        detail: "Tier A: NEVER exceed 10% down. Never give both premium AND interest. Push back firmly on these even if Claude approves CF-wise.<br>Tier B: 12-14% down is OK. Interest at 4-6.5% is OK if price drops to asking."
+      - title: "Send response"
+        detail: "Copy Claude's response script. Customize 1-2 phrases to sound human. Send via the same channel the agent used (text → text, email → email)."
+      - title: "Log the round"
+        detail: "Save the agent's message + your response in Notes/Airtable so you can reconstruct the negotiation history."
+      - title: "If COUNTER BACK — schedule follow-up"
+        detail: "Most counters take 24-48 hours to resolve. Set a calendar reminder for 48h to check status."
+    sources:
+      - label: "Objection handling playbook"
+        url: "/rt-companion/strategy/objections.html"
+        icon: "🛡️"
+      - label: "Tier A counter rules"
+        url: "/rt-companion/strategy/tier-a-multifamily-checkmate.html#counter"
+        icon: "🎯"
+
+  # ─────────────────────────────────────────────────────────────────
+  - slug: verbal-yes-to-dispo
+    emoji: "✅"
+    title: "Verbal Yes → Contract → Dispo"
+    tldr: >
+      The agent or seller has said yes. You now have ~30 days to close.
+      This SOP is the exact sequence from verbal yes to dispo'd buyer.
+    when:
+      - "Agent calls/texts: 'Seller agreed to your terms'"
+      - "You have all four key numbers: price, down, balloon, closing date"
+    how_to:
+      - title: "Generate contract parameters"
+        detail: "In Claude Code on Mac: <code>verbal yes on [address]</code>. Returns the full BBC data entry block + addendum language + buyer dispo summary."
+      - title: "Enter in BBC → Create Offer"
+        detail: "Open BBC Inventory → Create Offer. Fill the data block from Claude's output. Save the offer."
+        link: { label: "BBC Inventory", url: "https://buyboxcartel.com/vip/inventory", external: true }
+      - title: "Paste the addendum language"
+        detail: "Copy from Claude's output into the BBC contract template. Customize address, dates, amounts."
+      - title: "Send to agent for execution"
+        detail: "BBC handles e-signature flow. Agent forwards to seller. Expect 24-72 hours for return."
+      - title: "Start dispo immediately — don't wait"
+        detail: "The moment offer is sent, start marketing. Time matters."
+      - title: "Generate buyer one-pager"
+        detail: "<code>generate buyer one-pager for [address]</code> — returns a public URL you can DM to out-of-network buyers (Instagram, FB, personal email)."
+      - title: "Submit to BBC Marketplace"
+        detail: "BBC Marketplace auto-dispos to BBC's curated buyer network."
+        link: { label: "BBC Marketplace", url: "https://buyboxcartel.com/vip/marketplace", external: true }
+      - title: "Submit to Grand In Taylor LLC"
+        detail: "Creative form for seller finance / sub-to. Cash Alt form for cash deals."
+        link: { label: "Grand In Taylor Creative", url: "https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78", external: true }
+      - title: "DM the buyer one-pager URL to known buyers"
+        detail: "Once Airtable Known Buyers exists, filter to buyers matching state + entry budget + deal type, then DM each."
+      - title: "EMD timing — DO NOT submit early"
+        detail: "EMD ($1,000) submitted ONLY AFTER inspection period ends. Inspection is 10 biz days (min 7). Richard's company often covers EMD."
+      - title: "Move BBC card to 'Under Contract' stage"
+        detail: "Track in BBC Inventory pipeline. Update status as inspection passes, EMD submitted, closing scheduled."
+      - title: "Close in 30 days from execution"
+        detail: "Title transfer at closing. If Land Trust structure, Buyer named as beneficiary."
+    sources:
+      - label: "Contract & Close playbook (addendum language)"
+        url: "/rt-companion/strategy/contract-close.html"
+        icon: "📝"
+      - label: "BBC Inventory"
+        url_key: "bbc_inventory"
+        icon: "🏦"
+      - label: "Grand In Taylor Creative Form"
+        url_key: "git_creative_form"
+        icon: "📤"
+      - label: "Grand In Taylor Cash Alt Form"
+        url_key: "git_cash_form"
+        icon: "📤"
+
+  # ─────────────────────────────────────────────────────────────────
+  - slug: weekly-review
+    emoji: "📅"
+    title: "Weekly Pipeline Review (Friday)"
+    tldr: >
+      End-of-week sweep. Catch verbal-yeses not yet under contract,
+      review watchlist for price drops, refresh buyer criteria, plan
+      next week's call list.
+    when:
+      - "Every Friday afternoon, ~2pm"
+      - "Before logging off for the weekend"
+    how_to:
+      - title: "Review BBC Inventory pipeline"
+        detail: "Open BBC Inventory. For each card, confirm: status accurate? Inspection started? EMD timeline correct? Push verbal-yeses that haven't moved to under-contract."
+        link: { label: "BBC Inventory", url: "https://buyboxcartel.com/vip/inventory", external: true }
+      - title: "Check the rejected watchlist for price drops"
+        detail: "Tell Claude Code: <code>check price drops</code> — runs the Deal Monitor agent against the rejected-watch.md list. Newly qualified deals get added to next Monday's triage."
+      - title: "Review past week's call log"
+        detail: "Open your Notes/Airtable call log. For every call from this week, mark: replied / no-response / dead. Move dead ones to watchlist."
+      - title: "Refresh Known Buyers list"
+        detail: "Open Airtable Known Buyers (when set up). For each active buyer, confirm: state, entry budget, deal type, last contact. Re-engage anyone silent >30 days."
+      - title: "Plan next week's call list"
+        detail: "Look at Monday's expected triage tier distribution. Schedule 2-3 call blocks across Tue/Wed/Thu. Pre-allocate 1 block per tier."
+      - title: "Update Airtable + close out the week"
+        detail: "Any deals not actively in pipeline: archive. Any open questions for Richard/HMHW community: queue for Monday's HMHW livestream Q&A."
+    sources:
+      - label: "BBC Inventory pipeline"
+        url_key: "bbc_inventory"
+        icon: "🏦"
+      - label: "BBC Deal Checker (find buyers for active deals)"
+        url_key: "bbc_dealchecker"
+        icon: "🔍"
+      - label: "HMHW Live Calls (Monday livestream)"
+        url_key: "hmhw_education"
+        icon: "🎙️"
+
 strategies:
 
   # ─────────────────────────────────────────────────────────────────

@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="robots" content="noindex, nofollow">
-  <title>Home — RT Deal Desk</title>
+  <title>Weekly Pipeline Review (Friday) — RT Deal Desk</title>
   <style>
     :root {
       --bg: #0d1117;
@@ -171,121 +171,109 @@
 </head>
 <body>
   <header>
-    <span style="width:40px"></span>
-    <h1>RT Deal Desk</h1>
+    <a href="/rt-companion/" class="back">‹ Back</a>
+    <h1>📅 Weekly Pipeline Review (Friday)</h1>
     <a href="/" class="back" style="text-align:right;">🏠</a>
   </header>
   <main>
     
 
 <div class="section">
-  <h2>📋 Today's Briefing</h2>
-  <div class="briefing-wrap">
-    <iframe src="/rt-companion/briefings/latest.html" loading="lazy"></iframe>
+  <h2>① TL;DR</h2>
+  <p class="tldr">End-of-week sweep. Catch verbal-yeses not yet under contract, review watchlist for price drops, refresh buyer criteria, plan next week's call list.
+</p>
+</div>
+
+<div class="section">
+  <h2>② When to use</h2>
+  <div class="when">
+    <ul>
+      <li>Every Friday afternoon, ~2pm</li><li>Before logging off for the weekend</li>
+    </ul>
   </div>
-  <p style="margin-top:8px; font-size:13px;">
-    Briefing publishes weekday 8am AEST.
-    <a href="/rt-companion/briefings/" style="margin-left:6px;">Past briefings →</a>
-  </p>
 </div>
 
-<div class="section">
-  <h2>Strategy Playbooks (deal-specific plays)</h2>
-  
-  <a class="source-link" href="/rt-companion/strategy/tier-a-multifamily-checkmate.html">
-    <span class="icon">🎯</span>
-    <span class="label">Tier A — Multifamily Checkmate</span>
-    <span class="arrow">›</span>
-  </a>
-  
-  <a class="source-link" href="/rt-companion/strategy/tier-b-cheap-sfh-stale.html">
-    <span class="icon">🏘️</span>
-    <span class="label">Tier B — Cheap SFH Stale</span>
-    <span class="arrow">›</span>
-  </a>
-  
-  <a class="source-link" href="/rt-companion/strategy/tier-c-cash-buyer.html">
-    <span class="icon">💵</span>
-    <span class="label">Tier C — Cash Buyer (no seller finance)</span>
-    <span class="arrow">›</span>
-  </a>
-  
-  <a class="source-link" href="/rt-companion/strategy/objections.html">
-    <span class="icon">🛡️</span>
-    <span class="label">Objection Handling (cross-strategy)</span>
-    <span class="arrow">›</span>
-  </a>
-  
-  <a class="source-link" href="/rt-companion/strategy/contract-close.html">
-    <span class="icon">📝</span>
-    <span class="label">Contract &amp; Close</span>
-    <span class="arrow">›</span>
-  </a>
-  
-</div>
 
 <div class="section">
-  <h2>SOPs (daily workflow)</h2>
-  
-  <a class="source-link" href="/rt-companion/sop/morning-triage.html">
-    <span class="icon">🌅</span>
-    <span class="label">Morning Triage Review (8am)</span>
-    <span class="arrow">›</span>
-  </a>
-  
-  <a class="source-link" href="/rt-companion/sop/call-block.html">
-    <span class="icon">📞</span>
-    <span class="label">Outreach Call Block</span>
-    <span class="arrow">›</span>
-  </a>
-  
-  <a class="source-link" href="/rt-companion/sop/agent-reply.html">
-    <span class="icon">✉️</span>
-    <span class="label">Agent Replied — Counter Analysis</span>
-    <span class="arrow">›</span>
-  </a>
-  
-  <a class="source-link" href="/rt-companion/sop/verbal-yes-to-dispo.html">
-    <span class="icon">✅</span>
-    <span class="label">Verbal Yes → Contract → Dispo</span>
-    <span class="arrow">›</span>
-  </a>
-  
-  <a class="source-link" href="/rt-companion/sop/weekly-review.html">
-    <span class="icon">📅</span>
-    <span class="label">Weekly Pipeline Review (Friday)</span>
-    <span class="arrow">›</span>
-  </a>
-  
+  <h2>③ How to run this play (step-by-step)</h2>
+  <ol class="how-to">
+    
+    <li>
+      <strong>Review BBC Inventory pipeline</strong>
+      <div class="step-detail">Open BBC Inventory. For each card, confirm: status accurate? Inspection started? EMD timeline correct? Push verbal-yeses that haven't moved to under-contract.</div>
+      <a class="step-link" href="https://buyboxcartel.com/vip/inventory" target="_blank" rel="noopener">BBC Inventory ↗</a>
+    </li>
+    
+    <li>
+      <strong>Check the rejected watchlist for price drops</strong>
+      <div class="step-detail">Tell Claude Code: <code>check price drops</code> — runs the Deal Monitor agent against the rejected-watch.md list. Newly qualified deals get added to next Monday's triage.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Review past week's call log</strong>
+      <div class="step-detail">Open your Notes/Airtable call log. For every call from this week, mark: replied / no-response / dead. Move dead ones to watchlist.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Refresh Known Buyers list</strong>
+      <div class="step-detail">Open Airtable Known Buyers (when set up). For each active buyer, confirm: state, entry budget, deal type, last contact. Re-engage anyone silent >30 days.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Plan next week's call list</strong>
+      <div class="step-detail">Look at Monday's expected triage tier distribution. Schedule 2-3 call blocks across Tue/Wed/Thu. Pre-allocate 1 block per tier.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Update Airtable + close out the week</strong>
+      <div class="step-detail">Any deals not actively in pipeline: archive. Any open questions for Richard/HMHW community: queue for Monday's HMHW livestream Q&A.</div>
+      
+    </li>
+    
+  </ol>
 </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <div class="section">
-  <h2>External Tools</h2>
-  <a class="source-link" href="https://buyboxcartel.com/vip/dashboard" target="_blank" rel="noopener">
-    <span class="icon">🏦</span><span class="label">BBC Dashboard</span><span class="arrow">↗</span>
-  </a>
+  <h2>⑨ Sources (go deeper)</h2>
+  
   <a class="source-link" href="https://buyboxcartel.com/vip/inventory" target="_blank" rel="noopener">
-    <span class="icon">📊</span><span class="label">BBC Inventory (pipeline)</span><span class="arrow">↗</span>
+    <span class="icon">🏦</span>
+    <span class="label">BBC Inventory pipeline</span>
+    <span class="arrow">↗</span>
   </a>
-  <a class="source-link" href="https://buyboxcartel.com/vip/marketplace" target="_blank" rel="noopener">
-    <span class="icon">📤</span><span class="label">BBC Marketplace (dispo)</span><span class="arrow">↗</span>
+  
+  <a class="source-link" href="https://buyboxcartel.com/vip/deal-checker" target="_blank" rel="noopener">
+    <span class="icon">🔍</span>
+    <span class="label">BBC Deal Checker (find buyers for active deals)</span>
+    <span class="arrow">↗</span>
   </a>
-  <a class="source-link" href="https://www.hmhw.group/tools" target="_blank" rel="noopener">
-    <span class="icon">🧮</span><span class="label">HMHW Calculators (incl. Offer Oven)</span><span class="arrow">↗</span>
-  </a>
+  
   <a class="source-link" href="https://www.hmhw.group/education" target="_blank" rel="noopener">
-    <span class="icon">🎧</span><span class="label">HMHW Full Recordings (82)</span><span class="arrow">↗</span>
+    <span class="icon">🎙️</span>
+    <span class="label">HMHW Live Calls (Monday livestream)</span>
+    <span class="arrow">↗</span>
   </a>
-  <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78" target="_blank" rel="noopener">
-    <span class="icon">📋</span><span class="label">Grand In Taylor — Creative Form</span><span class="arrow">↗</span>
-  </a>
-  <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587" target="_blank" rel="noopener">
-    <span class="icon">📋</span><span class="label">Grand In Taylor — Cash Alt Form</span><span class="arrow">↗</span>
-  </a>
-  <a class="source-link" href="https://claude.ai/code/routines/trig_01DXdZ22PfZsyJjmTkiWPanC" target="_blank" rel="noopener">
-    <span class="icon">🤖</span><span class="label">Claude routine runs (briefing transcript)</span><span class="arrow">↗</span>
-  </a>
+  
 </div>
+
 
 
   </main>

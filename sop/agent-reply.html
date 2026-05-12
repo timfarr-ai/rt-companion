@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="robots" content="noindex, nofollow">
-  <title>Home — RT Deal Desk</title>
+  <title>Agent Replied — Counter Analysis — RT Deal Desk</title>
   <style>
     :root {
       --bg: #0d1117;
@@ -171,121 +171,109 @@
 </head>
 <body>
   <header>
-    <span style="width:40px"></span>
-    <h1>RT Deal Desk</h1>
+    <a href="/rt-companion/" class="back">‹ Back</a>
+    <h1>✉️ Agent Replied — Counter Analysis</h1>
     <a href="/" class="back" style="text-align:right;">🏠</a>
   </header>
   <main>
     
 
 <div class="section">
-  <h2>📋 Today's Briefing</h2>
-  <div class="briefing-wrap">
-    <iframe src="/rt-companion/briefings/latest.html" loading="lazy"></iframe>
+  <h2>① TL;DR</h2>
+  <p class="tldr">When an agent texts, emails, or calls back with new terms, route the message through Claude Code to get an instant counter analysis and response script. Don't reply blind.
+</p>
+</div>
+
+<div class="section">
+  <h2>② When to use</h2>
+  <div class="when">
+    <ul>
+      <li>Agent texts/emails you with seller's counter terms</li><li>Agent leaves a voicemail with a partial counter</li><li>You need to know if the counter still pencils before responding</li>
+    </ul>
   </div>
-  <p style="margin-top:8px; font-size:13px;">
-    Briefing publishes weekday 8am AEST.
-    <a href="/rt-companion/briefings/" style="margin-left:6px;">Past briefings →</a>
-  </p>
 </div>
 
+
 <div class="section">
-  <h2>Strategy Playbooks (deal-specific plays)</h2>
+  <h2>③ How to run this play (step-by-step)</h2>
+  <ol class="how-to">
+    
+    <li>
+      <strong>Capture the agent's exact words</strong>
+      <div class="step-detail">Copy the text/email verbatim. For voicemail, type out what they said.</div>
+      
+    </li>
+    
+    <li>
+      <strong>In Claude Code on Mac OR claude.ai iOS app — paste:</strong>
+      <div class="step-detail"><code>agent replied: [paste their message]</code> — Claude pulls the deal from context (or asks for the address), reparses the proposed terms, and runs the math.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Review Claude's analysis</strong>
+      <div class="step-detail">You'll see: revised CF, revised CoC, whether deal still qualifies, recommendation (PROCEED / COUNTER BACK / KILL), and a response script.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Apply Tier-specific rules before agreeing</strong>
+      <div class="step-detail">Tier A: NEVER exceed 10% down. Never give both premium AND interest. Push back firmly on these even if Claude approves CF-wise.<br>Tier B: 12-14% down is OK. Interest at 4-6.5% is OK if price drops to asking.</div>
+      
+    </li>
+    
+    <li>
+      <strong>Send response</strong>
+      <div class="step-detail">Copy Claude's response script. Customize 1-2 phrases to sound human. Send via the same channel the agent used (text → text, email → email).</div>
+      
+    </li>
+    
+    <li>
+      <strong>Log the round</strong>
+      <div class="step-detail">Save the agent's message + your response in Notes/Airtable so you can reconstruct the negotiation history.</div>
+      
+    </li>
+    
+    <li>
+      <strong>If COUNTER BACK — schedule follow-up</strong>
+      <div class="step-detail">Most counters take 24-48 hours to resolve. Set a calendar reminder for 48h to check status.</div>
+      
+    </li>
+    
+  </ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section">
+  <h2>⑨ Sources (go deeper)</h2>
   
-  <a class="source-link" href="/rt-companion/strategy/tier-a-multifamily-checkmate.html">
-    <span class="icon">🎯</span>
-    <span class="label">Tier A — Multifamily Checkmate</span>
-    <span class="arrow">›</span>
-  </a>
-  
-  <a class="source-link" href="/rt-companion/strategy/tier-b-cheap-sfh-stale.html">
-    <span class="icon">🏘️</span>
-    <span class="label">Tier B — Cheap SFH Stale</span>
-    <span class="arrow">›</span>
-  </a>
-  
-  <a class="source-link" href="/rt-companion/strategy/tier-c-cash-buyer.html">
-    <span class="icon">💵</span>
-    <span class="label">Tier C — Cash Buyer (no seller finance)</span>
-    <span class="arrow">›</span>
-  </a>
-  
-  <a class="source-link" href="/rt-companion/strategy/objections.html">
+  <a class="source-link" href="/rt-companion/strategy/objections.html" target="_blank" rel="noopener">
     <span class="icon">🛡️</span>
-    <span class="label">Objection Handling (cross-strategy)</span>
-    <span class="arrow">›</span>
+    <span class="label">Objection handling playbook</span>
+    <span class="arrow">↗</span>
   </a>
   
-  <a class="source-link" href="/rt-companion/strategy/contract-close.html">
-    <span class="icon">📝</span>
-    <span class="label">Contract &amp; Close</span>
-    <span class="arrow">›</span>
-  </a>
-  
-</div>
-
-<div class="section">
-  <h2>SOPs (daily workflow)</h2>
-  
-  <a class="source-link" href="/rt-companion/sop/morning-triage.html">
-    <span class="icon">🌅</span>
-    <span class="label">Morning Triage Review (8am)</span>
-    <span class="arrow">›</span>
-  </a>
-  
-  <a class="source-link" href="/rt-companion/sop/call-block.html">
-    <span class="icon">📞</span>
-    <span class="label">Outreach Call Block</span>
-    <span class="arrow">›</span>
-  </a>
-  
-  <a class="source-link" href="/rt-companion/sop/agent-reply.html">
-    <span class="icon">✉️</span>
-    <span class="label">Agent Replied — Counter Analysis</span>
-    <span class="arrow">›</span>
-  </a>
-  
-  <a class="source-link" href="/rt-companion/sop/verbal-yes-to-dispo.html">
-    <span class="icon">✅</span>
-    <span class="label">Verbal Yes → Contract → Dispo</span>
-    <span class="arrow">›</span>
-  </a>
-  
-  <a class="source-link" href="/rt-companion/sop/weekly-review.html">
-    <span class="icon">📅</span>
-    <span class="label">Weekly Pipeline Review (Friday)</span>
-    <span class="arrow">›</span>
+  <a class="source-link" href="/rt-companion/strategy/tier-a-multifamily-checkmate.html#counter" target="_blank" rel="noopener">
+    <span class="icon">🎯</span>
+    <span class="label">Tier A counter rules</span>
+    <span class="arrow">↗</span>
   </a>
   
 </div>
 
-<div class="section">
-  <h2>External Tools</h2>
-  <a class="source-link" href="https://buyboxcartel.com/vip/dashboard" target="_blank" rel="noopener">
-    <span class="icon">🏦</span><span class="label">BBC Dashboard</span><span class="arrow">↗</span>
-  </a>
-  <a class="source-link" href="https://buyboxcartel.com/vip/inventory" target="_blank" rel="noopener">
-    <span class="icon">📊</span><span class="label">BBC Inventory (pipeline)</span><span class="arrow">↗</span>
-  </a>
-  <a class="source-link" href="https://buyboxcartel.com/vip/marketplace" target="_blank" rel="noopener">
-    <span class="icon">📤</span><span class="label">BBC Marketplace (dispo)</span><span class="arrow">↗</span>
-  </a>
-  <a class="source-link" href="https://www.hmhw.group/tools" target="_blank" rel="noopener">
-    <span class="icon">🧮</span><span class="label">HMHW Calculators (incl. Offer Oven)</span><span class="arrow">↗</span>
-  </a>
-  <a class="source-link" href="https://www.hmhw.group/education" target="_blank" rel="noopener">
-    <span class="icon">🎧</span><span class="label">HMHW Full Recordings (82)</span><span class="arrow">↗</span>
-  </a>
-  <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78" target="_blank" rel="noopener">
-    <span class="icon">📋</span><span class="label">Grand In Taylor — Creative Form</span><span class="arrow">↗</span>
-  </a>
-  <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587" target="_blank" rel="noopener">
-    <span class="icon">📋</span><span class="label">Grand In Taylor — Cash Alt Form</span><span class="arrow">↗</span>
-  </a>
-  <a class="source-link" href="https://claude.ai/code/routines/trig_01DXdZ22PfZsyJjmTkiWPanC" target="_blank" rel="noopener">
-    <span class="icon">🤖</span><span class="label">Claude routine runs (briefing transcript)</span><span class="arrow">↗</span>
-  </a>
-</div>
 
 
   </main>
