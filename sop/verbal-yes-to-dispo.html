@@ -373,8 +373,10 @@
       btn.addEventListener('click', async () => {
         const target = document.getElementById(btn.dataset.target);
         if (!target) return;
+        // Use textContent (not innerText) so collapsed <details> bodies still copy
+        const text = target.textContent.trim();
         try {
-          await navigator.clipboard.writeText(target.innerText);
+          await navigator.clipboard.writeText(text);
           const orig = btn.textContent;
           btn.textContent = '✓ Copied';
           btn.classList.add('copied');

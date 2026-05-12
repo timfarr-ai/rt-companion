@@ -35,8 +35,9 @@
   .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
 
   /* Property details */
-  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-  .detail-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #f0f2f5; }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; row-gap: 0; }
+  .detail-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #f0f2f5; gap: 12px; }
+  @media (max-width: 600px) { .detail-grid { grid-template-columns: 1fr; column-gap: 0; } }
   .detail-row:last-child { border-bottom: none; }
   .detail-label { color: #7a8a9a; }
   .detail-value { font-weight: 600; color: #1a2332; }
