@@ -163,9 +163,46 @@
       background: var(--panel-2); border: 1px solid var(--border);
       border-radius: 14px; font-size: 13px; color: var(--muted);
     }
+    /* Tablet (720px+) */
     @media (min-width: 720px) {
-      body { font-size: 17px; }
-      main { padding: 24px; }
+      body { font-size: 16.5px; }
+      main { padding: 24px; max-width: 880px; }
+      header { padding: 16px 24px; }
+      header h1 { font-size: 19px; }
+      .section { padding: 18px 22px; margin-bottom: 18px; border-radius: 14px; }
+      .section h2 { font-size: 15px; margin-bottom: 12px; }
+    }
+    /* Desktop (1024px+) — two-column where it makes sense */
+    @media (min-width: 1024px) {
+      body { font-size: 16px; }
+      main { max-width: 1100px; padding: 28px 32px; }
+      header { padding: 18px 32px; }
+      header h1 { font-size: 20px; }
+      /* Side-by-side: TL;DR + When */
+      .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+      .grid-2 .section { margin-bottom: 0; }
+      /* Wider script boxes don't need to be full width */
+      .script-box { max-width: 100%; }
+      /* Source links 2-up */
+      .sources-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .sources-grid .source-link { margin-bottom: 0; }
+      /* Counter rules 2-up */
+      .counter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .counter-grid .counter-rule { margin-bottom: 0; }
+      /* How-to steps render in two columns when many */
+      ol.how-to.two-col { columns: 2; column-gap: 28px; }
+      ol.how-to.two-col li { break-inside: avoid; }
+      /* Center bottom nav */
+      nav.bottom { font-size: 14px; padding: 14px 0 28px; }
+      nav.bottom a { margin: 0 12px; }
+      /* Briefing iframe — bigger on desktop */
+      .briefing-wrap iframe { min-height: 520px; }
+      /* Audio elements — constrain width on big screens */
+      audio { max-width: 560px; }
+    }
+    /* Wide desktop (1440px+) */
+    @media (min-width: 1440px) {
+      main { max-width: 1240px; }
     }
   </style>
 </head>
@@ -178,25 +215,27 @@
   <main>
     
 
-<div class="section">
-  <h2>① TL;DR</h2>
-  <p class="tldr">SFH that already cash-flows at retail. DO NOT pitch seller finance — Richard explicit: "Strong cash-flowing deals usually don't need seller financing." Submit cash offer at 70–80% of asking via Grand In Taylor.
+<div class="grid-2">
+  <div class="section">
+    <h2>① TL;DR</h2>
+    <p class="tldr">SFH that already cash-flows at retail. DO NOT pitch seller finance — Richard explicit: "Strong cash-flowing deals usually don't need seller financing." Submit cash offer at 70–80% of asking via Grand In Taylor.
 </p>
-</div>
+  </div>
 
-<div class="section">
-  <h2>② When to use</h2>
-  <div class="when">
-    <ul>
-      <li>Property type: SFH</li><li>Already cash-flows for a cash buyer at full ask (CF > $200/mo)</li><li>DOM: 60+ days</li><li>Strategy: wholesale at a cash discount, NOT creative finance</li>
-    </ul>
+  <div class="section">
+    <h2>② When to use</h2>
+    <div class="when">
+      <ul>
+        <li>Property type: SFH</li><li>Already cash-flows for a cash buyer at full ask (CF > $200/mo)</li><li>DOM: 60+ days</li><li>Strategy: wholesale at a cash discount, NOT creative finance</li>
+      </ul>
+    </div>
   </div>
 </div>
 
 
 <div class="section">
   <h2>③ How to run this play (step-by-step)</h2>
-  <ol class="how-to">
+  <ol class="how-to two-col">
     
     <li>
       <strong>Confirm Tier C — cash-flow check</strong>
@@ -276,13 +315,15 @@ Are they flexible on price, or pretty firm at [asking]?"</div>
 
 <div class="section">
   <h2>⑧ Counter-offer rules</h2>
-  
-  <div class="counter-rule">If seller refuses to negotiate to 70–80%, pivot to Tier A/B seller-finance offer (if structure fits).</div>
-  
-  <div class="counter-rule">Seller motivation matters here more than price — divorces, inherited, tired landlords are best.</div>
-  
-  <div class="counter-rule">Submit via Grand In Taylor Cash Alt form, not Creative form.</div>
-  
+  <div class="counter-grid">
+    
+    <div class="counter-rule">If seller refuses to negotiate to 70–80%, pivot to Tier A/B seller-finance offer (if structure fits).</div>
+    
+    <div class="counter-rule">Seller motivation matters here more than price — divorces, inherited, tired landlords are best.</div>
+    
+    <div class="counter-rule">Submit via Grand In Taylor Cash Alt form, not Creative form.</div>
+    
+  </div>
 </div>
 
 
@@ -291,31 +332,33 @@ Are they flexible on price, or pretty firm at [asking]?"</div>
 
 <div class="section">
   <h2>⑨ Sources (go deeper)</h2>
-  
-  <a class="source-link" href="https://www.hmhw.group/course/096ebb43-7285-459a-90a7-20686dffb942" target="_blank" rel="noopener">
-    <span class="icon">📚</span>
-    <span class="label">HMHW Cash Course (Section 8 + Fix&Flip)</span>
-    <span class="arrow">↗</span>
-  </a>
-  
-  <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587" target="_blank" rel="noopener">
-    <span class="icon">📤</span>
-    <span class="label">Grand In Taylor Cash Alt form</span>
-    <span class="arrow">↗</span>
-  </a>
-  
-  <a class="source-link" href="https://www.hmhw.group/tools/fix-and-flip" target="_blank" rel="noopener">
-    <span class="icon">🧮</span>
-    <span class="label">Fix & Flip Calculator (for distressed C)</span>
-    <span class="arrow">↗</span>
-  </a>
-  
-  <a class="source-link" href="https://buyboxcartel.com/vip/lightning-leads" target="_blank" rel="noopener">
-    <span class="icon">🏦</span>
-    <span class="label">Find Tier C deals in BBC Lightning Leads</span>
-    <span class="arrow">↗</span>
-  </a>
-  
+  <div class="sources-grid">
+    
+    <a class="source-link" href="https://www.hmhw.group/course/096ebb43-7285-459a-90a7-20686dffb942" target="_blank" rel="noopener">
+      <span class="icon">📚</span>
+      <span class="label">HMHW Cash Course (Section 8 + Fix&Flip)</span>
+      <span class="arrow">↗</span>
+    </a>
+    
+    <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587" target="_blank" rel="noopener">
+      <span class="icon">📤</span>
+      <span class="label">Grand In Taylor Cash Alt form</span>
+      <span class="arrow">↗</span>
+    </a>
+    
+    <a class="source-link" href="https://www.hmhw.group/tools/fix-and-flip" target="_blank" rel="noopener">
+      <span class="icon">🧮</span>
+      <span class="label">Fix & Flip Calculator (for distressed C)</span>
+      <span class="arrow">↗</span>
+    </a>
+    
+    <a class="source-link" href="https://buyboxcartel.com/vip/lightning-leads" target="_blank" rel="noopener">
+      <span class="icon">🏦</span>
+      <span class="label">Find Tier C deals in BBC Lightning Leads</span>
+      <span class="arrow">↗</span>
+    </a>
+    
+  </div>
 </div>
 
 

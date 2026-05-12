@@ -163,9 +163,46 @@
       background: var(--panel-2); border: 1px solid var(--border);
       border-radius: 14px; font-size: 13px; color: var(--muted);
     }
+    /* Tablet (720px+) */
     @media (min-width: 720px) {
-      body { font-size: 17px; }
-      main { padding: 24px; }
+      body { font-size: 16.5px; }
+      main { padding: 24px; max-width: 880px; }
+      header { padding: 16px 24px; }
+      header h1 { font-size: 19px; }
+      .section { padding: 18px 22px; margin-bottom: 18px; border-radius: 14px; }
+      .section h2 { font-size: 15px; margin-bottom: 12px; }
+    }
+    /* Desktop (1024px+) — two-column where it makes sense */
+    @media (min-width: 1024px) {
+      body { font-size: 16px; }
+      main { max-width: 1100px; padding: 28px 32px; }
+      header { padding: 18px 32px; }
+      header h1 { font-size: 20px; }
+      /* Side-by-side: TL;DR + When */
+      .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+      .grid-2 .section { margin-bottom: 0; }
+      /* Wider script boxes don't need to be full width */
+      .script-box { max-width: 100%; }
+      /* Source links 2-up */
+      .sources-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .sources-grid .source-link { margin-bottom: 0; }
+      /* Counter rules 2-up */
+      .counter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .counter-grid .counter-rule { margin-bottom: 0; }
+      /* How-to steps render in two columns when many */
+      ol.how-to.two-col { columns: 2; column-gap: 28px; }
+      ol.how-to.two-col li { break-inside: avoid; }
+      /* Center bottom nav */
+      nav.bottom { font-size: 14px; padding: 14px 0 28px; }
+      nav.bottom a { margin: 0 12px; }
+      /* Briefing iframe — bigger on desktop */
+      .briefing-wrap iframe { min-height: 520px; }
+      /* Audio elements — constrain width on big screens */
+      audio { max-width: 560px; }
+    }
+    /* Wide desktop (1440px+) */
+    @media (min-width: 1440px) {
+      main { max-width: 1240px; }
     }
   </style>
 </head>
@@ -178,25 +215,27 @@
   <main>
     
 
-<div class="section">
-  <h2>① TL;DR</h2>
-  <p class="tldr">Cheap SFH (<$100K) in markets like Flint MI, Detroit, parts of OH/AL that have sat 90+ days. Lower scale than Tier A but easier negotiations — sellers are tired.
+<div class="grid-2">
+  <div class="section">
+    <h2>① TL;DR</h2>
+    <p class="tldr">Cheap SFH (<$100K) in markets like Flint MI, Detroit, parts of OH/AL that have sat 90+ days. Lower scale than Tier A but easier negotiations — sellers are tired.
 </p>
-</div>
+  </div>
 
-<div class="section">
-  <h2>② When to use</h2>
-  <div class="when">
-    <ul>
-      <li>Price: <$100K (max $150K)</li><li>DOM: 90+ days (ideally 150+)</li><li>Property type: SFH</li><li>Down: 10–14% acceptable (cheap properties tolerate more down)</li><li>Markets sweet spot: MI, OH, AL — Flint, Detroit, Cleveland, Birmingham</li>
-    </ul>
+  <div class="section">
+    <h2>② When to use</h2>
+    <div class="when">
+      <ul>
+        <li>Price: <$100K (max $150K)</li><li>DOM: 90+ days (ideally 150+)</li><li>Property type: SFH</li><li>Down: 10–14% acceptable (cheap properties tolerate more down)</li><li>Markets sweet spot: MI, OH, AL — Flint, Detroit, Cleveland, Birmingham</li>
+      </ul>
+    </div>
   </div>
 </div>
 
 
 <div class="section">
   <h2>③ How to run this play (step-by-step)</h2>
-  <ol class="how-to">
+  <ol class="how-to two-col">
     
     <li>
       <strong>Confirm Tier B qualifies</strong>
@@ -370,13 +409,15 @@ the structure has to change, not the rate."</div>
 
 <div class="section">
   <h2>⑧ Counter-offer rules</h2>
-  
-  <div class="counter-rule">Seller wants more down → up to 14% OK on Tier B (cheap property exception).</div>
-  
-  <div class="counter-rule">Seller wants interest → drop premium, offer asking at 4-6.5%.</div>
-  
-  <div class="counter-rule">If condition flags appear (roof, foundation), price down BEFORE submitting.</div>
-  
+  <div class="counter-grid">
+    
+    <div class="counter-rule">Seller wants more down → up to 14% OK on Tier B (cheap property exception).</div>
+    
+    <div class="counter-rule">Seller wants interest → drop premium, offer asking at 4-6.5%.</div>
+    
+    <div class="counter-rule">If condition flags appear (roof, foundation), price down BEFORE submitting.</div>
+    
+  </div>
 </div>
 
 
@@ -385,31 +426,33 @@ the structure has to change, not the rate."</div>
 
 <div class="section">
   <h2>⑨ Sources (go deeper)</h2>
-  
-  <a class="source-link" href="https://www.hmhw.group/course/e258d5b1-57d8-41cc-a2c7-c4268345fcf6" target="_blank" rel="noopener">
-    <span class="icon">📚</span>
-    <span class="label">HMHW Seller Finance Course (full)</span>
-    <span class="arrow">↗</span>
-  </a>
-  
-  <a class="source-link" href="https://www.hmhw.group/tools/section-8" target="_blank" rel="noopener">
-    <span class="icon">🧮</span>
-    <span class="label">Section 8 Calculator</span>
-    <span class="arrow">↗</span>
-  </a>
-  
-  <a class="source-link" href="https://www.hmhw.group/tools/offer-oven" target="_blank" rel="noopener">
-    <span class="icon">🧮</span>
-    <span class="label">Offer Oven (general)</span>
-    <span class="arrow">↗</span>
-  </a>
-  
-  <a class="source-link" href="https://buyboxcartel.com/vip/lightning-leads" target="_blank" rel="noopener">
-    <span class="icon">🏦</span>
-    <span class="label">Find more Tier B deals in BBC</span>
-    <span class="arrow">↗</span>
-  </a>
-  
+  <div class="sources-grid">
+    
+    <a class="source-link" href="https://www.hmhw.group/course/e258d5b1-57d8-41cc-a2c7-c4268345fcf6" target="_blank" rel="noopener">
+      <span class="icon">📚</span>
+      <span class="label">HMHW Seller Finance Course (full)</span>
+      <span class="arrow">↗</span>
+    </a>
+    
+    <a class="source-link" href="https://www.hmhw.group/tools/section-8" target="_blank" rel="noopener">
+      <span class="icon">🧮</span>
+      <span class="label">Section 8 Calculator</span>
+      <span class="arrow">↗</span>
+    </a>
+    
+    <a class="source-link" href="https://www.hmhw.group/tools/offer-oven" target="_blank" rel="noopener">
+      <span class="icon">🧮</span>
+      <span class="label">Offer Oven (general)</span>
+      <span class="arrow">↗</span>
+    </a>
+    
+    <a class="source-link" href="https://buyboxcartel.com/vip/lightning-leads" target="_blank" rel="noopener">
+      <span class="icon">🏦</span>
+      <span class="label">Find more Tier B deals in BBC</span>
+      <span class="arrow">↗</span>
+    </a>
+    
+  </div>
 </div>
 
 

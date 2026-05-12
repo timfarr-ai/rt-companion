@@ -195,26 +195,28 @@ def render_index(strategies: list, sops: list, env: Environment, out_dir: Path):
   </p>
 </div>
 
-<div class="section">
-  <h2>Strategy Playbooks (deal-specific plays)</h2>
-  {% for s in strategies %}
-  <a class="source-link" href="/rt-companion/strategy/{{ s.slug }}.html">
-    <span class="icon">{{ s.emoji }}</span>
-    <span class="label">{{ s.title }}</span>
-    <span class="arrow">›</span>
-  </a>
-  {% endfor %}
-</div>
+<div class="grid-2">
+  <div class="section">
+    <h2>Strategy Playbooks (deal-specific plays)</h2>
+    {% for s in strategies %}
+    <a class="source-link" href="/rt-companion/strategy/{{ s.slug }}.html">
+      <span class="icon">{{ s.emoji }}</span>
+      <span class="label">{{ s.title }}</span>
+      <span class="arrow">›</span>
+    </a>
+    {% endfor %}
+  </div>
 
-<div class="section">
-  <h2>SOPs (daily workflow)</h2>
-  {% for s in sops %}
-  <a class="source-link" href="/rt-companion/sop/{{ s.slug }}.html">
-    <span class="icon">{{ s.emoji }}</span>
-    <span class="label">{{ s.title }}</span>
-    <span class="arrow">›</span>
-  </a>
-  {% endfor %}
+  <div class="section">
+    <h2>SOPs (daily workflow)</h2>
+    {% for s in sops %}
+    <a class="source-link" href="/rt-companion/sop/{{ s.slug }}.html">
+      <span class="icon">{{ s.emoji }}</span>
+      <span class="label">{{ s.title }}</span>
+      <span class="arrow">›</span>
+    </a>
+    {% endfor %}
+  </div>
 </div>
 
 <div class="section">

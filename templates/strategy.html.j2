@@ -1,24 +1,26 @@
 {% extends "base.html.j2" %}
 {% block content %}
 
-<div class="section">
-  <h2>① TL;DR</h2>
-  <p class="tldr">{{ strategy.tldr }}</p>
-</div>
+<div class="grid-2">
+  <div class="section">
+    <h2>① TL;DR</h2>
+    <p class="tldr">{{ strategy.tldr }}</p>
+  </div>
 
-<div class="section">
-  <h2>② When to use</h2>
-  <div class="when">
-    <ul>
-      {% for w in strategy.when %}<li>{{ w }}</li>{% endfor %}
-    </ul>
+  <div class="section">
+    <h2>② When to use</h2>
+    <div class="when">
+      <ul>
+        {% for w in strategy.when %}<li>{{ w }}</li>{% endfor %}
+      </ul>
+    </div>
   </div>
 </div>
 
 {% if strategy.how_to %}
 <div class="section">
   <h2>③ How to run this play (step-by-step)</h2>
-  <ol class="how-to">
+  <ol class="how-to{% if strategy.how_to|length > 6 %} two-col{% endif %}">
     {% for step in strategy.how_to %}
     <li>
       <strong>{{ step.title }}</strong>
@@ -91,9 +93,11 @@
 {% if strategy.counter_rules %}
 <div class="section">
   <h2>⑧ Counter-offer rules</h2>
-  {% for rule in strategy.counter_rules %}
-  <div class="counter-rule">{{ rule.text }}</div>
-  {% endfor %}
+  <div class="counter-grid">
+    {% for rule in strategy.counter_rules %}
+    <div class="counter-rule">{{ rule.text }}</div>
+    {% endfor %}
+  </div>
 </div>
 {% endif %}
 
@@ -110,13 +114,15 @@
 {% if strategy.sources %}
 <div class="section">
   <h2>⑨ Sources (go deeper)</h2>
-  {% for src in strategy.sources %}
-  <a class="source-link" href="{{ src.url }}" target="_blank" rel="noopener">
-    <span class="icon">{{ src.icon }}</span>
-    <span class="label">{{ src.label }}</span>
-    <span class="arrow">↗</span>
-  </a>
-  {% endfor %}
+  <div class="sources-grid">
+    {% for src in strategy.sources %}
+    <a class="source-link" href="{{ src.url }}" target="_blank" rel="noopener">
+      <span class="icon">{{ src.icon }}</span>
+      <span class="label">{{ src.label }}</span>
+      <span class="arrow">↗</span>
+    </a>
+    {% endfor %}
+  </div>
 </div>
 {% endif %}
 

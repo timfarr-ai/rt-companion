@@ -163,9 +163,46 @@
       background: var(--panel-2); border: 1px solid var(--border);
       border-radius: 14px; font-size: 13px; color: var(--muted);
     }
+    /* Tablet (720px+) */
     @media (min-width: 720px) {
-      body { font-size: 17px; }
-      main { padding: 24px; }
+      body { font-size: 16.5px; }
+      main { padding: 24px; max-width: 880px; }
+      header { padding: 16px 24px; }
+      header h1 { font-size: 19px; }
+      .section { padding: 18px 22px; margin-bottom: 18px; border-radius: 14px; }
+      .section h2 { font-size: 15px; margin-bottom: 12px; }
+    }
+    /* Desktop (1024px+) — two-column where it makes sense */
+    @media (min-width: 1024px) {
+      body { font-size: 16px; }
+      main { max-width: 1100px; padding: 28px 32px; }
+      header { padding: 18px 32px; }
+      header h1 { font-size: 20px; }
+      /* Side-by-side: TL;DR + When */
+      .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+      .grid-2 .section { margin-bottom: 0; }
+      /* Wider script boxes don't need to be full width */
+      .script-box { max-width: 100%; }
+      /* Source links 2-up */
+      .sources-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .sources-grid .source-link { margin-bottom: 0; }
+      /* Counter rules 2-up */
+      .counter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .counter-grid .counter-rule { margin-bottom: 0; }
+      /* How-to steps render in two columns when many */
+      ol.how-to.two-col { columns: 2; column-gap: 28px; }
+      ol.how-to.two-col li { break-inside: avoid; }
+      /* Center bottom nav */
+      nav.bottom { font-size: 14px; padding: 14px 0 28px; }
+      nav.bottom a { margin: 0 12px; }
+      /* Briefing iframe — bigger on desktop */
+      .briefing-wrap iframe { min-height: 520px; }
+      /* Audio elements — constrain width on big screens */
+      audio { max-width: 560px; }
+    }
+    /* Wide desktop (1440px+) */
+    @media (min-width: 1440px) {
+      main { max-width: 1240px; }
     }
   </style>
 </head>
@@ -178,25 +215,27 @@
   <main>
     
 
-<div class="section">
-  <h2>① TL;DR</h2>
-  <p class="tldr">Once verbal yes is in, the contract addendum has very specific language. EMD is $1,000, submitted AFTER inspection. Inspection period is 7-10 business days.
+<div class="grid-2">
+  <div class="section">
+    <h2>① TL;DR</h2>
+    <p class="tldr">Once verbal yes is in, the contract addendum has very specific language. EMD is $1,000, submitted AFTER inspection. Inspection period is 7-10 business days.
 </p>
-</div>
+  </div>
 
-<div class="section">
-  <h2>② When to use</h2>
-  <div class="when">
-    <ul>
-      <li>Agent or seller agrees verbally to terms</li><li>Ready to send contract</li><li>Trigger Claude Code: "verbal yes on [address]" to get contract parameters</li>
-    </ul>
+  <div class="section">
+    <h2>② When to use</h2>
+    <div class="when">
+      <ul>
+        <li>Agent or seller agrees verbally to terms</li><li>Ready to send contract</li><li>Trigger Claude Code: "verbal yes on [address]" to get contract parameters</li>
+      </ul>
+    </div>
   </div>
 </div>
 
 
 <div class="section">
   <h2>③ How to run this play (step-by-step)</h2>
-  <ol class="how-to">
+  <ol class="how-to two-col">
     
     <li>
       <strong>Generate contract parameters in Claude Code</strong>
@@ -267,15 +306,17 @@
 
 <div class="section">
   <h2>⑧ Counter-offer rules</h2>
-  
-  <div class="counter-rule">EMD: $1,000, submitted AFTER inspection period ends (not at execution).</div>
-  
-  <div class="counter-rule">Inspection: 10 business days preferred, 7 minimum. Richard's company often covers EMD.</div>
-  
-  <div class="counter-rule">Closing: 30 days from execution.</div>
-  
-  <div class="counter-rule">Assignment fee: $5K standard. Track separately from purchase price.</div>
-  
+  <div class="counter-grid">
+    
+    <div class="counter-rule">EMD: $1,000, submitted AFTER inspection period ends (not at execution).</div>
+    
+    <div class="counter-rule">Inspection: 10 business days preferred, 7 minimum. Richard's company often covers EMD.</div>
+    
+    <div class="counter-rule">Closing: 30 days from execution.</div>
+    
+    <div class="counter-rule">Assignment fee: $5K standard. Track separately from purchase price.</div>
+    
+  </div>
 </div>
 
 
@@ -298,31 +339,33 @@ Title to transfer into a Land Trust at closing, with Buyer named as beneficiary.
 
 <div class="section">
   <h2>⑨ Sources (go deeper)</h2>
-  
-  <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78" target="_blank" rel="noopener">
-    <span class="icon">📤</span>
-    <span class="label">Grand In Taylor Creative Form (submit deal)</span>
-    <span class="arrow">↗</span>
-  </a>
-  
-  <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587" target="_blank" rel="noopener">
-    <span class="icon">📤</span>
-    <span class="label">Grand In Taylor Cash Alt Form</span>
-    <span class="arrow">↗</span>
-  </a>
-  
-  <a class="source-link" href="https://buyboxcartel.com/vip/marketplace" target="_blank" rel="noopener">
-    <span class="icon">🏦</span>
-    <span class="label">BBC Marketplace (auto-dispo to BBC buyers)</span>
-    <span class="arrow">↗</span>
-  </a>
-  
-  <a class="source-link" href="https://buyboxcartel.com/vip/inventory" target="_blank" rel="noopener">
-    <span class="icon">🏦</span>
-    <span class="label">BBC Inventory (pipeline tracker)</span>
-    <span class="arrow">↗</span>
-  </a>
-  
+  <div class="sources-grid">
+    
+    <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78" target="_blank" rel="noopener">
+      <span class="icon">📤</span>
+      <span class="label">Grand In Taylor Creative Form (submit deal)</span>
+      <span class="arrow">↗</span>
+    </a>
+    
+    <a class="source-link" href="https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587" target="_blank" rel="noopener">
+      <span class="icon">📤</span>
+      <span class="label">Grand In Taylor Cash Alt Form</span>
+      <span class="arrow">↗</span>
+    </a>
+    
+    <a class="source-link" href="https://buyboxcartel.com/vip/marketplace" target="_blank" rel="noopener">
+      <span class="icon">🏦</span>
+      <span class="label">BBC Marketplace (auto-dispo to BBC buyers)</span>
+      <span class="arrow">↗</span>
+    </a>
+    
+    <a class="source-link" href="https://buyboxcartel.com/vip/inventory" target="_blank" rel="noopener">
+      <span class="icon">🏦</span>
+      <span class="label">BBC Inventory (pipeline tracker)</span>
+      <span class="arrow">↗</span>
+    </a>
+    
+  </div>
 </div>
 
 
