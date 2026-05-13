@@ -70,8 +70,13 @@ print(f'Watchlist: {len(existing_addrs)} existing', file=sys.stderr)
 # 4. Fetch leads per state — uses opener for cookies
 all_leads = []
 for state in STATES:
-    payload = {'search_query': state, 'deal_type': ['sellerFinance'], 'market_status': 'Active',
-               'page': 1, 'limit': 15, 'sort_field': 'monthlyCashFlow', 'sort_order': 'desc',
+    # Richard's method targets STALE listings (motivated sellers), not high-CF ones.
+    # BBC's CF on SF cards is at bank rate — high CF means "deal works without
+    # creative", which is the opposite of what we want. Sort by DOM desc instead.
+    # Include both sellerFinance + mortgageTakeover deal types in the query.
+    payload = {'search_query': state, 'deal_type': ['sellerFinance', 'mortgageTakeover'],
+               'market_status': 'Active', 'page': 1, 'limit': 25,
+               'sort_field': 'daysOnMarket', 'sort_order': 'desc',
                'price_range': {'max': 1_400_000}}
     code, body = http_req('https://www.buyboxcartel.com/api/lightning-leads/search-property',
                           method='POST', json_body=payload,
@@ -143,16 +148,6 @@ def units(p):
     if 'multi' in pt or 'plex' in pt: return 4
     return 1
 
-def _bank_piti(price):
-    """Standard bank-rate PITI: 25% down, 7% rate, 30yr, +1.5%/yr tax+ins."""
-    if price <= 0: return 0
-    loan = price * 0.75
-    r = 0.07 / 12
-    n = 360
-    pi = loan * r / (1 - (1 + r) ** -n)
-    tax_ins = price * 0.015 / 12
-    return pi + tax_ins
-
 def score(p):
     cd = p.get('calculatedData', {})
     cf = float(cd.get('monthlyCashFlow') or 0)
@@ -163,15 +158,14 @@ def score(p):
     coc = round((cf*12)/entry*100, 1) if entry > 0 else 0
     dom = int(p.get('daysOnMarket') or 0)
     addr = p.get('address', {})
-    # Bank gap — Richard's call hook. What does the listing FAIL by under standard
-    # bank financing? Positive gap = pitch ammo ("payment would be $X, rent only $Y").
-    # rent_est: prefer explicit, else back-calc from SF cash flow (CF + SF_PITI).
+    # Bank gap — use BBC's own monthlyCashFlow. For Seller Finance cards BBC
+    # already computes CF at market bank rate on the offer price; for Mortgage
+    # Takeover cards CF is at the existing-loan rate (the favorable creative
+    # scenario). Either way, a negative CF is the conversation hook.
+    # BBC fields used directly — no separate rate/down assumption layered on top.
     monthly_rent = float(cd.get('monthlyRent') or 0)
-    if monthly_rent <= 0 and lp > 0:
-        sf_piti_est = (lp - down) / 360 + lp * 0.015 / 12  # 0% rate 30yr + taxes/ins
-        monthly_rent = max(0, cf + sf_piti_est)
-    bank_piti = _bank_piti(lp)
-    bank_gap = round(bank_piti - monthly_rent)
+    monthly_piti = float(cd.get('monthlyPayment') or cd.get('monthlyTotalExpenses') or 0)
+    bank_gap = round(-cf) if cf < 0 else 0
     # Listing freshness — BBC's market_status is always "Active" for filtered results,
     # but the gap between last_listed (lifetime days) and daysOnMarket (current spell)
     # reveals if the listing was paused/relisted (typically because it went under contract).
@@ -200,16 +194,33 @@ def score(p):
             'is_zillow_active': is_zillow_active,
             'status_state': status_state,
             'monthly_rent': round(monthly_rent),
-            'bank_piti': round(bank_piti),
+            'monthly_piti': round(monthly_piti),
             'bank_gap': bank_gap,
+            'deal_type_raw': cd.get('dealType', ''),
             'beds': int(p.get('bedrooms') or cd.get('bedrooms') or 0)}
 
 def tier(s):
+    """Richard's method targets DSCR-failing listings on Seller Finance plays.
+    BBC's monthlyCashFlow for SF deal_type = CF at market bank rate on offer price,
+    so NEGATIVE CF is the qualification signal (proves standard offer can't close).
+    For Mortgage Takeover deal_type, CF is at the existing low rate (favorable
+    creative scenario) — positive CF means the takeover works as-is.
+    For Cash deal_type (Tier C) — positive CF means cash arbitrage works."""
     pt = s['type'].lower()
     is_mfh = s['units'] >= 5 or 'multi' in pt or 'apartment' in pt
-    if is_mfh and 350_000 <= s['price'] <= 1_400_000 and s['dom'] >= 90 and s['cf'] > 200: return 'A'
-    if not is_mfh and s['price'] < 100_000 and s['dom'] >= 90 and s['cf'] > 200: return 'B'
-    if not is_mfh and s['cf'] > 300 and s['dom'] >= 60: return 'C'
+    dt = s.get('deal_type', 'sellerFinance')
+    # Tier A — MFH Seller Finance Checkmate (DSCR fails at bank rate = negative CF)
+    if is_mfh and 350_000 <= s['price'] <= 1_400_000 and s['dom'] >= 90 and dt == 'sellerFinance' and s['cf'] <= 0:
+        return 'A'
+    # Tier B — cheap stale SFH Seller Finance (negative-CF hook)
+    if not is_mfh and s['price'] < 100_000 and s['dom'] >= 90 and dt == 'sellerFinance' and s['cf'] <= 0:
+        return 'B'
+    # Tier MT — Mortgage Takeover (favorable existing loan → positive CF after assumption)
+    if dt == 'mortgageTakeover' and s['cf'] > 0 and s['dom'] >= 60:
+        return 'MT'
+    # Tier C — cash-comparable SFH arbitrage
+    if not is_mfh and s['cf'] > 300 and s['dom'] >= 60:
+        return 'C'
     return 'REJECT'
 
 def match_buyers(s, t, buyers):
@@ -224,7 +235,7 @@ def match_buyers(s, t, buyers):
     return matches
 
 NON_RESIDENTIAL_TYPES = ('vacant', 'land', 'lot', 'acreage', 'commercial', 'industrial')
-buckets = {'A':[], 'B':[], 'C':[], 'REJECT':[]}
+buckets = {'A':[], 'B':[], 'MT':[], 'C':[], 'REJECT':[]}
 land_skipped = 0
 for p in all_leads:
     s = score(p)
@@ -238,12 +249,12 @@ for p in all_leads:
     s['tz'] = STATE_TZ.get(s['state'], 'America/New_York')
     s['agent'] = None  # set below if unlocked
     buckets[t].append(s)
-for t in ('A','B','C'): buckets[t].sort(key=lambda x: -x['dom'])
-print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  C={len(buckets["C"])}  REJECT={len(buckets["REJECT"])}  Land-skipped={land_skipped}', file=sys.stderr)
+for t in ('A','B','MT','C'): buckets[t].sort(key=lambda x: -x['dom'])
+print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  MT={len(buckets["MT"])}  C={len(buckets["C"])}  REJECT={len(buckets["REJECT"])}  Land-skipped={land_skipped}', file=sys.stderr)
 
 # 5b. Surface agent info — cookie-free via BBC's contact-seller endpoint (the one
 # behind the Create Offer modal). Cost: $0/unlock. Run on ALL Tier A/B/C deals.
-unlock_targets = buckets['A'] + buckets['B'] + buckets['C']
+unlock_targets = buckets['A'] + buckets['B'] + buckets['MT'] + buckets['C']
 unlocks_attempted = 0
 unlocks_succeeded = 0
 captured_agents = []  # for Airtable persistence
@@ -350,9 +361,11 @@ print(f'Pushed {pushed} to watchlist', file=sys.stderr)
 date_iso = today
 date_human = datetime.now().strftime('%a %b %d, %Y')
 def render_deal(d, t):
-    cls = {'A':'tier-A','B':'tier-B','C':'tier-C'}[t]
+    cls = {'A':'tier-A','B':'tier-B','MT':'tier-MT','C':'tier-C'}[t]
+    # MT shares the contract/close playbook for now; no dedicated MT strategy page yet.
     playbook = {'A':'/rt-companion/strategy/tier-a-multifamily-checkmate.html',
                 'B':'/rt-companion/strategy/tier-b-cheap-sfh-stale.html',
+                'MT':'/rt-companion/strategy/contract-close.html',
                 'C':'/rt-companion/strategy/tier-c-cash-buyer.html'}[t]
     bl = f'<div style="color:#56d364;font-size:13px;margin-top:6px;">🎯 BUYER MATCH: {", ".join(d["buyer_matches"])}</div>' if d['buyer_matches'] else ''
     z = f' <a class="zillow" href="{d["zillow"]}" target="_blank">Zillow ↗ (agent here)</a>' if d['zillow'] else ''
@@ -393,11 +406,16 @@ def render_deal(d, t):
     cf_label = 'Cash CF' if t == 'C' else 'CF'
     # Bank gap pill — Richard's pitch hook. $X/mo the seller LOSES at standard bank financing.
     # Only show when positive (i.e. listing actually fails conventional underwriting).
+    # Bank gap — uses BBC's own numbers (monthlyCashFlow). For Seller Finance cards
+    # this IS the standard-bank-rate gap (BBC computes CF at offer price + market rate).
+    # For Mortgage Takeover cards this is CF at the existing favorable rate (the gap
+    # is what you'd lose if you couldn't take over the loan and had to refi).
     bg_amount = d.get('bank_gap', 0)
-    bg_piti = d.get('bank_piti', 0)
+    bg_piti = d.get('monthly_piti', 0)
     bg_rent = d.get('monthly_rent', 0)
-    bank_gap_title = f'Bank PITI ${bg_piti:,}/mo − Rent ${bg_rent:,}/mo'
-    bank_gap_pill = f' <span class="pill" style="background:#3a2418;color:#ffa657;border-color:#3a2418;font-weight:600;" title="{bank_gap_title}">🏦 Bank gap −${bg_amount:,}/mo</span>' if bg_amount > 0 else ''
+    bg_label = 'Refi gap' if d.get('deal_type_raw') == 'mortgageTakeover' else 'Bank gap'
+    bank_gap_title = f'PITI ${bg_piti:,}/mo − Rent ${bg_rent:,}/mo (BBC figures)' if bg_piti and bg_rent else 'From BBC monthlyCashFlow'
+    bank_gap_pill = f' <span class="pill" style="background:#3a2418;color:#ffa657;border-color:#3a2418;font-weight:600;" title="{bank_gap_title}">🏦 {bg_label} −${bg_amount:,}/mo</span>' if bg_amount > 0 else ''
     # Comp links — Rentometer for rent validation, Zillow recently-sold for price validation.
     addr_enc = urllib.parse.quote(d['address'])
     beds = d.get('beds', 0)
@@ -419,17 +437,18 @@ def render_deal(d, t):
         agent_block = f'<div style="margin-top:8px;padding:8px 10px;background:#0d2818;border:1px solid #1a4d2e;border-radius:6px;font-size:13px;"><div style="color:#7ee787;font-weight:600;margin-bottom:2px;">🔓 {a["name"]}</div><div>{tel_link}{op_link}{email_link}</div></div>'
     return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div><div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{z}{bbc_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
 
-section_a = ('<h2>🎯 TIER A — Multifamily Checkmate ($350K-$1.4M, 5+ units, DOM 90+)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
-section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale (<$100K, DOM 90+)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
-section_c = ('<h2>💵 TIER C — Cash-Comparable SFH (NOT seller finance)</h2>' + ''.join(render_deal(d,'C') for d in buckets['C'])) if buckets['C'] else ''
+section_a = ('<h2>🎯 TIER A — Multifamily Seller-Finance Checkmate ($350K-$1.4M, 5+ units, DOM 90+, DSCR fails)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
+section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale Seller Finance (<$100K, DOM 90+, DSCR fails)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
+section_mt = ('<h2>🔑 MORTGAGE TAKEOVER — Favorable existing loan (positive CF at assumed rate, DOM 60+)</h2>' + ''.join(render_deal(d,'MT') for d in buckets['MT'])) if buckets['MT'] else ''
+section_c = ('<h2>💵 TIER C — Cash-Comparable SFH (cash arbitrage, NOT seller finance)</h2>' + ''.join(render_deal(d,'C') for d in buckets['C'])) if buckets['C'] else ''
 rej_section = ''
 if buckets['REJECT']:
     rej_lines = ''.join(f'<div class="rejected">{s["address"]} — CF: ${s["cf"]:,.0f} (DOM {s["dom"]})</div>' for s in buckets['REJECT'][:15])
     rej_section = f'<h2>❌ REJECTED — {pushed} pushed to <a href="https://airtable.com/{AT_BASE}/{WL_TABLE}">Watchlist</a></h2>{rej_lines}'
 
 agent_indicator = f' · 🔓 {unlocks_succeeded} agents captured (free)' if unlocks_succeeded else ''
-summary = f'{len(all_leads)} leads · {len(buckets["A"])} Tier A · {len(buckets["B"])} Tier B · {len(buckets["C"])} Tier C · {pushed} → watchlist{agent_indicator}'
-CSS = 'body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:12px;font-size:15px;line-height:1.5;}h2{font-size:14px;color:#8b949e;text-transform:uppercase;letter-spacing:0.04em;margin:18px 0 8px;}.summary{background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:14px;}.deal{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px;margin-bottom:10px;}.deal .addr{font-weight:600;font-size:15px;margin-bottom:4px;}.deal .meta{font-size:13px;color:#8b949e;margin-bottom:6px;}.deal .nums{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}.pill{background:#1c2128;border:1px solid #30363d;border-radius:12px;padding:2px 9px;font-size:12px;color:#8b949e;}.play-link{display:inline-block;padding:8px 12px;background:#58a6ff;color:#0d1117;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;margin-top:4px;}.tier-A{border-left:3px solid #ff7b72;}.tier-B{border-left:3px solid #d2a8ff;}.tier-C{border-left:3px solid #56d364;}a.zillow{color:#58a6ff;font-size:12px;margin-left:8px;}.rejected{color:#8b949e;font-size:13px;padding:4px 0;}.date{color:#8b949e;font-size:13px;}.addr-copy{display:inline-block;margin-left:8px;padding:2px 9px;font-size:12px;background:#1c2128;border:1px solid #30363d;color:#58a6ff;border-radius:12px;cursor:pointer;font-family:inherit;}.addr-copy:hover{background:#21262d;}.addr-copy.copied{background:#1a4d2e;color:#56d364;border-color:#1a4d2e;}'
+summary = f'{len(all_leads)} leads · {len(buckets["A"])} Tier A · {len(buckets["B"])} Tier B · {len(buckets["MT"])} MT · {len(buckets["C"])} Tier C · {pushed} → watchlist{agent_indicator}'
+CSS = 'body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:12px;font-size:15px;line-height:1.5;}h2{font-size:14px;color:#8b949e;text-transform:uppercase;letter-spacing:0.04em;margin:18px 0 8px;}.summary{background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:14px;}.deal{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px;margin-bottom:10px;}.deal .addr{font-weight:600;font-size:15px;margin-bottom:4px;}.deal .meta{font-size:13px;color:#8b949e;margin-bottom:6px;}.deal .nums{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}.pill{background:#1c2128;border:1px solid #30363d;border-radius:12px;padding:2px 9px;font-size:12px;color:#8b949e;}.play-link{display:inline-block;padding:8px 12px;background:#58a6ff;color:#0d1117;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;margin-top:4px;}.tier-A{border-left:3px solid #ff7b72;}.tier-B{border-left:3px solid #d2a8ff;}.tier-MT{border-left:3px solid #79c0ff;}.tier-C{border-left:3px solid #56d364;}a.zillow{color:#58a6ff;font-size:12px;margin-left:8px;}.rejected{color:#8b949e;font-size:13px;padding:4px 0;}.date{color:#8b949e;font-size:13px;}.addr-copy{display:inline-block;margin-left:8px;padding:2px 9px;font-size:12px;background:#1c2128;border:1px solid #30363d;color:#58a6ff;border-radius:12px;cursor:pointer;font-family:inherit;}.addr-copy:hover{background:#21262d;}.addr-copy.copied{background:#1a4d2e;color:#56d364;border-color:#1a4d2e;}'
 CLOCK_JS = '''<script>
 function updateLocalTimes(){
   document.querySelectorAll('.local-time').forEach(function(el){
@@ -445,7 +464,7 @@ function updateLocalTimes(){
 updateLocalTimes();
 setInterval(updateLocalTimes, 30000);
 </script>'''
-html = f'<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Triage {date_iso}</title><style>{CSS}</style></head><body><p class="date">📋 {date_human} · TN/TX/GA/OH/MI &nbsp;·&nbsp; <a href="https://www.buyboxcartel.com/vip/lightning-leads" target="_blank" style="color:#58a6ff;">Open BBC Lightning Leads ↗</a></p><div class="summary">{summary}</div>{section_a}{section_b}{section_c}{rej_section}' + CLOCK_JS + '</body></html>'
+html = f'<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Triage {date_iso}</title><style>{CSS}</style></head><body><p class="date">📋 {date_human} · TN/TX/GA/OH/MI &nbsp;·&nbsp; <a href="https://www.buyboxcartel.com/vip/lightning-leads" target="_blank" style="color:#58a6ff;">Open BBC Lightning Leads ↗</a></p><div class="summary">{summary}</div>{section_a}{section_b}{section_mt}{section_c}{rej_section}' + CLOCK_JS + '</body></html>'
 
 # 8. Publish
 b64 = base64.b64encode(html.encode()).decode()
@@ -466,8 +485,9 @@ print(f'GitHub: today={c1}, latest={c2}', file=sys.stderr)
 print('\n=========== BRIEFING ===========\n')
 print(f'📋 MORNING TRIAGE — {date_human} | HMHW Tier-Based | TN/TX/GA/OH/MI')
 print(summary)
-for t, name, emoji in [('A','Tier A — Multifamily Checkmate','🎯'),
-                       ('B','Tier B — Cheap SFH Stale','🏘️'),
+for t, name, emoji in [('A','Tier A — Multifamily SF Checkmate','🎯'),
+                       ('B','Tier B — Cheap SFH Stale SF','🏘️'),
+                       ('MT','Mortgage Takeover','🔑'),
                        ('C','Tier C — Cash Buyer','💵')]:
     if not buckets[t]: continue
     print(f'\n{emoji} {name} ({len(buckets[t])}):')
