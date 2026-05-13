@@ -218,17 +218,23 @@ def match_buyers(s, t, buyers):
         matches.append(b['name'])
     return matches
 
+NON_RESIDENTIAL_TYPES = ('vacant', 'land', 'lot', 'acreage', 'commercial', 'industrial')
 buckets = {'A':[], 'B':[], 'C':[], 'REJECT':[]}
+land_skipped = 0
 for p in all_leads:
     s = score(p)
     if s['cf'] == 0 and s['price'] == 0: continue
+    pt_lower = (s.get('type') or '').lower()
+    if any(token in pt_lower for token in NON_RESIDENTIAL_TYPES):
+        land_skipped += 1
+        continue
     t = tier(s)
     s['buyer_matches'] = match_buyers(s, t, buyers) if t != 'REJECT' else []
     s['tz'] = STATE_TZ.get(s['state'], 'America/New_York')
     s['agent'] = None  # set below if unlocked
     buckets[t].append(s)
 for t in ('A','B','C'): buckets[t].sort(key=lambda x: -x['dom'])
-print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  C={len(buckets["C"])}  REJECT={len(buckets["REJECT"])}', file=sys.stderr)
+print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  C={len(buckets["C"])}  REJECT={len(buckets["REJECT"])}  Land-skipped={land_skipped}', file=sys.stderr)
 
 # 5b. Unlock agent info for Tier A + Tier B (highest-yield plays)
 # Skip Tier C — wholesale flow doesn't need listing-agent unlock (you're cold-calling cash buyers via separate channel)
