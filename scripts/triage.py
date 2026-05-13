@@ -221,8 +221,14 @@ def score(p):
         status_state = 'paused'      # gentle warning — short paused gap
     else:
         status_state = 'active'      # green — fresh, no pause history
-    return {'address': f"{addr.get('street','')}, {addr.get('city','')}, {addr.get('state','')}",
-            'state': addr.get('state',''), 'type': addr.get('propertyType','') or 'Unknown',
+    # Build full address with ZIP — used for narrow BBC autosearch + Zillow ZIP-filtered sold comps
+    zip_code = addr.get('zip') or ''
+    full_addr = f"{addr.get('street','')}, {addr.get('city','')}, {addr.get('state','')}"
+    if zip_code:
+        full_addr = f"{full_addr} {zip_code}"
+    return {'address': full_addr,
+            'state': addr.get('state',''), 'zip': zip_code,
+            'type': addr.get('propertyType','') or 'Unknown',
             'deal_type': cd.get('dealType', 'sellerFinance'),
             'price': lp, 'cf': cf, 'coc': coc, 'dom': dom,
             'dom_flag': '🔥🔥' if dom>=150 else ('🔥' if dom>=90 else ''),
@@ -242,7 +248,11 @@ def score(p):
             'creative_offer': creative_offer,
             'creative_down': creative_down,
             'creative_terms': creative_terms,
-            'beds': int(p.get('bedrooms') or cd.get('bedrooms') or 0)}
+            'beds': int(p.get('bed') or 0),
+            'baths': int(float(p.get('bath') or 0)),
+            'sqft': int(p.get('sqft') or 0),
+            'lat': addr.get('latitude') or '',
+            'lng': addr.get('longitude') or ''}
 
 def tier(s):
     """BBC's monthlyCashFlow is already at the deal_type's creative terms (verified
@@ -414,10 +424,18 @@ def render_deal(d, t):
                 'C':'/rt-companion/strategy/tier-c-cash-buyer.html'}[t]
     bl = f'<div style="color:#56d364;font-size:13px;margin-top:6px;">🎯 BUYER MATCH: {", ".join(d["buyer_matches"])}</div>' if d['buyer_matches'] else ''
     z = f' <a class="zillow" href="{d["zillow"]}" target="_blank">Zillow ↗ (agent here)</a>' if d['zillow'] else ''
-    # Strip each comma-separated part (split(',') leaves a leading space on parts 1+)
-    city_state = ', '.join(p.strip() for p in d['address'].split(',')[1:] if p.strip())
+    # BBC autosearch: BBC's API only accepts City,State (verified 2026-05-13 — full
+    # address returns 0 results). Pass street separately so the userscript can scroll
+    # to the matching card after results render. Hash: #auto:City,State|street:Street
+    parts = [p.strip() for p in d['address'].split(',') if p.strip()]
+    # parts = ['51557 Forster Ln', 'Utica', 'MI 48316']  →  city='Utica', state='MI'
+    street_part = parts[0] if parts else ''
+    city_part = parts[1] if len(parts) >= 2 else ''
+    state_part = (parts[2].split()[0] if len(parts) >= 3 and parts[2] else '')  # strip zip from "MI 48316"
+    bbc_query = f'{city_part}, {state_part}' if city_part and state_part else d['address']
+    bbc_hash_payload = f'{bbc_query}|street:{street_part}' if street_part else bbc_query
     # BBC search URL with #auto: hash — userscript on BBC side auto-fills + searches
-    bbc_search = f'https://www.buyboxcartel.com/vip/lightning-leads#auto:{urllib.parse.quote(city_state)}'
+    bbc_search = f'https://www.buyboxcartel.com/vip/lightning-leads#auto:{urllib.parse.quote(bbc_hash_payload)}'
     bbc_link = f' <a class="zillow" href="{bbc_search}" target="_blank">Search BBC ↗</a>'
     # Offer Oven prefill — uses the SAME creative_offer/creative_down/rent numbers
     # already computed in score(), so the dashboard pill, the call pitch, and the
@@ -462,18 +480,19 @@ def render_deal(d, t):
     bg_label = 'Refi gap' if d.get('deal_type_raw') == 'mortgageTakeover' else 'Bank gap'
     bank_gap_title = f'PITI ${bg_piti:,}/mo − Rent ${bg_rent:,}/mo (BBC figures)' if bg_piti and bg_rent else 'From BBC monthlyCashFlow'
     bank_gap_pill = f' <span class="pill" style="background:#3a2418;color:#ffa657;border-color:#3a2418;font-weight:600;" title="{bank_gap_title}">🏦 {bg_label} −${bg_amount:,}/mo</span>' if bg_amount > 0 else ''
-    # Sold comps — Zillow's area-based recently-sold search. CDP-validated 2026-05-13
-    # that '/homes/recently_sold/{addr}_rb/' redirects to the property page (duplicate
-    # of the main Zillow link). Use '/{city}-{state}/sold/' slug for area comps instead.
-    # Rentometer link dropped — they have no public URL pattern that accepts an address
-    # query parameter (everything returns 404 or requires login). Zillow's Rent Zestimate
-    # on the property page (already linked) is the rent comp source.
-    parts = [p.strip() for p in d['address'].split(',') if p.strip()]
-    city_slug = parts[-2].lower().replace(' ', '-') if len(parts) >= 2 else ''
-    state_slug = parts[-1].lower() if parts else ''
-    sold_url = f'https://www.zillow.com/{city_slug}-{state_slug}/sold/' if city_slug and state_slug else ''
+    # Sold comps — Zillow ZIP-scoped + bedroom-filtered. Tim's prior feedback: area-only
+    # search returned too many non-comp results. Filter to same ZIP + ±1 bedroom for real
+    # comps. Format: /homes/recently_sold/{zip}/{beds}-_beds/ — uses Zillow's slug filters.
+    zip_code = d.get('zip', '')
+    beds = d.get('beds', 0)
+    if zip_code and beds:
+        sold_url = f'https://www.zillow.com/homes/recently_sold/{zip_code}_rb/{beds}-_beds/'
+    elif zip_code:
+        sold_url = f'https://www.zillow.com/homes/recently_sold/{zip_code}_rb/'
+    else:
+        sold_url = ''
     sold_link = f' <a class="zillow" href="{sold_url}" target="_blank">Sold comps ↗</a>' if sold_url else ''
-    rent_link = ''  # dropped — Zillow link already provides Rent Zestimate
+    rent_link = ''  # Zillow Rent Zestimate on the property page (already linked) covers this
     # Local time pill — updated live by JS (data-tz = IANA timezone)
     tz_pill = f' <span class="pill local-time" data-tz="{d["tz"]}">--:-- local</span>'
     # Agent block — only if unlocked

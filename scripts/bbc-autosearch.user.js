@@ -63,9 +63,62 @@
     setTimeout(() => div.remove(), 4000);
   }
 
+  // Find the property card containing a specific street address text (case-insensitive)
+  function findCardByStreet(street) {
+    if (!street) return null;
+    const needle = street.toLowerCase().trim();
+    const headings = document.querySelectorAll('h3, h2');
+    for (const h of headings) {
+      if (h.textContent && h.textContent.toLowerCase().includes(needle)) {
+        // Walk up to find the property card container
+        let card = h;
+        while (card && card.parentElement) {
+          card = card.parentElement;
+          if (card.querySelector('button') &&
+              Array.from(card.querySelectorAll('button')).some(b => /create offer/i.test(b.textContent))) {
+            return card;
+          }
+        }
+        return h.closest('article, section, div');
+      }
+    }
+    return null;
+  }
+
+  function scrollToMatchingCard(street, deadline) {
+    const tick = () => {
+      const card = findCardByStreet(street);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Highlight with green outline for 4s
+        const oldOutline = card.style.outline;
+        const oldShadow = card.style.boxShadow;
+        card.style.outline = '3px solid #56d364';
+        card.style.boxShadow = '0 0 24px rgba(86, 211, 100, 0.6)';
+        card.style.transition = 'all 0.3s ease';
+        setTimeout(() => { card.style.outline = oldOutline; card.style.boxShadow = oldShadow; }, 4000);
+        showBanner('🎯 Found: ' + street, '#1a4d2e');
+        return true;
+      }
+      if (Date.now() < deadline) {
+        setTimeout(tick, 400);
+      } else {
+        showBanner('⚠️ Card for "' + street + '" not in current page of results — try sorting or paging.', '#7d4d1a');
+      }
+    };
+    tick();
+  }
+
   function runAutoSearch() {
-    const q = getAutoQuery();
-    if (!q) return;
+    const raw = getAutoQuery();
+    if (!raw) return;
+    // Hash format: "City, State" OR "City, State|street:51557 Forster Ln"
+    let q = raw, street = '';
+    const pipeIdx = raw.indexOf('|street:');
+    if (pipeIdx > -1) {
+      q = raw.slice(0, pipeIdx);
+      street = raw.slice(pipeIdx + '|street:'.length);
+    }
     const startTime = Date.now();
     const tryFill = () => {
       const input = findSearchInput();
@@ -75,8 +128,11 @@
         setTimeout(() => {
           btn.click();
           showBanner('🔍 Auto-searched: ' + q, '#1a4d2e');
-          // Clear the hash so a manual refresh doesn't re-trigger
           history.replaceState(null, '', location.pathname + location.search);
+          // After search results render, scroll to the specific property's card
+          if (street) {
+            setTimeout(() => scrollToMatchingCard(street, Date.now() + 8000), 1500);
+          }
         }, 250);
         return true;
       }
