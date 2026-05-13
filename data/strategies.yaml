@@ -152,6 +152,13 @@ sops:
         detail: "Tap the Zillow link on each briefing card → agent name → cell phone. Save to your call list."
       - title: "Skip data-incomplete deals for now"
         detail: "Deals with missing rent/PITI need Zillow or Rentometer enrichment. Park them for a 'data cleanup' block later in the day."
+      - title: "Tap '+ Track Property' on every card you'll work today"
+        detail: "Each briefing card has a green <strong>+ Track Property</strong> button. Tapping opens Airtable Deal Flow with all the deal's fields prefilled (address, PID, tier, agent, list price, Creative CF, Zillow link, etc.). Pick the starting status from the dropdown (default: Triage) and save. <strong>The moment a property is in Deal Flow, it drops out of tomorrow's briefing</strong> — you'll manage it from the Airtable kanban from here on. This is how the daily list stays clean: properties you've committed to don't keep reappearing."
+        link: { label: "Open Deal Flow kanban", url: "https://airtable.com/appv6jhEzhGaAITcs/tblk9fSDyWjpftLwm", external: true }
+      - title: "Two ways a deal exits the daily briefing"
+        detail: "<strong>(a)</strong> You tap + Track Property → Airtable Deal Flow → property is excluded from tomorrow's daily (existence in Deal Flow = excluded). Use this for every deal you're going to call. <strong>(b)</strong> Inside BBC, when you commit to a formal offer, click 'Save to Pipeline' inside the Create Offer modal → BBC auto-excludes the property from Lightning Leads search (verified via API probe 2026-05-13). Use this once you're past voicemail stage and pitching real terms. Both mechanisms work independently; either one removes the property from your daily."
+      - title: "Condos auto-filter — Richard's stance"
+        detail: "Property type 'Condo' is excluded from the daily by default (counted in 'Land-skipped' along with vacant land). Reason: Mortgage Takeover Course L1095 — <em>'these are condos. Not really interested in any condos.'</em> Cheap HOA-laden vacation condos erode SF/MT math. <strong>Exception:</strong> Richard does take condo MT plays when the seller is underwater (MT Course L1108) or for luxury/beachfront (L1219). For those, search BBC directly and add to Deal Flow manually."
     sources:
       - label: "Open today's briefing"
         url: "https://timfarr-ai.github.io/rt-companion/briefings/latest.html"
