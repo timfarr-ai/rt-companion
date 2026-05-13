@@ -11,7 +11,14 @@ KB_TABLE  = os.environ.get('KB_TABLE', 'tblh40Mq2rHwfe1I2')
 WL_TABLE  = os.environ.get('WL_TABLE', 'tbluV0qAWYNAFkD5S')
 GH_PAT    = os.environ['GH_PAT']
 GH_REPO   = os.environ.get('GH_REPO', 'timfarr-ai/rt-companion')
-STATES = ['Tennessee', 'Texas', 'Georgia', 'Ohio', 'Michigan']
+# State list expanded 2026-05-13 after empirical probe showed 5-state coverage
+# (TN/TX/GA/OH/MI) was surfacing ~8 qualifying deals/day vs 160+ available across
+# 12 states. Mississippi alone had 18 Tier B + 7 MT in top 100 results.
+# Per Richard's MT course: 'Midwest and South — Alabama, Texas, Georgia, Tennessee,
+# Indiana, Ohio, Michigan, and South Florida really, really good.'
+STATES = ['Tennessee', 'Texas', 'Georgia', 'Ohio', 'Michigan',
+          'Alabama', 'Mississippi', 'Arkansas', 'Missouri',
+          'Indiana', 'Florida', 'North Carolina']
 
 # Cookie jar + opener that BBC search needs
 cj = http.cookiejar.CookieJar()
@@ -75,7 +82,7 @@ for state in STATES:
     # Sort by DOM desc (stale = motivated). Limit 25/state for breadth across plays.
     payload = {'search_query': state,
                'deal_type': ['sellerFinance', 'mortgageTakeover', 'fixAndFlip'],
-               'market_status': 'Active', 'page': 1, 'limit': 25,
+               'market_status': 'Active', 'page': 1, 'limit': 75,
                'sort_field': 'daysOnMarket', 'sort_order': 'desc',
                'price_range': {'max': 1_400_000}}
     code, body = http_req('https://www.buyboxcartel.com/api/lightning-leads/search-property',
@@ -110,6 +117,7 @@ STATE_TZ = {
     'OH': 'America/New_York', 'MI': 'America/Detroit',
     'AL': 'America/Chicago', 'FL': 'America/New_York', 'IN': 'America/Indiana/Indianapolis',
     'NC': 'America/New_York', 'AZ': 'America/Phoenix',
+    'MS': 'America/Chicago', 'AR': 'America/Chicago', 'MO': 'America/Chicago',
 }
 
 def unlock_agent(pid):
