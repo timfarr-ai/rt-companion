@@ -258,6 +258,9 @@ def render_index(strategies: list, sops: list, env: Environment, out_dir: Path):
   <a class="source-link" href="https://airtable.com/appv6jhEzhGaAITcs/tbl0yOlg317evTwdS" target="_blank" rel="noopener">
     <span class="icon">🔓</span><span class="label">Known Agents (auto-captured cookie-free)</span><span class="arrow">↗</span>
   </a>
+  <a class="source-link" href="https://airtable.com/appv6jhEzhGaAITcs/tblk9fSDyWjpftLwm" target="_blank" rel="noopener">
+    <span class="icon">📋</span><span class="label">Deal Flow (tracked deals — 13 stages)</span><span class="arrow">↗</span>
+  </a>
 </div>
 
 {% endblock %}

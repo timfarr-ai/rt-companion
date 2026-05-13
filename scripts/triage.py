@@ -9,6 +9,7 @@ AT_TOKEN  = os.environ['AT_TOKEN']
 AT_BASE   = os.environ.get('AT_BASE', 'appv6jhEzhGaAITcs')
 KB_TABLE  = os.environ.get('KB_TABLE', 'tblh40Mq2rHwfe1I2')
 WL_TABLE  = os.environ.get('WL_TABLE', 'tbluV0qAWYNAFkD5S')
+DF_TABLE  = os.environ.get('DF_TABLE', 'tblk9fSDyWjpftLwm')  # Deal Flow — tracked deals
 GH_PAT    = os.environ['GH_PAT']
 GH_REPO   = os.environ.get('GH_REPO', 'timfarr-ai/rt-companion')
 # 10-state list, each one with primary-source teaching from Richard's courses:
@@ -76,6 +77,22 @@ if code == 200:
         a = r['fields'].get('Address', '').strip().lower()
         if a: existing_addrs.add(a)
 print(f'Watchlist: {len(existing_addrs)} existing', file=sys.stderr)
+
+# 3b. Fetch tracked PIDs from Deal Flow — existence = excluded from today's briefing.
+# Tim's rule: any property he's added to Deal Flow (any status) drops out of the
+# daily; he comes back to it through the Airtable kanban instead.
+tracked_pids = set()
+url = f'https://api.airtable.com/v0/{AT_BASE}/{DF_TABLE}?pageSize=100&fields%5B%5D=PID'
+while url:
+    code, body = http_req(url, headers={'Authorization': f'Bearer {AT_TOKEN}'})
+    if code != 200: break
+    data = json.loads(body)
+    for r in data.get('records', []):
+        pid = (r.get('fields') or {}).get('PID', '').strip()
+        if pid: tracked_pids.add(pid)
+    offset = data.get('offset')
+    url = f'https://api.airtable.com/v0/{AT_BASE}/{DF_TABLE}?pageSize=100&fields%5B%5D=PID&offset={offset}' if offset else None
+print(f'Deal Flow: {len(tracked_pids)} tracked PIDs to exclude from daily', file=sys.stderr)
 
 # 4. Fetch leads per state — uses opener for cookies
 all_leads = []
@@ -330,7 +347,13 @@ def match_buyers(s, t, buyers):
 NON_RESIDENTIAL_TYPES = ('vacant', 'land', 'lot', 'acreage', 'commercial', 'industrial')
 buckets = {'A':[], 'B':[], 'MT':[], 'FF':[], 'C':[], 'REJECT':[]}
 land_skipped = 0
+tracked_skipped = 0
 for p in all_leads:
+    # Deal Flow dedupe — if Tim has tracked this property at any status, drop from daily.
+    # He manages it via Airtable Deal Flow kanban from here.
+    if p.get('pid') in tracked_pids:
+        tracked_skipped += 1
+        continue
     s = score(p)
     if s['cf'] == 0 and s['price'] == 0: continue
     pt_lower = (s.get('type') or '').lower()
@@ -345,7 +368,7 @@ for p in all_leads:
 for t in ('A','B','MT','C'): buckets[t].sort(key=lambda x: (-x['creative_cf'], -x['dom']))
 # Fix & Flip: sort by DOM desc (motivation) since CF isn't the relevant metric
 buckets['FF'].sort(key=lambda x: -x['dom'])
-print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  MT={len(buckets["MT"])}  FF={len(buckets["FF"])}  C={len(buckets["C"])}  REJECT={len(buckets["REJECT"])}  Land-skipped={land_skipped}', file=sys.stderr)
+print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  MT={len(buckets["MT"])}  FF={len(buckets["FF"])}  C={len(buckets["C"])}  REJECT={len(buckets["REJECT"])}  Land-skipped={land_skipped}  Tracked-skipped={tracked_skipped}', file=sys.stderr)
 
 # 5b. Surface agent info — cookie-free via BBC's contact-seller endpoint (the one
 # behind the Create Offer modal). Cost: $0/unlock. Run on ALL Tier A/B/C deals.
@@ -556,7 +579,37 @@ def render_deal(d, t):
         f'<span style="color:#e6edf3;">{d.get("creative_terms","")}</span>'
         f'</div>'
     )
-    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{z}{bbc_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
+    # TRACK PROPERTY button — prefilled Airtable link. Tapping creates a Deal Flow
+    # record so the property drops out of tomorrow's daily. Tim manages it through
+    # the Airtable kanban from here. Uses Airtable's URL prefill (?prefill_Field=val).
+    tier_label = {'A':'A (MFH SF)','B':'B (Cheap SFH SF)','MT':'MT (Mortgage Takeover)','FF':'FF (Fix & Flip)','C':'C (Cash)'}.get(t, '')
+    dt_label_at = {'sellerFinance':'Seller Finance','mortgageTakeover':'Mortgage Takeover','fixAndFlip':'Fix & Flip','cash':'Cash'}.get(d.get('deal_type',''), '')
+    addr_parts = [p.strip() for p in d['address'].split(',') if p.strip()]
+    city_at = addr_parts[1] if len(addr_parts) >= 2 else ''
+    state_at = (addr_parts[2].split()[0] if len(addr_parts) >= 3 else d.get('state',''))
+    agent_name_at = (d.get('agent') or {}).get('name', '')
+    agent_phone_at = (d.get('agent') or {}).get('phone', '')
+    track_params = {
+        'prefill_Address': d['address'],
+        'prefill_PID': d.get('pid',''),
+        'prefill_Status': 'Triage',
+        'prefill_Tier': tier_label,
+        'prefill_Deal Type': dt_label_at,
+        'prefill_State': state_at,
+        'prefill_City': city_at,
+        'prefill_List Price': str(int(d['price'])) if d.get('price') else '',
+        'prefill_Creative CF': str(int(cc)) if cc else '',
+        'prefill_DOM': str(d.get('dom','')),
+        'prefill_Agent Name': agent_name_at,
+        'prefill_Agent Phone': agent_phone_at,
+        'prefill_Zillow URL': d.get('zillow','') or '',
+        'prefill_Briefing Date': date_iso,
+        'prefill_First Tracked': date_iso,
+    }
+    track_qs = '&'.join(f'{urllib.parse.quote(k)}={urllib.parse.quote(v)}' for k,v in track_params.items() if v)
+    track_url = f'https://airtable.com/{AT_BASE}/{DF_TABLE}?{track_qs}'
+    track_link = f' <a class="zillow" href="{track_url}" target="_blank" style="background:#1a4d2e;color:#56d364;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1a4d2e;">+ Track Property</a>'
+    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{track_link}{z}{bbc_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
 
 section_a = ('<h2>🎯 TIER A — Multifamily Seller-Finance Checkmate ($350K-$1.4M, 5+ units, DOM 90+, DSCR fails)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
 section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale Seller Finance (<$100K, DOM 90+, DSCR fails)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
