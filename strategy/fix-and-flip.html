@@ -55,6 +55,23 @@
     .tldr { font-size: 17px; line-height: 1.45; color: var(--text); }
     .when ul { margin: 0; padding-left: 18px; }
     .when li { margin-bottom: 4px; color: var(--text); }
+    .video-card { display: flex; gap: 14px; align-items: flex-start; }
+    .video-thumb { flex: 0 0 200px; position: relative; display: block; border-radius: 8px; overflow: hidden; }
+    .video-thumb img { width: 100%; height: auto; display: block; }
+    .video-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.35); color: #fff; font-size: 36px; opacity: 0.9; transition: opacity 0.2s; }
+    .video-thumb:hover .video-play { opacity: 1; background: rgba(0,0,0,0.5); }
+    .video-meta { flex: 1; min-width: 0; }
+    .video-title { font-weight: 600; font-size: 16px; color: var(--text); margin-bottom: 4px; }
+    .video-sub { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .video-sub a { color: #58a6ff; text-decoration: none; }
+    .video-summary { margin: 0 0 8px 0; font-size: 14px; line-height: 1.5; color: var(--text); }
+    .video-ts summary { cursor: pointer; font-size: 13px; color: var(--muted); padding: 4px 0; }
+    .video-ts ul { margin: 6px 0 0 0; padding-left: 18px; font-size: 13px; }
+    .video-ts li { margin-bottom: 3px; color: var(--text); }
+    @media (max-width: 640px) {
+      .video-card { flex-direction: column; }
+      .video-thumb { flex: 0 0 auto; width: 100%; max-width: 320px; }
+    }
     ol.how-to { padding-left: 22px; margin: 0; counter-reset: step; }
     ol.how-to li {
       margin-bottom: 12px;
@@ -248,8 +265,7 @@
 <div class="grid-2">
   <div class="section">
     <h2>① TL;DR</h2>
-    <p class="tldr">Distressed cheap SFH/duplex listings where a cash offer at 70% of list gives you the wholesale spread. Richard's Cash Course rule: <em>"70% of list price, it just works. There's not much of a comping process here."</em> Best fit: $50K-$250K range in Detroit MI, Cleveland OH, Birmingham AL, Memphis TN. No seller finance, no creative — straight cash with rehab math.
-</p>
+    <p class="tldr"></p>
   </div>
 
   <div class="section">
@@ -261,6 +277,32 @@
     </div>
   </div>
 </div>
+
+
+<div class="section video-section">
+  <h2>📺 Course Video</h2>
+  <div class="video-card">
+    <a class="video-thumb" href="https://www.youtube.com/watch?v=KGXI134QiaM" target="_blank" rel="noopener">
+      <img src="https://img.youtube.com/vi/KGXI134QiaM/mqdefault.jpg" alt="Cash Course — Section 8 + Fix & Flip" />
+      <div class="video-play">▶</div>
+    </a>
+    <div class="video-meta">
+      <div class="video-title">Cash Course — Section 8 + Fix & Flip</div>
+      <div class="video-sub">Beginner · ~50min · <a href="https://www.youtube.com/watch?v=KGXI134QiaM" target="_blank" rel="noopener">Watch on YouTube ↗</a></div>
+      <p class="video-summary">Two cash strategies in one course: Section 8 turnkey rentals and distressed Fix & Flip wholesale. For F&F, Richard's shortcut bypasses the ARV-comps-rehab arithmetic and goes straight to <strong>"offer 70% of list price"</strong> — his repeated line: <em>"70% of list price, it just works. There's not much of a comping process here."</em> Best fit: cheap distressed cities in the Midwest and South — he names Akron / Cleveland / Dayton / Columbus OH, Montgomery / Birmingham AL, Memphis TN, Indianapolis IN, plus Detroit MI where he's currently flipping. Photo-check the listing first (refresh-level rehab works, gut-level damage does not), then submit cash at MAO with 10-day inspection.
+</p>
+      
+      <details class="video-ts">
+        <summary>Key timestamps</summary>
+        <ul>
+          <li><strong>~2:00</strong> — Section 8 vs Fix & Flip — both cash strategies</li><li><strong>~4:30</strong> — Target city list (Akron/Cleveland/Dayton/Columbus, Memphis, Indy)</li><li><strong>~12:00</strong> — $114K cheap-flip example walkthrough</li><li><strong>~13:30</strong> — 70% of list — the rule itself</li><li><strong>~14:00</strong> — "It just works" + when to skip the comping process</li><li><strong>~21:00</strong> — Detroit flipping (Richard's own active deal)</li>
+        </ul>
+      </details>
+      
+    </div>
+  </div>
+</div>
+
 
 
 <div class="section">

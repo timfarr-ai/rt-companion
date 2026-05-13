@@ -11,11 +11,36 @@
     <h2>② When to use</h2>
     <div class="when">
       <ul>
-        {% for w in strategy.when %}<li>{{ w }}</li>{% endfor %}
+        {% for w in strategy.when %}<li>{{ w | safe }}</li>{% endfor %}
       </ul>
     </div>
   </div>
 </div>
+
+{% if strategy.video %}
+<div class="section video-section">
+  <h2>📺 Course Video</h2>
+  <div class="video-card">
+    <a class="video-thumb" href="{{ strategy.video.url }}" target="_blank" rel="noopener">
+      <img src="https://img.youtube.com/vi/{{ strategy.video.youtube_id }}/mqdefault.jpg" alt="{{ strategy.video.title }}" />
+      <div class="video-play">▶</div>
+    </a>
+    <div class="video-meta">
+      <div class="video-title">{{ strategy.video.title }}</div>
+      <div class="video-sub">{{ strategy.video.level }} · ~{{ strategy.video.duration }} · <a href="{{ strategy.video.url }}" target="_blank" rel="noopener">Watch on YouTube ↗</a></div>
+      <p class="video-summary">{{ strategy.video.summary | safe }}</p>
+      {% if strategy.video.timestamps %}
+      <details class="video-ts">
+        <summary>Key timestamps</summary>
+        <ul>
+          {% for ts in strategy.video.timestamps %}<li><strong>{{ ts.time }}</strong> — {{ ts.label }}</li>{% endfor %}
+        </ul>
+      </details>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endif %}
 
 {% if strategy.how_to %}
 <div class="section">

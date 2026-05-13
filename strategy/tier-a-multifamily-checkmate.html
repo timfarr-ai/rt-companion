@@ -55,6 +55,23 @@
     .tldr { font-size: 17px; line-height: 1.45; color: var(--text); }
     .when ul { margin: 0; padding-left: 18px; }
     .when li { margin-bottom: 4px; color: var(--text); }
+    .video-card { display: flex; gap: 14px; align-items: flex-start; }
+    .video-thumb { flex: 0 0 200px; position: relative; display: block; border-radius: 8px; overflow: hidden; }
+    .video-thumb img { width: 100%; height: auto; display: block; }
+    .video-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.35); color: #fff; font-size: 36px; opacity: 0.9; transition: opacity 0.2s; }
+    .video-thumb:hover .video-play { opacity: 1; background: rgba(0,0,0,0.5); }
+    .video-meta { flex: 1; min-width: 0; }
+    .video-title { font-weight: 600; font-size: 16px; color: var(--text); margin-bottom: 4px; }
+    .video-sub { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .video-sub a { color: #58a6ff; text-decoration: none; }
+    .video-summary { margin: 0 0 8px 0; font-size: 14px; line-height: 1.5; color: var(--text); }
+    .video-ts summary { cursor: pointer; font-size: 13px; color: var(--muted); padding: 4px 0; }
+    .video-ts ul { margin: 6px 0 0 0; padding-left: 18px; font-size: 13px; }
+    .video-ts li { margin-bottom: 3px; color: var(--text); }
+    @media (max-width: 640px) {
+      .video-card { flex-direction: column; }
+      .video-thumb { flex: 0 0 auto; width: 100%; max-width: 320px; }
+    }
     ol.how-to { padding-left: 22px; margin: 0; counter-reset: step; }
     ol.how-to li {
       margin-bottom: 12px;
@@ -261,6 +278,32 @@
     </div>
   </div>
 </div>
+
+
+<div class="section video-section">
+  <h2>📺 Course Video</h2>
+  <div class="video-card">
+    <a class="video-thumb" href="https://www.youtube.com/watch?v=WXVfSBu-bAc" target="_blank" rel="noopener">
+      <img src="https://img.youtube.com/vi/WXVfSBu-bAc/mqdefault.jpg" alt="Seller Finance Course" />
+      <div class="video-play">▶</div>
+    </a>
+    <div class="video-meta">
+      <div class="video-title">Seller Finance Course</div>
+      <div class="video-sub">Intermediate · ~1h · <a href="https://www.youtube.com/watch?v=WXVfSBu-bAc" target="_blank" rel="noopener">Watch on YouTube ↗</a></div>
+      <p class="video-summary">The foundation of Richard's entire creative-finance method. Opens with the DSCR-failure math at 7%+ rates: an investor bank loan can't service the rent on most MFH listings under $1.4M, so a conventional buyer physically cannot close. That's why a stuck listing has to use seller finance — there is no other path. Walks through live deal examples in Florida and Cleveland, demonstrates the calculator with bank-rate baseline → seller-finance restructure, lands on the standard offer structure (<strong>asking + 10%, 10% down, 0% rate, 30yr amortization, 5-7yr balloon</strong>) and the 14-20% cash-on-cash return target. Every Tier A play in this dashboard inherits from this video.
+</p>
+      
+      <details class="video-ts">
+        <summary>Key timestamps</summary>
+        <ul>
+          <li><strong>~6:00</strong> — DSCR fails at 7% — why MFH 5+ can't close conventionally</li><li><strong>~9:30</strong> — Punta Gorda Florida example (Tier A MFH)</li><li><strong>~12:00</strong> — Standard offer in the calculator (10%/0%/30yr/5yr balloon)</li><li><strong>~25:00</strong> — 14% cash-on-cash math — the CoC target</li><li><strong>~36:00</strong> — Cleveland Ohio quadplex walkthrough</li>
+        </ul>
+      </details>
+      
+    </div>
+  </div>
+</div>
+
 
 
 <div class="section">

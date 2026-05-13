@@ -356,6 +356,29 @@ strategies:
     emoji: "🎯"
     title: "Tier A — Multifamily Checkmate"
     tier_badge: "tier-a"
+    video:
+      title: "Seller Finance Course"
+      youtube_id: "WXVfSBu-bAc"
+      url: "https://www.youtube.com/watch?v=WXVfSBu-bAc"
+      duration: "1h"
+      level: "Intermediate"
+      summary: >
+        The foundation of Richard's entire creative-finance method. Opens with
+        the DSCR-failure math at 7%+ rates: an investor bank loan can't service
+        the rent on most MFH listings under $1.4M, so a conventional buyer
+        physically cannot close. That's why a stuck listing has to use seller
+        finance — there is no other path. Walks through live deal examples in
+        Florida and Cleveland, demonstrates the calculator with bank-rate
+        baseline → seller-finance restructure, lands on the standard offer
+        structure (<strong>asking + 10%, 10% down, 0% rate, 30yr amortization,
+        5-7yr balloon</strong>) and the 14-20% cash-on-cash return target.
+        Every Tier A play in this dashboard inherits from this video.
+      timestamps:
+        - { time: "~6:00",  label: "DSCR fails at 7% — why MFH 5+ can't close conventionally" }
+        - { time: "~9:30",  label: "Punta Gorda Florida example (Tier A MFH)" }
+        - { time: "~12:00", label: "Standard offer in the calculator (10%/0%/30yr/5yr balloon)" }
+        - { time: "~25:00", label: "14% cash-on-cash math — the CoC target" }
+        - { time: "~36:00", label: "Cleveland Ohio quadplex walkthrough" }
     tldr: >
       MFH 5+ units, $350K–$1.4M, DOM 90+. DSCR loans fail at 7%+ rates,
       so seller finance is the only path. Every $50K+ assignment fee
@@ -450,6 +473,27 @@ strategies:
     emoji: "🏘️"
     title: "Tier B — Cheap SFH Stale"
     tier_badge: "tier-b"
+    video:
+      title: "Seller Finance Course — Cheap SFH portion"
+      youtube_id: "WXVfSBu-bAc"
+      url: "https://www.youtube.com/watch?v=WXVfSBu-bAc&t=420"
+      duration: "1h (jump to ~7:00)"
+      level: "Intermediate"
+      summary: >
+        Same Seller Finance Course as Tier A, but pay attention to the cheap-SFH
+        section. Richard's example: a <strong>$70K house in Flint, Michigan
+        sitting four-five months</strong> — exactly the kind of stale cheap
+        listing where the seller will accept asking + 20% with $15K down on
+        terms because the conventional market has given up on it. Lower
+        assignment-fee ceiling than Tier A but much easier negotiations: the
+        seller is tired, the agent has lost commission optionality, and there's
+        no DSCR conversation needed. Standard offer structure: <strong>asking
+        + 20%, 12% down, 0%, 30yr, 7yr balloon</strong>.
+      timestamps:
+        - { time: "~7:00",  label: "Flint MI $70K cheap SFH example" }
+        - { time: "~7:45",  label: "\"$80K with $15K down on terms\" math" }
+        - { time: "~14:00", label: "Section 8 cross-over angle for Tier B" }
+        - { time: "~25:00", label: "Cleveland cheap rentals — 'cheap, cheap, cheap'" }
     tldr: >
       Cheap SFH (<$100K) in markets like Flint MI, Detroit, parts of
       OH/AL that have sat 90+ days. Lower scale than Tier A but easier
@@ -533,11 +577,32 @@ strategies:
     emoji: "🔑"
     title: "Mortgage Takeover — Existing Favorable Loan"
     tier_badge: "tier-mt"
-    tldr: >
-      Take over the seller's existing mortgage at their old, low rate. Pay
-      seller ~$10K cash to step into the loan. No bank, no DSCR, no refi.
-      Pre-2022 listings with 3-5% rates are the gold mine — these loans
-      cash-flow today even when a fresh 7% loan would crater the deal.
+    video:
+      title: "Mortgage Takeover Course"
+      youtube_id: "5QOiKOOBbLE"
+      url: "https://www.youtube.com/watch?v=5QOiKOOBbLE"
+      duration: "50min"
+      level: "Advanced"
+      summary: >
+        Richard's deep-dive on assuming a seller's existing mortgage instead of
+        getting a new loan. The play: pay the seller around <strong>$10K cash
+        and step into their existing favorable-rate mortgage</strong> — no bank
+        approval, no DSCR, no refi. Pre-2022 listings with 3-5% rates are the
+        gold mine because those loans still cash-flow at today's rents while a
+        fresh 7% loan on the same property would crater. Course addresses the
+        due-on-sale concern head-on (Richard's stance: in 30 years, his network
+        has had two calls — both resolved with wrap loans). Names the target
+        states explicitly (<em>"We love Alabama, Texas, Georgia, Tennessee,
+        Indiana, Ohio, Michigan… Midwest and South Florida"</em>) and shows
+        live Detroit and Clayton NC examples.
+      timestamps:
+        - { time: "~3:00",  label: "Why MT beats SF when an existing low-rate loan exists" }
+        - { time: "~9:15",  label: "Long-DOM/'may be under contract' is a motivation signal" }
+        - { time: "~14:00", label: "Detroit walkthrough — the live pitch script" }
+        - { time: "~16:30", label: "\"Listing removed — I have one under contract\" (Clayton NC)" }
+        - { time: "~17:00", label: "Due-on-sale objection rebuttal" }
+        - { time: "~17:20", label: "Canonical target-states list (AL/TX/GA/TN/IN/OH/MI/FL)" }
+        - { time: "~20:00", label: "Wrap-loan contract structure vs formal assumption" }
     when:
       - "Existing loan rate well below current market (ideally <5%)"
       - "Seller has enough equity to walk away with $10K+ but not be greedy"
@@ -587,12 +652,31 @@ strategies:
     emoji: "🔨"
     title: "Fix & Flip — 70% Rule"
     tier_badge: "tier-ff"
-    tldr: >
-      Distressed cheap SFH/duplex listings where a cash offer at 70% of list
-      gives you the wholesale spread. Richard's Cash Course rule: <em>"70% of
-      list price, it just works. There's not much of a comping process here."</em>
-      Best fit: $50K-$250K range in Detroit MI, Cleveland OH, Birmingham AL,
-      Memphis TN. No seller finance, no creative — straight cash with rehab math.
+    video:
+      title: "Cash Course — Section 8 + Fix & Flip"
+      youtube_id: "KGXI134QiaM"
+      url: "https://www.youtube.com/watch?v=KGXI134QiaM"
+      duration: "50min"
+      level: "Beginner"
+      summary: >
+        Two cash strategies in one course: Section 8 turnkey rentals and
+        distressed Fix & Flip wholesale. For F&F, Richard's shortcut bypasses
+        the ARV-comps-rehab arithmetic and goes straight to <strong>"offer
+        70% of list price"</strong> — his repeated line: <em>"70% of list
+        price, it just works. There's not much of a comping process here."</em>
+        Best fit: cheap distressed cities in the Midwest and South — he names
+        Akron / Cleveland / Dayton / Columbus OH, Montgomery / Birmingham AL,
+        Memphis TN, Indianapolis IN, plus Detroit MI where he's currently
+        flipping. Photo-check the listing first (refresh-level rehab works,
+        gut-level damage does not), then submit cash at MAO with 10-day
+        inspection.
+      timestamps:
+        - { time: "~2:00",  label: "Section 8 vs Fix & Flip — both cash strategies" }
+        - { time: "~4:30",  label: "Target city list (Akron/Cleveland/Dayton/Columbus, Memphis, Indy)" }
+        - { time: "~12:00", label: "$114K cheap-flip example walkthrough" }
+        - { time: "~13:30", label: "70% of list — the rule itself" }
+        - { time: "~14:00", label: "\"It just works\" + when to skip the comping process" }
+        - { time: "~21:00", label: "Detroit flipping (Richard's own active deal)" }
     when:
       - "BBC deal_type = fixAndFlip (BBC's algo flagged it as distressed)"
       - "Price under $250K (Richard's repeated cheap-flip examples: $99K Detroit, $114K)"

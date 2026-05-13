@@ -55,6 +55,23 @@
     .tldr { font-size: 17px; line-height: 1.45; color: var(--text); }
     .when ul { margin: 0; padding-left: 18px; }
     .when li { margin-bottom: 4px; color: var(--text); }
+    .video-card { display: flex; gap: 14px; align-items: flex-start; }
+    .video-thumb { flex: 0 0 200px; position: relative; display: block; border-radius: 8px; overflow: hidden; }
+    .video-thumb img { width: 100%; height: auto; display: block; }
+    .video-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.35); color: #fff; font-size: 36px; opacity: 0.9; transition: opacity 0.2s; }
+    .video-thumb:hover .video-play { opacity: 1; background: rgba(0,0,0,0.5); }
+    .video-meta { flex: 1; min-width: 0; }
+    .video-title { font-weight: 600; font-size: 16px; color: var(--text); margin-bottom: 4px; }
+    .video-sub { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .video-sub a { color: #58a6ff; text-decoration: none; }
+    .video-summary { margin: 0 0 8px 0; font-size: 14px; line-height: 1.5; color: var(--text); }
+    .video-ts summary { cursor: pointer; font-size: 13px; color: var(--muted); padding: 4px 0; }
+    .video-ts ul { margin: 6px 0 0 0; padding-left: 18px; font-size: 13px; }
+    .video-ts li { margin-bottom: 3px; color: var(--text); }
+    @media (max-width: 640px) {
+      .video-card { flex-direction: column; }
+      .video-thumb { flex: 0 0 auto; width: 100%; max-width: 320px; }
+    }
     ol.how-to { padding-left: 22px; margin: 0; counter-reset: step; }
     ol.how-to li {
       margin-bottom: 12px;
@@ -248,8 +265,7 @@
 <div class="grid-2">
   <div class="section">
     <h2>① TL;DR</h2>
-    <p class="tldr">Take over the seller's existing mortgage at their old, low rate. Pay seller ~$10K cash to step into the loan. No bank, no DSCR, no refi. Pre-2022 listings with 3-5% rates are the gold mine — these loans cash-flow today even when a fresh 7% loan would crater the deal.
-</p>
+    <p class="tldr"></p>
   </div>
 
   <div class="section">
@@ -261,6 +277,32 @@
     </div>
   </div>
 </div>
+
+
+<div class="section video-section">
+  <h2>📺 Course Video</h2>
+  <div class="video-card">
+    <a class="video-thumb" href="https://www.youtube.com/watch?v=5QOiKOOBbLE" target="_blank" rel="noopener">
+      <img src="https://img.youtube.com/vi/5QOiKOOBbLE/mqdefault.jpg" alt="Mortgage Takeover Course" />
+      <div class="video-play">▶</div>
+    </a>
+    <div class="video-meta">
+      <div class="video-title">Mortgage Takeover Course</div>
+      <div class="video-sub">Advanced · ~50min · <a href="https://www.youtube.com/watch?v=5QOiKOOBbLE" target="_blank" rel="noopener">Watch on YouTube ↗</a></div>
+      <p class="video-summary">Richard's deep-dive on assuming a seller's existing mortgage instead of getting a new loan. The play: pay the seller around <strong>$10K cash and step into their existing favorable-rate mortgage</strong> — no bank approval, no DSCR, no refi. Pre-2022 listings with 3-5% rates are the gold mine because those loans still cash-flow at today's rents while a fresh 7% loan on the same property would crater. Course addresses the due-on-sale concern head-on (Richard's stance: in 30 years, his network has had two calls — both resolved with wrap loans). Names the target states explicitly (<em>"We love Alabama, Texas, Georgia, Tennessee, Indiana, Ohio, Michigan… Midwest and South Florida"</em>) and shows live Detroit and Clayton NC examples.
+</p>
+      
+      <details class="video-ts">
+        <summary>Key timestamps</summary>
+        <ul>
+          <li><strong>~3:00</strong> — Why MT beats SF when an existing low-rate loan exists</li><li><strong>~9:15</strong> — Long-DOM/'may be under contract' is a motivation signal</li><li><strong>~14:00</strong> — Detroit walkthrough — the live pitch script</li><li><strong>~16:30</strong> — "Listing removed — I have one under contract" (Clayton NC)</li><li><strong>~17:00</strong> — Due-on-sale objection rebuttal</li><li><strong>~17:20</strong> — Canonical target-states list (AL/TX/GA/TN/IN/OH/MI/FL)</li><li><strong>~20:00</strong> — Wrap-loan contract structure vs formal assumption</li>
+        </ul>
+      </details>
+      
+    </div>
+  </div>
+</div>
+
 
 
 <div class="section">
