@@ -161,47 +161,52 @@ def score(p):
     dt = cd.get('dealType', 'sellerFinance')
     pt_lower = (addr.get('propertyType') or '').lower()
     is_mfh = (cd.get('numberOfUnits') and int(cd.get('numberOfUnits')) >= 5) or 'multi' in pt_lower or 'apartment' in pt_lower
-    # Bank gap — uses BBC's monthlyCashFlow (SF cards: bank-rate CF; MT cards: existing-loan CF)
-    monthly_rent = float(cd.get('monthlyRent') or 0)
-    monthly_piti = float(cd.get('monthlyPayment') or cd.get('monthlyTotalExpenses') or 0)
-    bank_gap = round(-cf) if cf < 0 else 0
+    # BBC fields verified via API probe 2026-05-13: monthlyRent NOT in payload, but
+    # piti (full PITI) and monthlyPayment (P&I only) are. Back-calc rent from CF:
+    #   cf = rent − piti − (rent × 0.20)   →   rent = (cf + piti) / 0.80
+    piti = float(cd.get('piti') or 0)
+    monthly_payment = float(cd.get('monthlyPayment') or 0)
+    expense_total = piti or (monthly_payment + lp * 0.005)  # P&I + ~taxes/ins fallback
+    monthly_rent = round((cf + expense_total) / 0.80) if expense_total > 0 else 0
 
-    # CREATIVE CF — the deal under Richard's restructuring. This is the qualification
-    # number: if the deal doesn't cash-flow positively under SF/MT terms, it's a reject.
-    #
-    # Seller Finance terms (Richard's standard pitch):
-    #   - Offer = asking + 10% (Tier A MFH) or + 20% (Tier B SFH)  → seller incentive
-    #   - Down = 10% strict (Tier A) or 12% (Tier B)
-    #   - Rate = 0%  → P&I is principal-only: (price - down) / 360
-    #   - Term = 30 yr amortization, balloon at 5-7 yr (irrelevant to monthly CF)
-    # Mortgage Takeover: existing loan terms (BBC's CF already represents this)
-    # Cash: BBC's CF represents the cash-paid scenario
-    # Vacancy/maintenance reserve: 20% of rent (matches BBC's own implicit expense ratio)
-    if dt == 'sellerFinance' and lp > 0 and monthly_rent > 0:
-        sf_offer = lp * (1.10 if is_mfh else 1.20)
+    # CREATIVE CF — BBC's monthlyCashFlow IS already computed at the deal_type's
+    # creative terms (SF: ~0%, 10-12% down; MT: existing loan rate). Verified via
+    # probe: 11311 Ardsley Dr S (SF, $558K) shows monthlyPayment $1190 — only
+    # explicable at 0%/10%-down on a $558K listing. So we use cf directly as
+    # creative_cf and don't recompute.
+    creative_cf = round(cf)
+
+    # BANK GAP — what would this deal look like under a STANDARD 7% bank mortgage?
+    # We must compute this separately because BBC only shows the creative scenario.
+    # 25% down, 7% rate, 30yr, +1.5%/yr taxes & insurance, minus 20% reserves.
+    bank_gap = 0
+    if monthly_rent > 0 and lp > 0:
+        bank_loan = lp * 0.75
+        r = 0.07 / 12
+        bank_pi = bank_loan * r / (1 - (1 + r) ** -360)
+        bank_piti = bank_pi + lp * 0.015 / 12
+        bank_cf = monthly_rent * 0.80 - bank_piti  # 20% reserves applied to rent side
+        bank_gap = round(max(0, creative_cf - bank_cf))  # how much more creative saves
+
+    # CREATIVE TERMS — the offer structure to pitch (driven by dealType)
+    if dt == 'sellerFinance':
+        sf_offer = round(lp * (1.10 if is_mfh else 1.20))
         sf_down_pct = 0.10 if is_mfh else 0.12
-        sf_down = sf_offer * sf_down_pct
-        sf_pi = (sf_offer - sf_down) / 360
-        sf_tax_ins = lp * 0.015 / 12  # 1.5%/yr taxes + insurance
-        sf_piti = sf_pi + sf_tax_ins
-        sf_reserves = monthly_rent * 0.20
-        creative_cf = round(monthly_rent - sf_piti - sf_reserves)
-        creative_terms = f"${sf_offer:,.0f} @ 0%, {int(sf_down_pct*100)}% down (${sf_down:,.0f}), 30yr"
-        creative_offer = round(sf_offer)
-        creative_down = round(sf_down)
+        sf_down = round(sf_offer * sf_down_pct)
+        creative_terms = f"${sf_offer:,} @ 0%, {int(sf_down_pct*100)}% down (${sf_down:,}), 30yr"
+        creative_offer = sf_offer
+        creative_down = sf_down
     elif dt == 'mortgageTakeover':
-        # BBC's CF already reflects existing-loan terms = the creative scenario
-        creative_cf = round(cf)
-        # Assume Richard's typical MT structure: pay seller ~$10K to take over the debt
         creative_offer = round(lp)
         creative_down = 10000
         creative_terms = f"Take over existing loan, ~${creative_down:,} to seller"
     else:
-        # Cash deals or other — use BBC's CF as-is
-        creative_cf = round(cf)
         creative_offer = round(op or lp)
         creative_down = round(down)
         creative_terms = "Cash offer / standard"
+
+    # monthly_piti for the bank-gap pill's tooltip
+    monthly_piti = round(expense_total)
     # Listing freshness — BBC's market_status is always "Active" for filtered results,
     # but the gap between last_listed (lifetime days) and daysOnMarket (current spell)
     # reveals if the listing was paused/relisted (typically because it went under contract).
@@ -240,28 +245,27 @@ def score(p):
             'beds': int(p.get('bedrooms') or cd.get('bedrooms') or 0)}
 
 def tier(s):
-    """A deal qualifies ONLY if the restructured creative_cf is positive. The
-    bank-rate CF being negative just proves the seller is stuck (DSCR fails) —
-    but we don't bother calling unless the SF/MT restructure makes it pencil for us.
-    creative_cf is the call-priority signal; buckets sort by it descending."""
+    """BBC's monthlyCashFlow is already at the deal_type's creative terms (verified
+    via API probe 2026-05-13). So creative_cf IS BBC's cf. Bank gap is computed
+    separately as 'what the same deal would look like under a 7% bank mortgage'.
+    Qualification = creative_cf >= threshold. Sort by creative_cf descending."""
     pt = s['type'].lower()
     is_mfh = s['units'] >= 5 or 'multi' in pt or 'apartment' in pt
     dt = s.get('deal_type', 'sellerFinance')
     cf_creative = s.get('creative_cf', 0)
-    cf_bank = s['cf']
-    # Tier A — MFH Seller Finance: DSCR fails at bank rate AND creative restructure cash-flows
-    if is_mfh and 350_000 <= s['price'] <= 1_400_000 and s['dom'] >= 90 and dt == 'sellerFinance' \
-       and cf_bank <= 0 and cf_creative >= 100:
+    # Tier A — MFH Seller Finance Checkmate ($350K-$1.4M, 5+ units, DOM 90+)
+    if is_mfh and 350_000 <= s['price'] <= 1_400_000 and s['dom'] >= 90 \
+       and dt == 'sellerFinance' and cf_creative >= 100:
         return 'A'
-    # Tier B — cheap stale SFH Seller Finance: same dual-gate logic
-    if not is_mfh and s['price'] < 100_000 and s['dom'] >= 90 and dt == 'sellerFinance' \
-       and cf_bank <= 0 and cf_creative >= 100:
+    # Tier B — SFH/2-4 unit Seller Finance (any price <$1.4M, DOM 60+)
+    if not is_mfh and s['price'] <= 1_400_000 and s['dom'] >= 60 \
+       and dt == 'sellerFinance' and cf_creative >= 100:
         return 'B'
-    # Tier MT — Mortgage Takeover: existing loan already cash-flows positively
+    # Tier MT — Mortgage Takeover (favorable existing loan, DOM 60+)
     if dt == 'mortgageTakeover' and cf_creative >= 100 and s['dom'] >= 60:
         return 'MT'
-    # Tier C — cash-comparable SFH arbitrage
-    if not is_mfh and cf_creative > 300 and s['dom'] >= 60:
+    # Tier C — small-MFH/SFH already cash-flowing at retail (rare in SF/MT search)
+    if cf_creative > 300 and s['dom'] >= 60 and dt not in ('sellerFinance', 'mortgageTakeover'):
         return 'C'
     return 'REJECT'
 
