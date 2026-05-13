@@ -247,6 +247,19 @@ def render_index(strategies: list, sops: list, env: Environment, out_dir: Path):
   </a>
 </div>
 
+<div class="section">
+  <h2>Airtable Data</h2>
+  <a class="source-link" href="https://airtable.com/appv6jhEzhGaAITcs/tblh40Mq2rHwfe1I2" target="_blank" rel="noopener">
+    <span class="icon">🤝</span><span class="label">Known Buyers (your network)</span><span class="arrow">↗</span>
+  </a>
+  <a class="source-link" href="https://airtable.com/appv6jhEzhGaAITcs/tbluV0qAWYNAFkD5S" target="_blank" rel="noopener">
+    <span class="icon">👀</span><span class="label">Rejected Watchlist (price-drop monitor)</span><span class="arrow">↗</span>
+  </a>
+  <a class="source-link" href="https://airtable.com/appv6jhEzhGaAITcs/tbl0yOlg317evTwdS" target="_blank" rel="noopener">
+    <span class="icon">🔓</span><span class="label">Known Agents (auto-captured cookie-free)</span><span class="arrow">↗</span>
+  </a>
+</div>
+
 {% endblock %}
 """
     # Add the inline template to the environment's loader by registering it as a string
