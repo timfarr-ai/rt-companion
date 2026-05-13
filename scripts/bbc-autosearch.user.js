@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BBC Lightning Leads — Auto-Search from URL hash
 // @namespace    https://github.com/timfarr-ai/rt-companion
-// @version      1.1
+// @version      1.2
 // @description  Auto-fills the BBC Lightning Leads search box when URL contains "#auto:<location>" and triggers Search. Used by the rt-companion daily briefing to deep-link from a deal card into a BBC search.
 // @author       Tim Farr
 // @match        https://www.buyboxcartel.com/vip/lightning-leads*
