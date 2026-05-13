@@ -158,14 +158,50 @@ def score(p):
     coc = round((cf*12)/entry*100, 1) if entry > 0 else 0
     dom = int(p.get('daysOnMarket') or 0)
     addr = p.get('address', {})
-    # Bank gap — use BBC's own monthlyCashFlow. For Seller Finance cards BBC
-    # already computes CF at market bank rate on the offer price; for Mortgage
-    # Takeover cards CF is at the existing-loan rate (the favorable creative
-    # scenario). Either way, a negative CF is the conversation hook.
-    # BBC fields used directly — no separate rate/down assumption layered on top.
+    dt = cd.get('dealType', 'sellerFinance')
+    pt_lower = (addr.get('propertyType') or '').lower()
+    is_mfh = (cd.get('numberOfUnits') and int(cd.get('numberOfUnits')) >= 5) or 'multi' in pt_lower or 'apartment' in pt_lower
+    # Bank gap — uses BBC's monthlyCashFlow (SF cards: bank-rate CF; MT cards: existing-loan CF)
     monthly_rent = float(cd.get('monthlyRent') or 0)
     monthly_piti = float(cd.get('monthlyPayment') or cd.get('monthlyTotalExpenses') or 0)
     bank_gap = round(-cf) if cf < 0 else 0
+
+    # CREATIVE CF — the deal under Richard's restructuring. This is the qualification
+    # number: if the deal doesn't cash-flow positively under SF/MT terms, it's a reject.
+    #
+    # Seller Finance terms (Richard's standard pitch):
+    #   - Offer = asking + 10% (Tier A MFH) or + 20% (Tier B SFH)  → seller incentive
+    #   - Down = 10% strict (Tier A) or 12% (Tier B)
+    #   - Rate = 0%  → P&I is principal-only: (price - down) / 360
+    #   - Term = 30 yr amortization, balloon at 5-7 yr (irrelevant to monthly CF)
+    # Mortgage Takeover: existing loan terms (BBC's CF already represents this)
+    # Cash: BBC's CF represents the cash-paid scenario
+    # Vacancy/maintenance reserve: 20% of rent (matches BBC's own implicit expense ratio)
+    if dt == 'sellerFinance' and lp > 0 and monthly_rent > 0:
+        sf_offer = lp * (1.10 if is_mfh else 1.20)
+        sf_down_pct = 0.10 if is_mfh else 0.12
+        sf_down = sf_offer * sf_down_pct
+        sf_pi = (sf_offer - sf_down) / 360
+        sf_tax_ins = lp * 0.015 / 12  # 1.5%/yr taxes + insurance
+        sf_piti = sf_pi + sf_tax_ins
+        sf_reserves = monthly_rent * 0.20
+        creative_cf = round(monthly_rent - sf_piti - sf_reserves)
+        creative_terms = f"${sf_offer:,.0f} @ 0%, {int(sf_down_pct*100)}% down (${sf_down:,.0f}), 30yr"
+        creative_offer = round(sf_offer)
+        creative_down = round(sf_down)
+    elif dt == 'mortgageTakeover':
+        # BBC's CF already reflects existing-loan terms = the creative scenario
+        creative_cf = round(cf)
+        # Assume Richard's typical MT structure: pay seller ~$10K to take over the debt
+        creative_offer = round(lp)
+        creative_down = 10000
+        creative_terms = f"Take over existing loan, ~${creative_down:,} to seller"
+    else:
+        # Cash deals or other — use BBC's CF as-is
+        creative_cf = round(cf)
+        creative_offer = round(op or lp)
+        creative_down = round(down)
+        creative_terms = "Cash offer / standard"
     # Listing freshness — BBC's market_status is always "Active" for filtered results,
     # but the gap between last_listed (lifetime days) and daysOnMarket (current spell)
     # reveals if the listing was paused/relisted (typically because it went under contract).
@@ -196,30 +232,36 @@ def score(p):
             'monthly_rent': round(monthly_rent),
             'monthly_piti': round(monthly_piti),
             'bank_gap': bank_gap,
-            'deal_type_raw': cd.get('dealType', ''),
+            'deal_type_raw': dt,
+            'creative_cf': creative_cf,
+            'creative_offer': creative_offer,
+            'creative_down': creative_down,
+            'creative_terms': creative_terms,
             'beds': int(p.get('bedrooms') or cd.get('bedrooms') or 0)}
 
 def tier(s):
-    """Richard's method targets DSCR-failing listings on Seller Finance plays.
-    BBC's monthlyCashFlow for SF deal_type = CF at market bank rate on offer price,
-    so NEGATIVE CF is the qualification signal (proves standard offer can't close).
-    For Mortgage Takeover deal_type, CF is at the existing low rate (favorable
-    creative scenario) — positive CF means the takeover works as-is.
-    For Cash deal_type (Tier C) — positive CF means cash arbitrage works."""
+    """A deal qualifies ONLY if the restructured creative_cf is positive. The
+    bank-rate CF being negative just proves the seller is stuck (DSCR fails) —
+    but we don't bother calling unless the SF/MT restructure makes it pencil for us.
+    creative_cf is the call-priority signal; buckets sort by it descending."""
     pt = s['type'].lower()
     is_mfh = s['units'] >= 5 or 'multi' in pt or 'apartment' in pt
     dt = s.get('deal_type', 'sellerFinance')
-    # Tier A — MFH Seller Finance Checkmate (DSCR fails at bank rate = negative CF)
-    if is_mfh and 350_000 <= s['price'] <= 1_400_000 and s['dom'] >= 90 and dt == 'sellerFinance' and s['cf'] <= 0:
+    cf_creative = s.get('creative_cf', 0)
+    cf_bank = s['cf']
+    # Tier A — MFH Seller Finance: DSCR fails at bank rate AND creative restructure cash-flows
+    if is_mfh and 350_000 <= s['price'] <= 1_400_000 and s['dom'] >= 90 and dt == 'sellerFinance' \
+       and cf_bank <= 0 and cf_creative >= 100:
         return 'A'
-    # Tier B — cheap stale SFH Seller Finance (negative-CF hook)
-    if not is_mfh and s['price'] < 100_000 and s['dom'] >= 90 and dt == 'sellerFinance' and s['cf'] <= 0:
+    # Tier B — cheap stale SFH Seller Finance: same dual-gate logic
+    if not is_mfh and s['price'] < 100_000 and s['dom'] >= 90 and dt == 'sellerFinance' \
+       and cf_bank <= 0 and cf_creative >= 100:
         return 'B'
-    # Tier MT — Mortgage Takeover (favorable existing loan → positive CF after assumption)
-    if dt == 'mortgageTakeover' and s['cf'] > 0 and s['dom'] >= 60:
+    # Tier MT — Mortgage Takeover: existing loan already cash-flows positively
+    if dt == 'mortgageTakeover' and cf_creative >= 100 and s['dom'] >= 60:
         return 'MT'
     # Tier C — cash-comparable SFH arbitrage
-    if not is_mfh and s['cf'] > 300 and s['dom'] >= 60:
+    if not is_mfh and cf_creative > 300 and s['dom'] >= 60:
         return 'C'
     return 'REJECT'
 
@@ -249,7 +291,7 @@ for p in all_leads:
     s['tz'] = STATE_TZ.get(s['state'], 'America/New_York')
     s['agent'] = None  # set below if unlocked
     buckets[t].append(s)
-for t in ('A','B','MT','C'): buckets[t].sort(key=lambda x: -x['dom'])
+for t in ('A','B','MT','C'): buckets[t].sort(key=lambda x: (-x['creative_cf'], -x['dom']))
 print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  MT={len(buckets["MT"])}  C={len(buckets["C"])}  REJECT={len(buckets["REJECT"])}  Land-skipped={land_skipped}', file=sys.stderr)
 
 # 5b. Surface agent info — cookie-free via BBC's contact-seller endpoint (the one
@@ -373,19 +415,19 @@ def render_deal(d, t):
     # BBC search URL with #auto: hash — userscript on BBC side auto-fills + searches
     bbc_search = f'https://www.buyboxcartel.com/vip/lightning-leads#auto:{urllib.parse.quote(city_state)}'
     bbc_link = f' <a class="zillow" href="{bbc_search}" target="_blank">Search BBC ↗</a>'
-    # Offer Oven prefill link — userscript on hmhw.group/tools/offer-oven side reads #prefill= and fills inputs
-    # Standard Tier A offer: asking+10%, 10% down, 0%, 30yr, 5yr balloon. Tier B: asking+20%, 12% down. Tier C: cash (skip oven).
-    offer_price = round(d['price'] * (1.20 if t == 'B' else 1.10), 0) if t in ('A','B') else 0
-    down_pct = 0.12 if t == 'B' else 0.10
-    down = round(offer_price * down_pct, 0)
+    # Offer Oven prefill — uses the SAME creative_offer/creative_down/rent numbers
+    # already computed in score(), so the dashboard pill, the call pitch, and the
+    # Offer Oven verification all reconcile to the same restructured deal.
     balloon_yr = 7 if t == 'B' else 5
-    rent_annual = round((d['cf'] + d['price']*0.005) * 12, 0)  # rough back-calc; user verifies in BBC
+    rent_annual = round((d.get('monthly_rent') or 0) * 12)
     prefill_payload = {
-        'price': offer_price, 'down': down, 'rate': 0, 'term': 30, 'balloon': balloon_yr,
-        'rent': rent_annual, 'assignment': 5000, 'closing': round(offer_price * 0.01, 0)
+        'price': d.get('creative_offer', 0), 'down': d.get('creative_down', 0),
+        'rate': 0, 'term': 30, 'balloon': balloon_yr,
+        'rent': rent_annual, 'assignment': 5000,
+        'closing': round((d.get('creative_offer') or 0) * 0.01)
     }
     oven_url = f'https://www.hmhw.group/tools/offer-oven#prefill={urllib.parse.quote(json.dumps(prefill_payload))}'
-    oven_link = f' <a class="zillow" href="{oven_url}" target="_blank">Verify in Offer Oven ↗</a>' if t in ('A','B') else ''
+    oven_link = f' <a class="zillow" href="{oven_url}" target="_blank">Verify in Offer Oven ↗</a>' if t in ('A','B','MT') else ''
     pipe = ' <span class="pill" style="background:#1a4d2e;color:#56d364;">in pipeline</span>' if d.get('in_pipeline') else ''
     # Deal type pill (human readable from BBC's dealType field)
     dt_map = {'sellerFinance': 'Seller Finance', 'mortgageTakeover': 'Mortgage Takeover', 'section8': 'Section 8', 'fixAndFlip': 'Fix & Flip', 'cash': 'Cash'}
@@ -435,7 +477,18 @@ def render_deal(d, t):
         op_link = f' &nbsp; <a href="openphone://call?number={phone_clean}" style="color:#79c0ff;">via OpenPhone</a>' if phone_clean else ''
         email_link = f' &nbsp; <a href="mailto:{a["email"]}" style="color:#8b949e;">✉ {a["email"]}</a>' if a.get('email') and a['email'] != 'Not Available' else ''
         agent_block = f'<div style="margin-top:8px;padding:8px 10px;background:#0d2818;border:1px solid #1a4d2e;border-radius:6px;font-size:13px;"><div style="color:#7ee787;font-weight:600;margin-bottom:2px;">🔓 {a["name"]}</div><div>{tel_link}{op_link}{email_link}</div></div>'
-    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div><div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{z}{bbc_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
+    # CREATIVE CF BANNER — the call hook. Reads: "After restructuring, this deal
+    # cash-flows $X/mo. Pitch to seller: $OFFER at 0%, $DOWN down, 30yr."
+    cc = d.get('creative_cf', 0)
+    creative_banner = (
+        f'<div style="margin:6px 0 8px;padding:8px 12px;background:linear-gradient(90deg,#0d2818,#0d1f24);'
+        f'border:1px solid #1a4d2e;border-radius:6px;font-size:14px;line-height:1.4;">'
+        f'<span style="color:#56d364;font-weight:700;font-size:16px;">✅ Creative CF +${cc:,}/mo</span>'
+        f'<span style="color:#8b949e;"> &nbsp;·&nbsp; </span>'
+        f'<span style="color:#e6edf3;">{d.get("creative_terms","")}</span>'
+        f'</div>'
+    )
+    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{z}{bbc_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
 
 section_a = ('<h2>🎯 TIER A — Multifamily Seller-Finance Checkmate ($350K-$1.4M, 5+ units, DOM 90+, DSCR fails)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
 section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale Seller Finance (<$100K, DOM 90+, DSCR fails)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
@@ -493,7 +546,8 @@ for t, name, emoji in [('A','Tier A — Multifamily SF Checkmate','🎯'),
     print(f'\n{emoji} {name} ({len(buckets[t])}):')
     for i, d in enumerate(buckets[t], 1):
         bm = f'  🎯 BUYER MATCH: {", ".join(d["buyer_matches"])}' if d['buyer_matches'] else ''
-        print(f'{i}. {d["address"]} | {d["units"]}u | ${d["price"]:,.0f} | CF ${d["cf"]:,.0f}/mo | CoC {d["coc"]}% | DOM {d["dom"]} {d["dom_flag"]}{bm}')
+        print(f'{i}. {d["address"]} | {d["units"]}u | List ${d["price"]:,.0f} | ✅ Creative CF +${d.get("creative_cf",0):,}/mo | Bank CF ${d["cf"]:,.0f}/mo | DOM {d["dom"]} {d["dom_flag"]}{bm}')
+        print(f'   Pitch: {d.get("creative_terms","")}')
         if d['zillow']: print(f'   Zillow: {d["zillow"]}')
         # BBC has no URL deep-link — Tim taps 'Copy address ↗ BBC' button on dashboard and pastes in BBC search
         if d.get('in_pipeline'): print(f'   [already in BBC pipeline]')
