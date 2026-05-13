@@ -367,6 +367,7 @@ strategies:
       - "QUALIFICATION GATE: bank-rate CF ≤ 0 (DSCR fails — seller is stuck) AND Creative CF ≥ $100/mo (the SF restructure cash-flows for you)"
       - "Creative structure: asking + 10%, 10% down strict, 0% rate, 30yr amort, 5-7yr balloon"
       - "Reserves: 20% of rent (CapEx 5% + Mgmt 5% + Vacancy 10%) — matches Offer Oven defaults"
+      - "<strong>Target markets (Seller Finance Course primary-source):</strong> Cleveland OH (multiple MFH examples — <em>'multifamily houses, Cleveland, Ohio'</em>, line 715), Florida (<em>'we love Florida'</em>, Punta Gorda MFH example, line 88), plus broader Midwest/South where MFH 5+ exists at this price point"
     how_to:
       - title: "Confirm the listing qualifies"
         detail: "From the morning briefing, verify: unit count ≥ 5, price $350K-$1.4M, DOM ≥ 90 days. If any miss, this isn't Tier A."
@@ -453,7 +454,7 @@ strategies:
       - "Property type: SFH"
       - "QUALIFICATION GATE: bank-rate CF ≤ 0 AND Creative CF ≥ $100/mo (same dual-gate as Tier A)"
       - "Creative structure: asking + 20%, 12% down, 0% rate, 30yr amort, 7yr balloon"
-      - "Markets sweet spot: MI, OH, AL — Flint, Detroit, Cleveland, Birmingham"
+      - "<strong>Target markets (Seller Finance Course primary-source):</strong> Flint MI (<em>'really cheap single family properties like in Flint, Michigan. I see seller finance deals all the time. They'll have a $70,000 house in Flint, Michigan sitting for four or five months'</em>, line 124), Cleveland OH (cheap, <em>'Cleveland is cheap, cheap, cheap, cheap'</em>, line 918), Detroit MI, Birmingham AL, broader Midwest/South sub-$150K markets"
     how_to:
       - title: "Confirm Tier B qualifies"
         detail: "Price under $100K, DOM ≥ 90, SFH (not MFH). If MFH, route to Tier A instead."
@@ -531,6 +532,7 @@ strategies:
       - "DOM: 60+ days"
       - "QUALIFICATION GATE: BBC's monthlyCashFlow ≥ $100/mo (already at existing-loan terms, so this IS Creative CF for MT)"
       - "Avoid: VA/FHA loans with strict due-on-sale enforcement risk"
+      - "<strong>Target markets (Mortgage Takeover Course canonical list, line 1041-1046):</strong> <em>'We love Alabama. Texas. Georgia. Tennessee. Indiana. Ohio. Michigan. Midwest and South. Florida really, really good too.'</em> → AL, TX, GA, TN, IN, OH, MI, FL. Plus NC (<em>'Clayton, North Carolina. My business partner is from Clayton, NC'</em>, line 858) and MS (<em>'Jackson, Mississippi'</em>, line 1203). Detroit MI and Cleveland OH are Richard's primary in-course MT examples."
     how_to:
       - title: "Confirm the existing loan is favorable"
         detail: "On the briefing card, check Int Rate (BBC pulls this from listing data). <strong>Sub-5% = call.</strong> If rate is 6%+ the takeover doesn't add much vs. a fresh loan — skip in favor of Tier A/B Seller Finance."
@@ -576,6 +578,7 @@ strategies:
       - "DOM 60+ days"
       - "Property condition needs work (cosmetic to medium rehab — not gut)"
       - "QUALIFICATION GATE: asking ≤ 70% of ARV (BBC's algorithm pre-filters)"
+      - "<strong>Target markets (Cash Course primary-source, line 134-140):</strong> <em>'Akron OH, Cleveland OH, Dayton OH, Columbus OH. Montgomery AL, Birmingham AL. Memphis TN. Indianapolis IN.'</em> Plus Detroit MI (Richard's currently flipping there, line 414) and Flint MI. Florida secondary. Mississippi (Jackson) and North Carolina (Clayton) covered by general 'Midwest and South' guidance."
     how_to:
       - title: "Confirm Fix & Flip fits — pull the photos"
         detail: "Tap the Zillow link on the briefing card → review photos. Fix & Flip works on properties that need <strong>refresh-level work</strong> (paint, flooring, kitchen/bath refresh). If photos show gut-level damage (water, fire, structural), back off — that's an investor-only play not a wholesale flip."
