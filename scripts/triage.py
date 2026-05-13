@@ -291,13 +291,14 @@ def render_deal(d, t):
     dt_label = dt_map.get(d.get('deal_type',''), d.get('deal_type','') or '')
     dt_pill = f' <span class="pill" style="background:#1e2c44;color:#79c0ff;border-color:#1e2c44;">{dt_label}</span>' if dt_label else ''
     pt_pill = f' <span class="pill" style="background:#1a2c1a;color:#7ee787;border-color:#1a2c1a;">{d["type"]}</span>' if d.get('type') and d['type']!='Unknown' else ''
-    # Status pill — critical signal: BBC says "Active" but Zillow may show "Under Contract".
-    # We detect this via the relisted_gap (last_listed - daysOnMarket). Gap >= 30 days = likely went under contract previously.
+    # Status pill — surfaces relist history. Richard treats relisted/removed as a MOTIVATION
+    # signal (mortgage-takeover course ~9:15): a fell-through deal means seller is now more
+    # motivated and agent has lost a commission once. These are HIGH-priority calls, not skips.
     status_styles = {
         'active':    ('#1a4d2e', '#56d364', '✓ Active'),
-        'paused':    ('#3d2e0e', '#d2a857', f'⚠ Paused {d.get("relisted_gap",0)}d (verify Zillow)'),
-        'relisted':  ('#4d1e1e', '#ff7b72', f'⚠ RELISTED {d.get("relisted_gap",0)}d gap — likely under contract (verify Zillow)'),
-        'off-zillow':('#2c2c2c', '#8b949e', '✗ Off Zillow'),
+        'paused':    ('#2c2a14', '#e3b341', f'◐ Paused {d.get("relisted_gap",0)}d gap'),
+        'relisted':  ('#3a2418', '#ffa657', f'🔥 RELISTED {d.get("relisted_gap",0)}d gap — motivated seller, call first'),
+        'off-zillow':('#2c2c2c', '#8b949e', '✗ Off Zillow (removed — call anyway)'),
     }
     bg, fg, label = status_styles.get(d.get('status_state','active'), status_styles['active'])
     status_pill = f' <span class="pill" style="background:{bg};color:{fg};border-color:{bg};font-weight:600;">{label}</span>'
