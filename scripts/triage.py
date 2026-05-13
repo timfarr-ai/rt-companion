@@ -138,6 +138,16 @@ def units(p):
     if 'multi' in pt or 'plex' in pt: return 4
     return 1
 
+def _bank_piti(price):
+    """Standard bank-rate PITI: 25% down, 7% rate, 30yr, +1.5%/yr tax+ins."""
+    if price <= 0: return 0
+    loan = price * 0.75
+    r = 0.07 / 12
+    n = 360
+    pi = loan * r / (1 - (1 + r) ** -n)
+    tax_ins = price * 0.015 / 12
+    return pi + tax_ins
+
 def score(p):
     cd = p.get('calculatedData', {})
     cf = float(cd.get('monthlyCashFlow') or 0)
@@ -148,6 +158,15 @@ def score(p):
     coc = round((cf*12)/entry*100, 1) if entry > 0 else 0
     dom = int(p.get('daysOnMarket') or 0)
     addr = p.get('address', {})
+    # Bank gap — Richard's call hook. What does the listing FAIL by under standard
+    # bank financing? Positive gap = pitch ammo ("payment would be $X, rent only $Y").
+    # rent_est: prefer explicit, else back-calc from SF cash flow (CF + SF_PITI).
+    monthly_rent = float(cd.get('monthlyRent') or 0)
+    if monthly_rent <= 0 and lp > 0:
+        sf_piti_est = (lp - down) / 360 + lp * 0.015 / 12  # 0% rate 30yr + taxes/ins
+        monthly_rent = max(0, cf + sf_piti_est)
+    bank_piti = _bank_piti(lp)
+    bank_gap = round(bank_piti - monthly_rent)
     # Listing freshness — BBC's market_status is always "Active" for filtered results,
     # but the gap between last_listed (lifetime days) and daysOnMarket (current spell)
     # reveals if the listing was paused/relisted (typically because it went under contract).
@@ -174,7 +193,11 @@ def score(p):
             'last_listed': last_listed,
             'relisted_gap': relisted_gap,
             'is_zillow_active': is_zillow_active,
-            'status_state': status_state}
+            'status_state': status_state,
+            'monthly_rent': round(monthly_rent),
+            'bank_piti': round(bank_piti),
+            'bank_gap': bank_gap,
+            'beds': int(p.get('bedrooms') or cd.get('bedrooms') or 0)}
 
 def tier(s):
     pt = s['type'].lower()
@@ -303,6 +326,20 @@ def render_deal(d, t):
     bg, fg, label = status_styles.get(d.get('status_state','active'), status_styles['active'])
     status_pill = f' <span class="pill" style="background:{bg};color:{fg};border-color:{bg};font-weight:600;">{label}</span>'
     cf_label = 'Cash CF' if t == 'C' else 'CF'
+    # Bank gap pill — Richard's pitch hook. $X/mo the seller LOSES at standard bank financing.
+    # Only show when positive (i.e. listing actually fails conventional underwriting).
+    bg_amount = d.get('bank_gap', 0)
+    bg_piti = d.get('bank_piti', 0)
+    bg_rent = d.get('monthly_rent', 0)
+    bank_gap_title = f'Bank PITI ${bg_piti:,}/mo − Rent ${bg_rent:,}/mo'
+    bank_gap_pill = f' <span class="pill" style="background:#3a2418;color:#ffa657;border-color:#3a2418;font-weight:600;" title="{bank_gap_title}">🏦 Bank gap −${bg_amount:,}/mo</span>' if bg_amount > 0 else ''
+    # Comp links — Rentometer for rent validation, Zillow recently-sold for price validation.
+    addr_enc = urllib.parse.quote(d['address'])
+    beds = d.get('beds', 0)
+    rent_url = f'https://www.rentometer.com/quickview/results?address={addr_enc}' + (f'&bedrooms={beds}' if beds else '')
+    rent_link = f' <a class="zillow" href="{rent_url}" target="_blank">Rent comps ↗</a>'
+    sold_url = f'https://www.zillow.com/homes/recently_sold/{addr_enc}_rb/'
+    sold_link = f' <a class="zillow" href="{sold_url}" target="_blank">Sold comps ↗</a>'
     # Local time pill — updated live by JS (data-tz = IANA timezone)
     tz_pill = f' <span class="pill local-time" data-tz="{d["tz"]}">--:-- local</span>'
     # Agent block — only if unlocked
@@ -315,7 +352,7 @@ def render_deal(d, t):
         op_link = f' &nbsp; <a href="openphone://call?number={phone_clean}" style="color:#79c0ff;">via OpenPhone</a>' if phone_clean else ''
         email_link = f' &nbsp; <a href="mailto:{a["email"]}" style="color:#8b949e;">✉ {a["email"]}</a>' if a.get('email') and a['email'] != 'Not Available' else ''
         agent_block = f'<div style="margin-top:8px;padding:8px 10px;background:#0d2818;border:1px solid #1a4d2e;border-radius:6px;font-size:13px;"><div style="color:#7ee787;font-weight:600;margin-bottom:2px;">🔓 {a["name"]}</div><div>{tel_link}{op_link}{email_link}</div></div>'
-    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div><div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span><span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{z}{bbc_link}{oven_link}{bl}{agent_block}</div>'
+    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div><div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{z}{bbc_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
 
 section_a = ('<h2>🎯 TIER A — Multifamily Checkmate ($350K-$1.4M, 5+ units, DOM 90+)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
 section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale (<$100K, DOM 90+)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''

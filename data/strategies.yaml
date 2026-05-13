@@ -173,6 +173,10 @@ sops:
       - "Tier A deals: 9am-5pm local for the agent's brokerage"
       - "Don't call after 5pm — agents are with clients"
     how_to:
+      - title: "NUMBERS FIRST — never dial before underwriting"
+        detail: "Richard's exact sequence (Seller Finance course, ~12:00 & ~25:00): plug the listing into the calculator <em>before</em> calling. Compute the <strong>standard bank-rate offer</strong> at list price (price, 20-25% down at bank, ~6-7% rate, taxes/insurance from Zillow). If the standard offer cash-flows comfortably → it's already a deal at full price (rare). If the standard offer <em>fails</em> by $X/mo → that gap IS your pitch. <br><br>Each briefing card already shows the <strong>'Bank gap'</strong> pill — that's the $X/mo the seller would lose on a conventional offer. Memorize that number before dialing. Your opener is: <em>'I ran your listing through my lender — payment would be $7K, but it only rents for $6K. I can't qualify it conventionally. Here's how we make this work for both of us…'</em>"
+      - title: "Confirm the comps in 30 seconds"
+        detail: "Tap the <strong>'Rent comps'</strong> link (Rentometer) — does BBC's rent estimate fall inside the median band? If BBC says $1,800 and Rentometer median is $1,450, the deal is weaker than the card shows; recompute the bank gap mentally. Then tap <strong>'Sold comps'</strong> (Zillow filtered to ±20% sqft / 0.5mi / 90 days) — is the asking price out of step with recent sales? If yes, you have a second leverage point: <em>'three houses just sold at $X within half a mile — your price implies you wait 6 more months.'</em>"
       - title: "Set up: phone, Notes app, dashboard"
         detail: "Open the matching tier playbook in dashboard. Have Notes app ready for callbacks and follow-up notes."
       - title: "Dial the first deal"
