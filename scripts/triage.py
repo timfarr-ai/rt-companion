@@ -188,7 +188,11 @@ def score(p):
     addr = p.get('address', {})
     dt = cd.get('dealType', 'sellerFinance')
     pt_lower = (addr.get('propertyType') or '').lower()
-    is_mfh = (cd.get('numberOfUnits') and int(cd.get('numberOfUnits')) >= 5) or 'multi' in pt_lower or 'apartment' in pt_lower
+    # 'apartment' (singular) is BBC's label for individual condo-style units, NOT
+    # whole apartment buildings — those are 'Multi Family'. So we don't count
+    # 'apartment' as MFH here; individual apartments get filtered earlier via
+    # NON_RESIDENTIAL_TYPES (alongside condos).
+    is_mfh = (cd.get('numberOfUnits') and int(cd.get('numberOfUnits')) >= 5) or 'multi' in pt_lower or 'plex' in pt_lower or 'duplex' in pt_lower or 'triplex' in pt_lower
     # BBC fields verified via API probe 2026-05-13: monthlyRent NOT in payload, but
     # piti (full PITI) and monthlyPayment (P&I only) are. Back-calc rent from CF:
     #   cf = rent − piti − (rent × 0.20)   →   rent = (cf + piti) / 0.80
@@ -298,7 +302,8 @@ def tier(s):
     pt = s['type'].lower()
     is_mfh_5plus = s['units'] >= 5
     is_mfh_24 = (2 <= s['units'] <= 4) or any(t in pt for t in ('duplex','triplex','fourplex','quadplex','quadruplex','plex'))
-    is_mfh = is_mfh_5plus or is_mfh_24 or 'multi' in pt or 'apartment' in pt
+    # 'apartment' = single unit (caught earlier as non-residential); 'multi' = MFH building.
+    is_mfh = is_mfh_5plus or is_mfh_24 or 'multi' in pt
     dt = s.get('deal_type', 'sellerFinance')
     cf_creative = s.get('creative_cf', 0)
     # Tier A — MFH Seller Finance Checkmate. Per Seller Finance Course:
@@ -349,7 +354,8 @@ def match_buyers(s, t, buyers):
 #   - condo → Richard MT Course L1095: 'Not really interested in any condos.'
 #     Exception (manual): MT plays where seller is underwater, or luxury beachfront.
 #     Tim hand-picks those from BBC directly; daily triage default-excludes them.
-NON_RESIDENTIAL_TYPES = ('vacant', 'land', 'lot', 'acreage', 'commercial', 'industrial', 'condo')
+NON_RESIDENTIAL_TYPES = ('vacant', 'land', 'lot', 'acreage', 'commercial', 'industrial',
+                         'condo', 'apartment')  # 'apartment' = single condo-style unit
 buckets = {'A':[], 'B':[], 'MT':[], 'FF':[], 'C':[], 'REJECT':[]}
 land_skipped = 0
 tracked_skipped = 0
@@ -638,8 +644,8 @@ def render_deal(d, t):
     track_link = f' <a class="zillow" href="{track_url}" target="_blank" style="background:#1e2c44;color:#79c0ff;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1e2c44;">+ Track Property</a>'
     return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{track_link}{z}{bbc_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
 
-section_a = ('<h2>🎯 TIER A — Multifamily Seller-Finance Checkmate ($350K-$1.4M, 5+ units, DOM 90+, DSCR fails)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
-section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale Seller Finance (<$100K, DOM 90+, DSCR fails)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
+section_a = ('<h2>🎯 TIER A — Multifamily Seller Finance ($200K-$1.4M, 2+ units, DOM 90+; 2-4 units only if NOT retail-desirable)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
+section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale Seller Finance (&lt;$150K, SFH, DOM 90+)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
 section_mt = ('<h2>🔑 MORTGAGE TAKEOVER — Favorable existing loan (positive CF at assumed rate, DOM 60+)</h2>' + ''.join(render_deal(d,'MT') for d in buckets['MT'])) if buckets['MT'] else ''
 section_ff = ('<h2>🔨 FIX &amp; FLIP — Cheap distressed cash plays (Cash Course 70% rule, &lt;$250K, DOM 60+)</h2>' + ''.join(render_deal(d,'FF') for d in buckets['FF'])) if buckets['FF'] else ''
 section_c = ('<h2>💵 TIER C — Cash-Comparable SFH (cash arbitrage, NOT seller finance)</h2>' + ''.join(render_deal(d,'C') for d in buckets['C'])) if buckets['C'] else ''
