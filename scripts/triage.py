@@ -108,22 +108,27 @@ STATE_TZ = {
 }
 
 def unlock_agent(pid):
-    """Try to unlock agent contact info for a property via BBC's unlock-contact endpoint.
-    Returns dict with name/phone/email or None if insufficient cookies / error."""
-    code, body = http_req(f'https://www.buyboxcartel.com/api/lightning-leads/unlock-contact?pid={pid}',
+    """Get listing agent contact info via BBC's contact-seller endpoint — the one
+    that backs the 'Create Offer' modal. Confirmed cookie-free 2026-05-13 by CDP
+    inspection (cookie balance unchanged across multiple calls).
+    Returns dict with name/phone/email, or None if BBC has no agent record."""
+    code, body = http_req(f'https://www.buyboxcartel.com/api/lightning-leads/contact-seller?pid={pid}',
                           method='GET', use_opener=True,
                           headers={'Authorization': f'Bearer {bbc_token}'})
     try:
         data = json.loads(body)
     except: return None
-    info = (data.get('payload') or {}).get('agentInfo') or data.get('agentInfo') or {}
+    info = ((data.get('payload') or {}).get('agent_info')) or {}
     if not info: return None
-    name = info.get('name', '').strip()
-    phone = info.get('phone', '').strip()
-    email = info.get('email', '').strip()
-    if name == 'Not Available' or not name:
-        return None  # Insufficient balance OR no agent — same result
-    return {'name': name, 'phone': phone, 'email': email}
+    name = (info.get('name') or '').strip()
+    phone = (info.get('phone') or '').strip()
+    email = (info.get('email') or '').strip()
+    if not name or name == 'Not Available':
+        return None
+    # Phone/email may legitimately be "Not Available" even when name is known.
+    return {'name': name,
+            'phone': '' if phone == 'Not Available' else phone,
+            'email': '' if email == 'Not Available' else email}
 
 # 5. Score + tier
 def units(p):
@@ -236,31 +241,85 @@ for p in all_leads:
 for t in ('A','B','C'): buckets[t].sort(key=lambda x: -x['dom'])
 print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  C={len(buckets["C"])}  REJECT={len(buckets["REJECT"])}  Land-skipped={land_skipped}', file=sys.stderr)
 
-# 5b. Unlock agent info for Tier A + Tier B (highest-yield plays)
-# Skip Tier C — wholesale flow doesn't need listing-agent unlock (you're cold-calling cash buyers via separate channel)
-unlock_targets = buckets['A'] + buckets['B']
+# 5b. Surface agent info — cookie-free via BBC's contact-seller endpoint (the one
+# behind the Create Offer modal). Cost: $0/unlock. Run on ALL Tier A/B/C deals.
+unlock_targets = buckets['A'] + buckets['B'] + buckets['C']
 unlocks_attempted = 0
 unlocks_succeeded = 0
-if bbc_cookie_balance > 0 and unlock_targets:
-    print(f'\nUnlocking agent info for {len(unlock_targets)} Tier A/B deals (balance: {bbc_cookie_balance})...', file=sys.stderr)
+captured_agents = []  # for Airtable persistence
+if unlock_targets:
+    print(f'\nFetching agent info for {len(unlock_targets)} Tier A/B/C deals (cookie-free)...', file=sys.stderr)
     for s in unlock_targets:
-        if unlocks_succeeded >= bbc_cookie_balance:
-            print(f'  → cookie balance exhausted at {unlocks_succeeded}, stopping', file=sys.stderr)
-            break
         unlocks_attempted += 1
         agent = unlock_agent(s['pid'])
         if agent:
             s['agent'] = agent
             unlocks_succeeded += 1
-            print(f"  ✓ {s['address'][:50]}: {agent['name']} / {agent['phone']}", file=sys.stderr)
+            captured_agents.append({**agent, 'pid': s['pid'], 'address': s['address'], 'state': s['state']})
+            phone_str = agent['phone'] or '(no phone)'
+            print(f"  ✓ {s['address'][:50]}: {agent['name']} / {phone_str}", file=sys.stderr)
         else:
-            print(f"  ✗ {s['address'][:50]}: unlock failed (insufficient balance or no agent)", file=sys.stderr)
-            break  # If one fails for balance reasons, rest will too
-    print(f'Unlocks: {unlocks_succeeded}/{unlocks_attempted} succeeded', file=sys.stderr)
-elif not unlock_targets:
-    print('\nNo Tier A/B deals — skipping agent unlock', file=sys.stderr)
-else:
-    print(f'\nBBC cookie balance is 0 — agent unlock skipped. Top up at https://buyboxcartel.com/vip/wallet to enable.', file=sys.stderr)
+            print(f"  · {s['address'][:50]}: no agent record in BBC", file=sys.stderr)
+    print(f'Agents captured: {unlocks_succeeded}/{unlocks_attempted}', file=sys.stderr)
+
+# 5c. Persist captured agents to Airtable Known Agents (upsert by phone or by name+state)
+KA_TABLE = 'tbl0yOlg317evTwdS'  # Known Agents table created 2026-05-13
+def _at_fetch_known_agents():
+    url = f'https://api.airtable.com/v0/{AT_BASE}/{KA_TABLE}?pageSize=100'
+    out = {}  # key: phone (or name|state if no phone) → record_id, listings_touched, states
+    while url:
+        code, body = http_req(url, headers={'Authorization': f'Bearer {AT_TOKEN}'})
+        if code != 200: break
+        data = json.loads(body)
+        for r in data.get('records', []):
+            f = r.get('fields', {})
+            key = f.get('Phone') or f"{f.get('Name','')}|{(f.get('States','') or '').split(chr(10))[0]}"
+            out[key] = {'id': r['id'], 'touched': int(f.get('Listings Touched') or 0),
+                        'states': set((f.get('States') or '').split('\n')) - {''},
+                        'first_seen': f.get('First Seen', '')}
+        offset = data.get('offset')
+        url = f'https://api.airtable.com/v0/{AT_BASE}/{KA_TABLE}?pageSize=100&offset={offset}' if offset else None
+    return out
+
+agents_written = 0
+if captured_agents:
+    known = _at_fetch_known_agents()
+    today_iso = __import__('datetime').date.today().isoformat()
+    creates, updates = [], []
+    seen_keys = set()
+    for a in captured_agents:
+        key = a['phone'] or f"{a['name']}|{a['state']}"
+        if key in seen_keys: continue  # dedupe within today's batch
+        seen_keys.add(key)
+        if key in known:
+            rec = known[key]
+            updates.append({'id': rec['id'], 'fields': {
+                'Last Seen': today_iso,
+                'Listings Touched': rec['touched'] + 1,
+                'Latest Listing': a['address'],
+                'Latest PID': a['pid'],
+                'States': '\n'.join(sorted(rec['states'] | {a['state']})),
+            }})
+        else:
+            fields = {'Name': a['name'], 'First Seen': today_iso, 'Last Seen': today_iso,
+                      'Listings Touched': 1, 'Latest Listing': a['address'],
+                      'Latest PID': a['pid'], 'States': a['state']}
+            if a['phone']: fields['Phone'] = a['phone']
+            if a['email']: fields['Email'] = a['email']
+            creates.append({'fields': fields})
+    # Airtable: max 10 records/batch
+    for batch_list, method in [(creates, 'POST'), (updates, 'PATCH')]:
+        for i in range(0, len(batch_list), 10):
+            payload = {'records': batch_list[i:i+10], 'typecast': True}
+            code, body = http_req(f'https://api.airtable.com/v0/{AT_BASE}/{KA_TABLE}',
+                                  method=method,
+                                  headers={'Authorization': f'Bearer {AT_TOKEN}'},
+                                  json_body=payload)
+            if code in (200, 201):
+                agents_written += len(batch_list[i:i+10])
+            else:
+                print(f'  ! Airtable {method} returned {code}: {body[:200]}', file=sys.stderr)
+    print(f'Airtable Known Agents: {len(creates)} new, {len(updates)} updated, {agents_written} writes succeeded', file=sys.stderr)
 
 # 6. Push rejects
 today = date.today().isoformat()
@@ -368,8 +427,8 @@ if buckets['REJECT']:
     rej_lines = ''.join(f'<div class="rejected">{s["address"]} — CF: ${s["cf"]:,.0f} (DOM {s["dom"]})</div>' for s in buckets['REJECT'][:15])
     rej_section = f'<h2>❌ REJECTED — {pushed} pushed to <a href="https://airtable.com/{AT_BASE}/{WL_TABLE}">Watchlist</a></h2>{rej_lines}'
 
-cookie_indicator = f' · 🍪 {bbc_cookie_balance} cookies ({unlocks_succeeded} agent unlocks today)' if bbc_cookie_balance > 0 else ' · 🍪 0 cookies (agent unlock disabled — <a href="https://buyboxcartel.com/vip/wallet" target="_blank" style="color:#58a6ff;">top up</a>)'
-summary = f'{len(all_leads)} leads · {len(buckets["A"])} Tier A · {len(buckets["B"])} Tier B · {len(buckets["C"])} Tier C · {pushed} → watchlist{cookie_indicator}'
+agent_indicator = f' · 🔓 {unlocks_succeeded} agents captured (free)' if unlocks_succeeded else ''
+summary = f'{len(all_leads)} leads · {len(buckets["A"])} Tier A · {len(buckets["B"])} Tier B · {len(buckets["C"])} Tier C · {pushed} → watchlist{agent_indicator}'
 CSS = 'body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:12px;font-size:15px;line-height:1.5;}h2{font-size:14px;color:#8b949e;text-transform:uppercase;letter-spacing:0.04em;margin:18px 0 8px;}.summary{background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:14px;}.deal{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px;margin-bottom:10px;}.deal .addr{font-weight:600;font-size:15px;margin-bottom:4px;}.deal .meta{font-size:13px;color:#8b949e;margin-bottom:6px;}.deal .nums{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}.pill{background:#1c2128;border:1px solid #30363d;border-radius:12px;padding:2px 9px;font-size:12px;color:#8b949e;}.play-link{display:inline-block;padding:8px 12px;background:#58a6ff;color:#0d1117;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;margin-top:4px;}.tier-A{border-left:3px solid #ff7b72;}.tier-B{border-left:3px solid #d2a8ff;}.tier-C{border-left:3px solid #56d364;}a.zillow{color:#58a6ff;font-size:12px;margin-left:8px;}.rejected{color:#8b949e;font-size:13px;padding:4px 0;}.date{color:#8b949e;font-size:13px;}.addr-copy{display:inline-block;margin-left:8px;padding:2px 9px;font-size:12px;background:#1c2128;border:1px solid #30363d;color:#58a6ff;border-radius:12px;cursor:pointer;font-family:inherit;}.addr-copy:hover{background:#21262d;}.addr-copy.copied{background:#1a4d2e;color:#56d364;border-color:#1a4d2e;}'
 CLOCK_JS = '''<script>
 function updateLocalTimes(){
