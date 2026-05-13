@@ -414,7 +414,8 @@ def render_deal(d, t):
                 'C':'/rt-companion/strategy/tier-c-cash-buyer.html'}[t]
     bl = f'<div style="color:#56d364;font-size:13px;margin-top:6px;">🎯 BUYER MATCH: {", ".join(d["buyer_matches"])}</div>' if d['buyer_matches'] else ''
     z = f' <a class="zillow" href="{d["zillow"]}" target="_blank">Zillow ↗ (agent here)</a>' if d['zillow'] else ''
-    city_state = ', '.join(d['address'].split(',')[1:]).strip()
+    # Strip each comma-separated part (split(',') leaves a leading space on parts 1+)
+    city_state = ', '.join(p.strip() for p in d['address'].split(',')[1:] if p.strip())
     # BBC search URL with #auto: hash — userscript on BBC side auto-fills + searches
     bbc_search = f'https://www.buyboxcartel.com/vip/lightning-leads#auto:{urllib.parse.quote(city_state)}'
     bbc_link = f' <a class="zillow" href="{bbc_search}" target="_blank">Search BBC ↗</a>'
@@ -461,13 +462,18 @@ def render_deal(d, t):
     bg_label = 'Refi gap' if d.get('deal_type_raw') == 'mortgageTakeover' else 'Bank gap'
     bank_gap_title = f'PITI ${bg_piti:,}/mo − Rent ${bg_rent:,}/mo (BBC figures)' if bg_piti and bg_rent else 'From BBC monthlyCashFlow'
     bank_gap_pill = f' <span class="pill" style="background:#3a2418;color:#ffa657;border-color:#3a2418;font-weight:600;" title="{bank_gap_title}">🏦 {bg_label} −${bg_amount:,}/mo</span>' if bg_amount > 0 else ''
-    # Comp links — Rentometer for rent validation, Zillow recently-sold for price validation.
-    addr_enc = urllib.parse.quote(d['address'])
-    beds = d.get('beds', 0)
-    rent_url = f'https://www.rentometer.com/quickview/results?address={addr_enc}' + (f'&bedrooms={beds}' if beds else '')
-    rent_link = f' <a class="zillow" href="{rent_url}" target="_blank">Rent comps ↗</a>'
-    sold_url = f'https://www.zillow.com/homes/recently_sold/{addr_enc}_rb/'
-    sold_link = f' <a class="zillow" href="{sold_url}" target="_blank">Sold comps ↗</a>'
+    # Sold comps — Zillow's area-based recently-sold search. CDP-validated 2026-05-13
+    # that '/homes/recently_sold/{addr}_rb/' redirects to the property page (duplicate
+    # of the main Zillow link). Use '/{city}-{state}/sold/' slug for area comps instead.
+    # Rentometer link dropped — they have no public URL pattern that accepts an address
+    # query parameter (everything returns 404 or requires login). Zillow's Rent Zestimate
+    # on the property page (already linked) is the rent comp source.
+    parts = [p.strip() for p in d['address'].split(',') if p.strip()]
+    city_slug = parts[-2].lower().replace(' ', '-') if len(parts) >= 2 else ''
+    state_slug = parts[-1].lower() if parts else ''
+    sold_url = f'https://www.zillow.com/{city_slug}-{state_slug}/sold/' if city_slug and state_slug else ''
+    sold_link = f' <a class="zillow" href="{sold_url}" target="_blank">Sold comps ↗</a>' if sold_url else ''
+    rent_link = ''  # dropped — Zillow link already provides Rent Zestimate
     # Local time pill — updated live by JS (data-tz = IANA timezone)
     tz_pill = f' <span class="pill local-time" data-tz="{d["tz"]}">--:-- local</span>'
     # Agent block — only if unlocked
