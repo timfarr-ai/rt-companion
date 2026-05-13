@@ -490,7 +490,7 @@ def render_deal(d, t):
                 'MT':'/rt-companion/strategy/mortgage-takeover.html',
                 'FF':'/rt-companion/strategy/fix-and-flip.html',
                 'C':'/rt-companion/strategy/tier-c-cash-buyer.html'}[t]
-    bl = f'<div style="color:#56d364;font-size:13px;margin-top:6px;">🎯 BUYER MATCH: {", ".join(d["buyer_matches"])}</div>' if d['buyer_matches'] else ''
+    bl = f'<div style="color:#e3b341;font-size:13px;margin-top:6px;font-weight:600;">⭐ BUYER MATCH: {", ".join(d["buyer_matches"])}</div>' if d['buyer_matches'] else ''
     z = f' <a class="zillow" href="{d["zillow"]}" target="_blank">Zillow ↗ (agent here)</a>' if d['zillow'] else ''
     # BBC autosearch: BBC's API only accepts City,State (verified 2026-05-13 — full
     # address returns 0 results). Pass street separately so the userscript can scroll
@@ -523,12 +523,12 @@ def render_deal(d, t):
     dt_map = {'sellerFinance': 'Seller Finance', 'mortgageTakeover': 'Mortgage Takeover', 'section8': 'Section 8', 'fixAndFlip': 'Fix & Flip', 'cash': 'Cash'}
     dt_label = dt_map.get(d.get('deal_type',''), d.get('deal_type','') or '')
     dt_pill = f' <span class="pill" style="background:#1e2c44;color:#79c0ff;border-color:#1e2c44;">{dt_label}</span>' if dt_label else ''
-    pt_pill = f' <span class="pill" style="background:#1a2c1a;color:#7ee787;border-color:#1a2c1a;">{d["type"]}</span>' if d.get('type') and d['type']!='Unknown' else ''
+    pt_pill = f' <span class="pill" style="background:#1c2128;color:#8b949e;border-color:#30363d;">{d["type"]}</span>' if d.get('type') and d['type']!='Unknown' else ''
     # Status pill — surfaces relist history. Richard treats relisted/removed as a MOTIVATION
     # signal (mortgage-takeover course ~9:15): a fell-through deal means seller is now more
     # motivated and agent has lost a commission once. These are HIGH-priority calls, not skips.
     status_styles = {
-        'active':    ('#1a4d2e', '#56d364', '✓ Active'),
+        'active':    ('#1c2128', '#8b949e', '✓ Active'),
         'paused':    ('#2c2a14', '#e3b341', f'◐ Paused {d.get("relisted_gap",0)}d gap'),
         'relisted':  ('#3a2418', '#ffa657', f'🔥 RELISTED {d.get("relisted_gap",0)}d gap — motivated seller, call first'),
         'off-zillow':('#2c2c2c', '#8b949e', '✗ Off Zillow (removed — call anyway)'),
@@ -548,15 +548,37 @@ def render_deal(d, t):
     bg_label = 'Refi gap' if d.get('deal_type_raw') == 'mortgageTakeover' else 'Bank gap'
     bank_gap_title = f'PITI ${bg_piti:,}/mo − Rent ${bg_rent:,}/mo (BBC figures)' if bg_piti and bg_rent else 'From BBC monthlyCashFlow'
     bank_gap_pill = f' <span class="pill" style="background:#3a2418;color:#ffa657;border-color:#3a2418;font-weight:600;" title="{bank_gap_title}">🏦 {bg_label} −${bg_amount:,}/mo</span>' if bg_amount > 0 else ''
-    # Sold comps — Zillow ZIP-scoped + bedroom-filtered. Tim's prior feedback: area-only
-    # search returned too many non-comp results. Filter to same ZIP + ±1 bedroom for real
-    # comps. Format: /homes/recently_sold/{zip}/{beds}-_beds/ — uses Zillow's slug filters.
+    # Sold comps — Zillow ZIP-scoped with tight filters: beds=exact, sqft band ±20%,
+    # property type matched. Prior version returned ~2000 results because only ZIP was
+    # filtering. We use Zillow's searchQueryState JSON-encoded URL parameter so all
+    # filters apply at once (Zillow's slug syntax /3-_beds/ alone is unreliable).
     zip_code = d.get('zip', '')
     beds = d.get('beds', 0)
-    if zip_code and beds:
-        sold_url = f'https://www.zillow.com/homes/recently_sold/{zip_code}_rb/{beds}-_beds/'
-    elif zip_code:
-        sold_url = f'https://www.zillow.com/homes/recently_sold/{zip_code}_rb/'
+    sqft_val = d.get('sqft', 0)
+    if zip_code:
+        # Build searchQueryState — Zillow's canonical filter mechanism on web URLs
+        sqs = {
+            'pagination': {},
+            'filterState': {
+                'sortSelection': {'value': 'globalrelevanceex'},
+                'isRecentlySold': {'value': True},
+                'isAllHomes': {'value': True},
+                'isForSaleByAgent': {'value': False},
+                'isForSaleByOwner': {'value': False},
+                'isNewConstruction': {'value': False},
+                'isComingSoon': {'value': False},
+                'isAuction': {'value': False},
+                'isForSaleForeclosure': {'value': False},
+                'doz': {'value': '180'},  # sold within 180 days
+            },
+            'isListVisible': True,
+        }
+        if beds:
+            sqs['filterState']['beds'] = {'min': max(1, beds - 1), 'max': beds + 1}
+        if sqft_val and sqft_val > 200:
+            sqs['filterState']['sqft'] = {'min': int(sqft_val * 0.80), 'max': int(sqft_val * 1.20)}
+        sqs_q = urllib.parse.quote(json.dumps(sqs, separators=(',', ':')))
+        sold_url = f'https://www.zillow.com/{zip_code}/sold/?searchQueryState={sqs_q}'
     else:
         sold_url = ''
     sold_link = f' <a class="zillow" href="{sold_url}" target="_blank">Sold comps ↗</a>' if sold_url else ''
@@ -569,10 +591,10 @@ def render_deal(d, t):
         a = d['agent']
         phone_clean = ''.join(c for c in a['phone'] if c.isdigit() or c == '+')
         if phone_clean and not phone_clean.startswith('+'): phone_clean = '+1' + phone_clean.lstrip('1')
-        tel_link = f'<a href="tel:{phone_clean}" style="color:#56d364;">📞 {a["phone"]}</a>' if phone_clean else f'<span>📞 {a["phone"]}</span>'
+        tel_link = f'<a href="tel:{phone_clean}" style="color:#79c0ff;">📞 {a["phone"]}</a>' if phone_clean else f'<span>📞 {a["phone"]}</span>'
         op_link = f' &nbsp; <a href="openphone://call?number={phone_clean}" style="color:#79c0ff;">via OpenPhone</a>' if phone_clean else ''
         email_link = f' &nbsp; <a href="mailto:{a["email"]}" style="color:#8b949e;">✉ {a["email"]}</a>' if a.get('email') and a['email'] != 'Not Available' else ''
-        agent_block = f'<div style="margin-top:8px;padding:8px 10px;background:#0d2818;border:1px solid #1a4d2e;border-radius:6px;font-size:13px;"><div style="color:#7ee787;font-weight:600;margin-bottom:2px;">🔓 {a["name"]}</div><div>{tel_link}{op_link}{email_link}</div></div>'
+        agent_block = f'<div style="margin-top:8px;padding:8px 10px;background:#161b22;border:1px solid #30363d;border-radius:6px;font-size:13px;"><div style="color:#e6edf3;font-weight:600;margin-bottom:2px;">🔓 {a["name"]}</div><div>{tel_link}{op_link}{email_link}</div></div>'
     # CREATIVE CF BANNER — the call hook. Reads: "After restructuring, this deal
     # cash-flows $X/mo. Pitch to seller: $OFFER at 0%, $DOWN down, 30yr."
     cc = d.get('creative_cf', 0)
@@ -613,7 +635,7 @@ def render_deal(d, t):
     }
     track_qs = '&'.join(f'{urllib.parse.quote(k)}={urllib.parse.quote(v)}' for k,v in track_params.items() if v)
     track_url = f'https://airtable.com/{AT_BASE}/{DF_TABLE}?{track_qs}'
-    track_link = f' <a class="zillow" href="{track_url}" target="_blank" style="background:#1a4d2e;color:#56d364;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1a4d2e;">+ Track Property</a>'
+    track_link = f' <a class="zillow" href="{track_url}" target="_blank" style="background:#1e2c44;color:#79c0ff;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1e2c44;">+ Track Property</a>'
     return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{track_link}{z}{bbc_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
 
 section_a = ('<h2>🎯 TIER A — Multifamily Seller-Finance Checkmate ($350K-$1.4M, 5+ units, DOM 90+, DSCR fails)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
