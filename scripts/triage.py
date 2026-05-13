@@ -70,11 +70,11 @@ print(f'Watchlist: {len(existing_addrs)} existing', file=sys.stderr)
 # 4. Fetch leads per state — uses opener for cookies
 all_leads = []
 for state in STATES:
-    # Richard's method targets STALE listings (motivated sellers), not high-CF ones.
-    # BBC's CF on SF cards is at bank rate — high CF means "deal works without
-    # creative", which is the opposite of what we want. Sort by DOM desc instead.
-    # Include both sellerFinance + mortgageTakeover deal types in the query.
-    payload = {'search_query': state, 'deal_type': ['sellerFinance', 'mortgageTakeover'],
+    # Richard's full play menu (Cash Course + Seller Finance + Mortgage Takeover):
+    # SF/MT for stuck creative deals, Fix & Flip for distressed cheap cash plays.
+    # Sort by DOM desc (stale = motivated). Limit 25/state for breadth across plays.
+    payload = {'search_query': state,
+               'deal_type': ['sellerFinance', 'mortgageTakeover', 'fixAndFlip'],
                'market_status': 'Active', 'page': 1, 'limit': 25,
                'sort_field': 'daysOnMarket', 'sort_order': 'desc',
                'price_range': {'max': 1_400_000}}
@@ -200,6 +200,11 @@ def score(p):
         creative_offer = round(lp)
         creative_down = 10000
         creative_terms = f"Take over existing loan, ~${creative_down:,} to seller"
+    elif dt == 'fixAndFlip':
+        # Richard's Cash Course rule: offer 70% of list price
+        creative_offer = round(lp * 0.70)
+        creative_down = 0  # cash deal — no down/loan
+        creative_terms = f"Cash offer ${creative_offer:,} (70% of list — Cash Course rule)"
     else:
         creative_offer = round(op or lp)
         creative_down = round(down)
@@ -255,27 +260,35 @@ def score(p):
             'lng': addr.get('longitude') or ''}
 
 def tier(s):
-    """BBC's monthlyCashFlow is already at the deal_type's creative terms (verified
-    via API probe 2026-05-13). So creative_cf IS BBC's cf. Bank gap is computed
-    separately as 'what the same deal would look like under a 7% bank mortgage'.
-    Qualification = creative_cf >= threshold. Sort by creative_cf descending."""
+    """Strict adherence to Richard's tier framework from deal-criteria.md:
+    - Tier A: MFH 5+ units, $350K-$1.4M, DOM 90+, Seller Finance, creative pencils
+    - Tier B: Cheap SFH <$150K, DOM 90+, Seller Finance, creative pencils
+    - Tier MT: Mortgage Takeover (existing favorable loan), DOM 60+
+    - Tier FF: Fix & Flip — cheap distressed listings, Cash Course '70% of list' rule
+    - Tier C: Cash arbitrage SFH (rare in this search; mostly retired in favor of FF)
+    Anything else is REJECT — Richard doesn't have a play for it."""
     pt = s['type'].lower()
     is_mfh = s['units'] >= 5 or 'multi' in pt or 'apartment' in pt
     dt = s.get('deal_type', 'sellerFinance')
     cf_creative = s.get('creative_cf', 0)
-    # Tier A — MFH Seller Finance Checkmate ($350K-$1.4M, 5+ units, DOM 90+)
+    # Tier A — MFH Seller Finance Checkmate (5+ units, $350K-$1.4M, DOM 90+)
     if is_mfh and 350_000 <= s['price'] <= 1_400_000 and s['dom'] >= 90 \
        and dt == 'sellerFinance' and cf_creative >= 100:
         return 'A'
-    # Tier B — SFH/2-4 unit Seller Finance (any price <$1.4M, DOM 60+)
-    if not is_mfh and s['price'] <= 1_400_000 and s['dom'] >= 60 \
+    # Tier B — Cheap SFH Seller Finance (strict <$150K per deal-criteria.md)
+    if not is_mfh and s['price'] < 150_000 and s['dom'] >= 90 \
        and dt == 'sellerFinance' and cf_creative >= 100:
         return 'B'
-    # Tier MT — Mortgage Takeover (favorable existing loan, DOM 60+)
+    # Tier MT — Mortgage Takeover (existing favorable loan, DOM 60+)
     if dt == 'mortgageTakeover' and cf_creative >= 100 and s['dom'] >= 60:
         return 'MT'
-    # Tier C — small-MFH/SFH already cash-flowing at retail (rare in SF/MT search)
-    if cf_creative > 300 and s['dom'] >= 60 and dt not in ('sellerFinance', 'mortgageTakeover'):
+    # Tier FF — Fix & Flip (Cash Course): cheap distressed listings, 70% rule
+    # No CF gate (F&F is about ARV-to-MAO spread, not rental CF). Cap at $250K to
+    # match Richard's repeated cheap-flip examples (Detroit/MI/OH $99K-$200K range).
+    if dt == 'fixAndFlip' and s['dom'] >= 60 and s['price'] < 250_000:
+        return 'FF'
+    # Tier C — cash arbitrage SFH (Cash Course's section-8/turnkey path, not F&F)
+    if cf_creative > 300 and s['dom'] >= 60 and dt not in ('sellerFinance', 'mortgageTakeover', 'fixAndFlip'):
         return 'C'
     return 'REJECT'
 
@@ -291,7 +304,7 @@ def match_buyers(s, t, buyers):
     return matches
 
 NON_RESIDENTIAL_TYPES = ('vacant', 'land', 'lot', 'acreage', 'commercial', 'industrial')
-buckets = {'A':[], 'B':[], 'MT':[], 'C':[], 'REJECT':[]}
+buckets = {'A':[], 'B':[], 'MT':[], 'FF':[], 'C':[], 'REJECT':[]}
 land_skipped = 0
 for p in all_leads:
     s = score(p)
@@ -306,11 +319,13 @@ for p in all_leads:
     s['agent'] = None  # set below if unlocked
     buckets[t].append(s)
 for t in ('A','B','MT','C'): buckets[t].sort(key=lambda x: (-x['creative_cf'], -x['dom']))
-print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  MT={len(buckets["MT"])}  C={len(buckets["C"])}  REJECT={len(buckets["REJECT"])}  Land-skipped={land_skipped}', file=sys.stderr)
+# Fix & Flip: sort by DOM desc (motivation) since CF isn't the relevant metric
+buckets['FF'].sort(key=lambda x: -x['dom'])
+print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  MT={len(buckets["MT"])}  FF={len(buckets["FF"])}  C={len(buckets["C"])}  REJECT={len(buckets["REJECT"])}  Land-skipped={land_skipped}', file=sys.stderr)
 
 # 5b. Surface agent info — cookie-free via BBC's contact-seller endpoint (the one
 # behind the Create Offer modal). Cost: $0/unlock. Run on ALL Tier A/B/C deals.
-unlock_targets = buckets['A'] + buckets['B'] + buckets['MT'] + buckets['C']
+unlock_targets = buckets['A'] + buckets['B'] + buckets['MT'] + buckets['FF'] + buckets['C']
 unlocks_attempted = 0
 unlocks_succeeded = 0
 captured_agents = []  # for Airtable persistence
@@ -417,10 +432,11 @@ print(f'Pushed {pushed} to watchlist', file=sys.stderr)
 date_iso = today
 date_human = datetime.now().strftime('%a %b %d, %Y')
 def render_deal(d, t):
-    cls = {'A':'tier-A','B':'tier-B','MT':'tier-MT','C':'tier-C'}[t]
+    cls = {'A':'tier-A','B':'tier-B','MT':'tier-MT','FF':'tier-FF','C':'tier-C'}[t]
     playbook = {'A':'/rt-companion/strategy/tier-a-multifamily-checkmate.html',
                 'B':'/rt-companion/strategy/tier-b-cheap-sfh-stale.html',
                 'MT':'/rt-companion/strategy/mortgage-takeover.html',
+                'FF':'/rt-companion/strategy/fix-and-flip.html',
                 'C':'/rt-companion/strategy/tier-c-cash-buyer.html'}[t]
     bl = f'<div style="color:#56d364;font-size:13px;margin-top:6px;">🎯 BUYER MATCH: {", ".join(d["buyer_matches"])}</div>' if d['buyer_matches'] else ''
     z = f' <a class="zillow" href="{d["zillow"]}" target="_blank">Zillow ↗ (agent here)</a>' if d['zillow'] else ''
@@ -521,6 +537,7 @@ def render_deal(d, t):
 section_a = ('<h2>🎯 TIER A — Multifamily Seller-Finance Checkmate ($350K-$1.4M, 5+ units, DOM 90+, DSCR fails)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
 section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale Seller Finance (<$100K, DOM 90+, DSCR fails)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
 section_mt = ('<h2>🔑 MORTGAGE TAKEOVER — Favorable existing loan (positive CF at assumed rate, DOM 60+)</h2>' + ''.join(render_deal(d,'MT') for d in buckets['MT'])) if buckets['MT'] else ''
+section_ff = ('<h2>🔨 FIX &amp; FLIP — Cheap distressed cash plays (Cash Course 70% rule, &lt;$250K, DOM 60+)</h2>' + ''.join(render_deal(d,'FF') for d in buckets['FF'])) if buckets['FF'] else ''
 section_c = ('<h2>💵 TIER C — Cash-Comparable SFH (cash arbitrage, NOT seller finance)</h2>' + ''.join(render_deal(d,'C') for d in buckets['C'])) if buckets['C'] else ''
 rej_section = ''
 if buckets['REJECT']:
@@ -528,8 +545,8 @@ if buckets['REJECT']:
     rej_section = f'<h2>❌ REJECTED — {pushed} pushed to <a href="https://airtable.com/{AT_BASE}/{WL_TABLE}">Watchlist</a></h2>{rej_lines}'
 
 agent_indicator = f' · 🔓 {unlocks_succeeded} agents captured (free)' if unlocks_succeeded else ''
-summary = f'{len(all_leads)} leads · {len(buckets["A"])} Tier A · {len(buckets["B"])} Tier B · {len(buckets["MT"])} MT · {len(buckets["C"])} Tier C · {pushed} → watchlist{agent_indicator}'
-CSS = 'body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:12px;font-size:15px;line-height:1.5;}h2{font-size:14px;color:#8b949e;text-transform:uppercase;letter-spacing:0.04em;margin:18px 0 8px;}.summary{background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:14px;}.deal{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px;margin-bottom:10px;}.deal .addr{font-weight:600;font-size:15px;margin-bottom:4px;}.deal .meta{font-size:13px;color:#8b949e;margin-bottom:6px;}.deal .nums{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}.pill{background:#1c2128;border:1px solid #30363d;border-radius:12px;padding:2px 9px;font-size:12px;color:#8b949e;}.play-link{display:inline-block;padding:8px 12px;background:#58a6ff;color:#0d1117;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;margin-top:4px;}.tier-A{border-left:3px solid #ff7b72;}.tier-B{border-left:3px solid #d2a8ff;}.tier-MT{border-left:3px solid #79c0ff;}.tier-C{border-left:3px solid #56d364;}a.zillow{color:#58a6ff;font-size:12px;margin-left:8px;}.rejected{color:#8b949e;font-size:13px;padding:4px 0;}.date{color:#8b949e;font-size:13px;}.addr-copy{display:inline-block;margin-left:8px;padding:2px 9px;font-size:12px;background:#1c2128;border:1px solid #30363d;color:#58a6ff;border-radius:12px;cursor:pointer;font-family:inherit;}.addr-copy:hover{background:#21262d;}.addr-copy.copied{background:#1a4d2e;color:#56d364;border-color:#1a4d2e;}'
+summary = f'{len(all_leads)} leads · {len(buckets["A"])} Tier A · {len(buckets["B"])} Tier B · {len(buckets["MT"])} MT · {len(buckets["FF"])} FF · {len(buckets["C"])} Tier C · {pushed} → watchlist{agent_indicator}'
+CSS = 'body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:12px;font-size:15px;line-height:1.5;}h2{font-size:14px;color:#8b949e;text-transform:uppercase;letter-spacing:0.04em;margin:18px 0 8px;}.summary{background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:14px;}.deal{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px;margin-bottom:10px;}.deal .addr{font-weight:600;font-size:15px;margin-bottom:4px;}.deal .meta{font-size:13px;color:#8b949e;margin-bottom:6px;}.deal .nums{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}.pill{background:#1c2128;border:1px solid #30363d;border-radius:12px;padding:2px 9px;font-size:12px;color:#8b949e;}.play-link{display:inline-block;padding:8px 12px;background:#58a6ff;color:#0d1117;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;margin-top:4px;}.tier-A{border-left:3px solid #ff7b72;}.tier-B{border-left:3px solid #d2a8ff;}.tier-MT{border-left:3px solid #79c0ff;}.tier-FF{border-left:3px solid #f0883e;}.tier-C{border-left:3px solid #56d364;}a.zillow{color:#58a6ff;font-size:12px;margin-left:8px;}.rejected{color:#8b949e;font-size:13px;padding:4px 0;}.date{color:#8b949e;font-size:13px;}.addr-copy{display:inline-block;margin-left:8px;padding:2px 9px;font-size:12px;background:#1c2128;border:1px solid #30363d;color:#58a6ff;border-radius:12px;cursor:pointer;font-family:inherit;}.addr-copy:hover{background:#21262d;}.addr-copy.copied{background:#1a4d2e;color:#56d364;border-color:#1a4d2e;}'
 CLOCK_JS = '''<script>
 function updateLocalTimes(){
   document.querySelectorAll('.local-time').forEach(function(el){
@@ -545,7 +562,7 @@ function updateLocalTimes(){
 updateLocalTimes();
 setInterval(updateLocalTimes, 30000);
 </script>'''
-html = f'<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Triage {date_iso}</title><style>{CSS}</style></head><body><p class="date">📋 {date_human} · TN/TX/GA/OH/MI &nbsp;·&nbsp; <a href="https://www.buyboxcartel.com/vip/lightning-leads" target="_blank" style="color:#58a6ff;">Open BBC Lightning Leads ↗</a></p><div class="summary">{summary}</div>{section_a}{section_b}{section_mt}{section_c}{rej_section}' + CLOCK_JS + '</body></html>'
+html = f'<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Triage {date_iso}</title><style>{CSS}</style></head><body><p class="date">📋 {date_human} · TN/TX/GA/OH/MI &nbsp;·&nbsp; <a href="https://www.buyboxcartel.com/vip/lightning-leads" target="_blank" style="color:#58a6ff;">Open BBC Lightning Leads ↗</a></p><div class="summary">{summary}</div>{section_a}{section_b}{section_mt}{section_ff}{section_c}{rej_section}' + CLOCK_JS + '</body></html>'
 
 # 8. Publish
 b64 = base64.b64encode(html.encode()).decode()
@@ -569,6 +586,7 @@ print(summary)
 for t, name, emoji in [('A','Tier A — Multifamily SF Checkmate','🎯'),
                        ('B','Tier B — Cheap SFH Stale SF','🏘️'),
                        ('MT','Mortgage Takeover','🔑'),
+                       ('FF','Fix & Flip (70% Rule)','🔨'),
                        ('C','Tier C — Cash Buyer','💵')]:
     if not buckets[t]: continue
     print(f'\n{emoji} {name} ({len(buckets[t])}):')

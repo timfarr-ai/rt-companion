@@ -142,6 +142,8 @@ sops:
         detail: "SFH <$100K, DOM 90+, same dual-gate (bank fails / creative cash-flows). Lower-effort calls — aim for 3-5 voicemails in a single sitting."
       - title: "Then Mortgage Takeover deals (🔑 blue accent)"
         detail: "MT cards represent listings with a FAVORABLE existing loan you'd assume. BBC's CF on these IS the creative scenario (after takeover). Pitch is to pay seller ~$10K to take over the debt — fast close, no bank, no DSCR. <strong>Pre-2007 listings (long DOM at low int rate) are the gold mine.</strong>"
+      - title: "Then Fix & Flip deals (🔨 orange accent)"
+        detail: "F&F cards are distressed cheap listings — BBC flagged them as fix-and-flip candidates. Richard's Cash Course rule: <strong>offer 70% of list price as a cash buyer</strong>. Photos in Zillow tell you if condition supports the spread. No seller-finance pitch; this is a fast cash deal."
       - title: "Tier C (cash buyer SFH) — only if quota for the week is light"
         detail: "Cash offers are lower yield. Skip if Tier A/B/MT fills your block."
       - title: "Copy each script before dialing"
@@ -554,6 +556,50 @@ strategies:
         url: "https://www.hmhw.group/tools/offer-oven"
         icon: "🧮"
       - label: "Find more MT deals in BBC"
+        url: "https://buyboxcartel.com/vip/lightning-leads"
+        icon: "🏦"
+
+  # ─────────────────────────────────────────────────────────────────
+  - slug: fix-and-flip
+    emoji: "🔨"
+    title: "Fix & Flip — 70% Rule"
+    tier_badge: "tier-ff"
+    tldr: >
+      Distressed cheap SFH/duplex listings where a cash offer at 70% of list
+      gives you the wholesale spread. Richard's Cash Course rule: <em>"70% of
+      list price, it just works. There's not much of a comping process here."</em>
+      Best fit: $50K-$250K range in Detroit MI, Cleveland OH, Birmingham AL,
+      Memphis TN. No seller finance, no creative — straight cash with rehab math.
+    when:
+      - "BBC deal_type = fixAndFlip (BBC's algo flagged it as distressed)"
+      - "Price under $250K (Richard's repeated cheap-flip examples: $99K Detroit, $114K)"
+      - "DOM 60+ days"
+      - "Property condition needs work (cosmetic to medium rehab — not gut)"
+      - "QUALIFICATION GATE: asking ≤ 70% of ARV (BBC's algorithm pre-filters)"
+    how_to:
+      - title: "Confirm Fix & Flip fits — pull the photos"
+        detail: "Tap the Zillow link on the briefing card → review photos. Fix & Flip works on properties that need <strong>refresh-level work</strong> (paint, flooring, kitchen/bath refresh). If photos show gut-level damage (water, fire, structural), back off — that's an investor-only play not a wholesale flip."
+      - title: "Run the numbers in Fix & Flip Calculator"
+        detail: "BBC's Fix & Flip calculator on the listing computes your wholesale spread from ARV − rehab − 30% margin. Richard's Cash Course shortcut: <strong>offer = list price × 0.70</strong>. If your cash offer is under that 70% number, you have spread to wholesale."
+        link: { label: "HMHW Fix & Flip Calculator", url: "https://www.hmhw.group/tools/fix-and-flip", external: true }
+      - title: "Run the call — Cash Course C1 pitch"
+        detail: "Cash offer pitch is shorter than SF/MT: <em>'Hey [agent], calling about [address]. I noticed it's been listed [DOM] days. I'm a cash buyer for SFH in that area — happy to close fast at $X cash, no contingencies on financing. Inspection period 10 business days, EMD after inspection. Can you present that to your seller?'</em>"
+      - title: "On verbal yes → cash contract"
+        detail: "Standard cash purchase contract (not the creative addendum). Closing attorney handles. Then dispose via Grand In Taylor cash buyer list or BBC Marketplace."
+        link: { label: "Grand In Taylor Cash Form", url: "https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587", external: true }
+      - title: "Comps check before submitting"
+        detail: "Tap <strong>Sold comps ↗</strong> on the card to verify ARV. Look at recent sales of same bed count in the ZIP. If sold comps support an ARV above your buy-fix-sell math, the deal works."
+    sources:
+      - label: "HMHW Cash Course (Fix & Flip portion)"
+        url: "https://www.youtube.com/watch?v=KGXI134QiaM"
+        icon: "📚"
+      - label: "Fix & Flip Calculator"
+        url: "https://www.hmhw.group/tools/fix-and-flip"
+        icon: "🧮"
+      - label: "Grand In Taylor — Cash Form"
+        url: "https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587"
+        icon: "📋"
+      - label: "Find more F&F deals in BBC"
         url: "https://buyboxcartel.com/vip/lightning-leads"
         icon: "🏦"
 
