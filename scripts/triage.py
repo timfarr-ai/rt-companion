@@ -344,7 +344,12 @@ def match_buyers(s, t, buyers):
         matches.append(b['name'])
     return matches
 
-NON_RESIDENTIAL_TYPES = ('vacant', 'land', 'lot', 'acreage', 'commercial', 'industrial')
+# Excluded property types per Richard's primary-source guidance:
+#   - vacant/land/lot/acreage/commercial/industrial → no structure to underwrite
+#   - condo → Richard MT Course L1095: 'Not really interested in any condos.'
+#     Exception (manual): MT plays where seller is underwater, or luxury beachfront.
+#     Tim hand-picks those from BBC directly; daily triage default-excludes them.
+NON_RESIDENTIAL_TYPES = ('vacant', 'land', 'lot', 'acreage', 'commercial', 'industrial', 'condo')
 buckets = {'A':[], 'B':[], 'MT':[], 'FF':[], 'C':[], 'REJECT':[]}
 land_skipped = 0
 tracked_skipped = 0
