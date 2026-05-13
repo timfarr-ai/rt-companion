@@ -404,10 +404,9 @@ date_iso = today
 date_human = datetime.now().strftime('%a %b %d, %Y')
 def render_deal(d, t):
     cls = {'A':'tier-A','B':'tier-B','MT':'tier-MT','C':'tier-C'}[t]
-    # MT shares the contract/close playbook for now; no dedicated MT strategy page yet.
     playbook = {'A':'/rt-companion/strategy/tier-a-multifamily-checkmate.html',
                 'B':'/rt-companion/strategy/tier-b-cheap-sfh-stale.html',
-                'MT':'/rt-companion/strategy/contract-close.html',
+                'MT':'/rt-companion/strategy/mortgage-takeover.html',
                 'C':'/rt-companion/strategy/tier-c-cash-buyer.html'}[t]
     bl = f'<div style="color:#56d364;font-size:13px;margin-top:6px;">🎯 BUYER MATCH: {", ".join(d["buyer_matches"])}</div>' if d['buyer_matches'] else ''
     z = f' <a class="zillow" href="{d["zillow"]}" target="_blank">Zillow ↗ (agent here)</a>' if d['zillow'] else ''

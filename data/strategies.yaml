@@ -132,14 +132,18 @@ sops:
       - title: "Open the dashboard on phone or laptop"
         detail: "Bookmark already on home screen. Tap to open."
         link: { label: "Open dashboard", url: "https://timfarr-ai.github.io/rt-companion/", external: true }
+      - title: "Trust the ✅ Creative CF banner — that's the qualifier"
+        detail: "Every card leads with a green banner like: <strong>✅ Creative CF +$847/mo · $1,540,000 @ 0%, 10% down ($154,000), 30yr</strong>. That's the precomputed monthly cash flow AFTER restructuring under Richard's terms (offer = asking + 10/20%, 0% rate, 10/12% down, 30yr amortization, minus 1.5%/yr taxes, minus 20% reserves — same defaults Richard's Offer Oven uses). <strong>If a deal made it to the list, the restructure already pencils — that's the qualification gate.</strong> Bank-rate CF is shown alongside for context (negative = DSCR fails = seller is stuck), but you don't have to re-do the math. Sort order is highest Creative CF first; that's your priority list."
       - title: "Read the status pill — but DON'T skip RELISTED/PAUSED"
         detail: "Each card shows a status pill. Richard's stance (Mortgage Takeover course, ~9:15 mark): a long-DOM or relisted listing is a <strong>motivation signal</strong>, not a disqualifier. He closed a $9K mortgage takeover on a <em>removed</em> listing in that very example. <strong>⚠ RELISTED</strong> = likely fell through once → seller is now extra motivated and the agent has lost their commission once. Call these <em>first</em>. <strong>⚠ Paused</strong> = same logic, milder. If Zillow shows 'Active Under Contract' currently, still leave the voicemail — accepted offers fall through constantly (financing, inspection, appraisal); your script is the backup-offer pitch they'll remember when it does. Use the status as leverage in the pitch: <em>'I saw you've been listed 180 days — looks like something didn't stick. I have a creative way to close this one.'</em>"
       - title: "Read Tier A deals first (top priority)"
-        detail: "Tier A = MFH 5+ units $350K-$1.4M, DOM 90+. These have the highest assignment fee potential ($50K+). Cap your morning call list at 2-3 Tier A deals."
-      - title: "Then Tier B (cheap stale SFH)"
-        detail: "Lower-effort calls. Aim for 3-5 Tier B voicemails in a single sitting."
+        detail: "Tier A = MFH 5+ units $350K-$1.4M, DOM 90+, DSCR fails at bank rate AND Creative CF ≥ $100/mo. Highest assignment fee potential ($50K+). Cap your morning call list at 2-3 Tier A deals."
+      - title: "Then Tier B (cheap stale SFH on Seller Finance)"
+        detail: "SFH <$100K, DOM 90+, same dual-gate (bank fails / creative cash-flows). Lower-effort calls — aim for 3-5 voicemails in a single sitting."
+      - title: "Then Mortgage Takeover deals (🔑 blue accent)"
+        detail: "MT cards represent listings with a FAVORABLE existing loan you'd assume. BBC's CF on these IS the creative scenario (after takeover). Pitch is to pay seller ~$10K to take over the debt — fast close, no bank, no DSCR. <strong>Pre-2007 listings (long DOM at low int rate) are the gold mine.</strong>"
       - title: "Tier C (cash buyer SFH) — only if quota for the week is light"
-        detail: "Cash offers are lower yield. Skip if Tier A/B fills your block."
+        detail: "Cash offers are lower yield. Skip if Tier A/B/MT fills your block."
       - title: "Copy each script before dialing"
         detail: "Tap the deal → Tier playbook → 'Copy script' button. Paste into Notes app for during-call reference."
       - title: "Find agent phone numbers via Zillow"
@@ -173,8 +177,8 @@ sops:
       - "Tier A deals: 9am-5pm local for the agent's brokerage"
       - "Don't call after 5pm — agents are with clients"
     how_to:
-      - title: "NUMBERS FIRST — never dial before underwriting"
-        detail: "Richard's exact sequence (Seller Finance course, ~12:00 & ~25:00): plug the listing into the calculator <em>before</em> calling. Compute the <strong>standard bank-rate offer</strong> at list price (price, 20-25% down at bank, ~6-7% rate, taxes/insurance from Zillow). If the standard offer cash-flows comfortably → it's already a deal at full price (rare). If the standard offer <em>fails</em> by $X/mo → that gap IS your pitch. <br><br>Each briefing card already shows the <strong>'Bank gap'</strong> pill — that's the $X/mo the seller would lose on a conventional offer. Memorize that number before dialing. Your opener is: <em>'I ran your listing through my lender — payment would be $7K, but it only rents for $6K. I can't qualify it conventionally. Here's how we make this work for both of us…'</em>"
+      - title: "MEMORIZE TWO NUMBERS — Bank gap + Creative CF"
+        detail: "Richard's exact sequence (Seller Finance course, ~12:00 & ~25:00): underwrite <em>before</em> calling. The dashboard does this for you — every card surfaces both numbers: <ul><li><strong>🏦 Bank gap −$X/mo</strong>: what the seller LOSES at a conventional offer. This is your <strong>pitch hook</strong> (why standard cash-with-loan won't close).</li><li><strong>✅ Creative CF +$Y/mo</strong> + offer structure: what the deal looks like AFTER restructuring under SF/MT terms. This is your <strong>landing zone</strong> — what you actually want to walk away with.</li></ul>Memorize both before dialing. Your opener is: <em>'I ran your listing through my lender — payment would be $7K, but it only rents for $6K, can't qualify conventionally. Here's the structure that works for both of us: $X price, 10% down, 0% rate over 30 years…'</em> The Creative CF number tells you the deal works for YOU; the structure tells the seller why it works for THEM. (The dashboard's 20% expense reserve matches Richard's Offer Oven defaults — CapEx 5% + Mgmt 5% + Vacancy 10% — so the number reconciles to what the Offer Oven would output.)"
       - title: "Confirm the comps in 30 seconds"
         detail: "Tap the <strong>'Rent comps'</strong> link (Rentometer) — does BBC's rent estimate fall inside the median band? If BBC says $1,800 and Rentometer median is $1,450, the deal is weaker than the card shows; recompute the bank gap mentally. Then tap <strong>'Sold comps'</strong> (Zillow filtered to ±20% sqft / 0.5mi / 90 days) — is the asking price out of step with recent sales? If yes, you have a second leverage point: <em>'three houses just sold at $X within half a mile — your price implies you wait 6 more months.'</em>"
       - title: "Set up: phone, Notes app, dashboard"
@@ -358,8 +362,9 @@ strategies:
       - "Units: 5+ (multifamily required — FHA fails on 5+)"
       - "Price: $350K–$1.4M"
       - "DOM: 90+ days (the agent is now motivated)"
-      - "Standard offer (asking + 10%, 10% down, 0%, 30yr) cash-flows positive"
-      - "Down: 10% strict — never higher (kills end-buyer CoC)"
+      - "QUALIFICATION GATE: bank-rate CF ≤ 0 (DSCR fails — seller is stuck) AND Creative CF ≥ $100/mo (the SF restructure cash-flows for you)"
+      - "Creative structure: asking + 10%, 10% down strict, 0% rate, 30yr amort, 5-7yr balloon"
+      - "Reserves: 20% of rent (CapEx 5% + Mgmt 5% + Vacancy 10%) — matches Offer Oven defaults"
     how_to:
       - title: "Confirm the listing qualifies"
         detail: "From the morning briefing, verify: unit count ≥ 5, price $350K-$1.4M, DOM ≥ 90 days. If any miss, this isn't Tier A."
@@ -444,7 +449,8 @@ strategies:
       - "Price: <$100K (max $150K)"
       - "DOM: 90+ days (ideally 150+)"
       - "Property type: SFH"
-      - "Down: 10–14% acceptable (cheap properties tolerate more down)"
+      - "QUALIFICATION GATE: bank-rate CF ≤ 0 AND Creative CF ≥ $100/mo (same dual-gate as Tier A)"
+      - "Creative structure: asking + 20%, 12% down, 0% rate, 30yr amort, 7yr balloon"
       - "Markets sweet spot: MI, OH, AL — Flint, Detroit, Cleveland, Birmingham"
     how_to:
       - title: "Confirm Tier B qualifies"
@@ -505,6 +511,50 @@ strategies:
         icon: "🧮"
       - label: "Find more Tier B deals in BBC"
         url_key: "bbc_lightning"
+        icon: "🏦"
+
+  # ─────────────────────────────────────────────────────────────────
+  - slug: mortgage-takeover
+    emoji: "🔑"
+    title: "Mortgage Takeover — Existing Favorable Loan"
+    tier_badge: "tier-mt"
+    tldr: >
+      Take over the seller's existing mortgage at their old, low rate. Pay
+      seller ~$10K cash to step into the loan. No bank, no DSCR, no refi.
+      Pre-2022 listings with 3-5% rates are the gold mine — these loans
+      cash-flow today even when a fresh 7% loan would crater the deal.
+    when:
+      - "Existing loan rate well below current market (ideally <5%)"
+      - "Seller has enough equity to walk away with $10K+ but not be greedy"
+      - "DOM: 60+ days"
+      - "QUALIFICATION GATE: BBC's monthlyCashFlow ≥ $100/mo (already at existing-loan terms, so this IS Creative CF for MT)"
+      - "Avoid: VA/FHA loans with strict due-on-sale enforcement risk"
+    how_to:
+      - title: "Confirm the existing loan is favorable"
+        detail: "On the briefing card, check Int Rate (BBC pulls this from listing data). <strong>Sub-5% = call.</strong> If rate is 6%+ the takeover doesn't add much vs. a fresh loan — skip in favor of Tier A/B Seller Finance."
+      - title: "Verify the math in BBC's calculator"
+        detail: "Tap 'Search BBC ↗' → open the listing → BBC's calculator shows: existing PITI, rent, monthly CF after takeover. Sanity-check that Creative CF in the briefing matches what BBC shows. Both come from the same source."
+      - title: "Open Offer Oven for subject-to / hybrid scenarios"
+        detail: "If the seller wants a small carry-back ON TOP of the assumption (hybrid: takeover + seller-finance gap), model it in Offer Oven. The Subject-To Balance / Rate / Payment fields are designed for this."
+        link: { label: "Open Offer Oven", url: "https://www.hmhw.group/tools/offer-oven", external: true }
+      - title: "Pitch is simpler than SF — no DSCR explanation needed"
+        detail: "Open with: <em>'Hey, I'm calling about [address]. The reason I'm interested is the existing loan. I'd take over your seller's debt and put $10K in their pocket — they walk away clean, no realtor fees on their side, and I don't need a bank.'</em>"
+      - title: "Address the due-on-sale concern up front"
+        detail: "The agent will ask: <em>'won't the bank call the loan?'</em> Your answer (Mortgage Takeover course): <em>'In 30 years of seller-finance practice, Richard's network has had two calls on hundreds of takeovers — both resolved with a wrap loan. Banks don't want the property back; they want the payment. As long as we keep paying on time and the deed stays in title, the loan stays in place.'</em>"
+      - title: "On verbal yes → wrap-loan contract"
+        detail: "MT contracts use a wrap deed structure, not a standard assumption (banks typically won't approve formal assumption for non-VA loans). Generate via Claude Code: <code>generate mortgage takeover contract for [address]</code>. Closing attorney handles the deed/title work."
+    sources:
+      - label: "HMHW Mortgage Takeover Course"
+        url: "https://www.hmhw.group/course/096ebb43-mortgage-takeover"
+        icon: "📚"
+      - label: "Mortgage Takeover Calculator"
+        url: "https://www.hmhw.group/tools/mortgage-takeover"
+        icon: "🧮"
+      - label: "Offer Oven (hybrid / subject-to)"
+        url: "https://www.hmhw.group/tools/offer-oven"
+        icon: "🧮"
+      - label: "Find more MT deals in BBC"
+        url: "https://buyboxcartel.com/vip/lightning-leads"
         icon: "🏦"
 
   # ─────────────────────────────────────────────────────────────────
