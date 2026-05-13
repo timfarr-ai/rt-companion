@@ -11,14 +11,17 @@ KB_TABLE  = os.environ.get('KB_TABLE', 'tblh40Mq2rHwfe1I2')
 WL_TABLE  = os.environ.get('WL_TABLE', 'tbluV0qAWYNAFkD5S')
 GH_PAT    = os.environ['GH_PAT']
 GH_REPO   = os.environ.get('GH_REPO', 'timfarr-ai/rt-companion')
-# State list expanded 2026-05-13 after empirical probe showed 5-state coverage
-# (TN/TX/GA/OH/MI) was surfacing ~8 qualifying deals/day vs 160+ available across
-# 12 states. Mississippi alone had 18 Tier B + 7 MT in top 100 results.
-# Per Richard's MT course: 'Midwest and South — Alabama, Texas, Georgia, Tennessee,
-# Indiana, Ohio, Michigan, and South Florida really, really good.'
+# 10-state list, each one with primary-source teaching from Richard's courses:
+#   AL,TX,GA,TN,IN,OH,MI,FL  — MT course canonical list (lines 1041-1046):
+#     "We love Alabama. Texas. Georgia. Tennessee. Indiana. Ohio. Michigan.
+#      Midwest and South Florida really, really good."
+#   NC  — MT course line 858: "Clayton, North Carolina. My business partner is
+#         from Clayton, North Carolina."
+#   MS  — MT course line 1203: "Jackson, Mississippi" in market list.
+# AR and MO were dropped 2026-05-13 — they appeared empirically but have NO
+# primary-source backing across the three captured course transcripts.
 STATES = ['Tennessee', 'Texas', 'Georgia', 'Ohio', 'Michigan',
-          'Alabama', 'Mississippi', 'Arkansas', 'Missouri',
-          'Indiana', 'Florida', 'North Carolina']
+          'Alabama', 'Mississippi', 'Indiana', 'Florida', 'North Carolina']
 
 # Cookie jar + opener that BBC search needs
 cj = http.cookiejar.CookieJar()
