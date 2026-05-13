@@ -354,7 +354,7 @@ strategies:
   # ─────────────────────────────────────────────────────────────────
   - slug: tier-a-multifamily-checkmate
     emoji: "🎯"
-    title: "Tier A — Multifamily Checkmate"
+    title: "Tier A — Multifamily Seller Finance"
     tier_badge: "tier-a"
     video:
       title: "Seller Finance Course"
@@ -380,20 +380,26 @@ strategies:
         - { time: "~25:00", label: "14% cash-on-cash math — the CoC target" }
         - { time: "~36:00", label: "Cleveland Ohio quadplex walkthrough" }
     tldr: >
-      MFH 5+ units, $350K–$1.4M, DOM 90+. DSCR loans fail at 7%+ rates,
-      so seller finance is the only path. Every $50K+ assignment fee
-      Richard has seen comes from this tier.
+      Multi-family listings where the retail-buyer pool is eliminated. 5+ units is
+      the canonical "Checkmate" (FHA fails → DSCR-only → DSCR fails at 7%+ → SF is
+      the only path). Duplex/triplex/quadplex also qualify IF the property is "not
+      retail-desirable" (ugly, college-rental style, no owner-occupant would buy
+      it to live in). Price $200K–$1.4M, DOM 90+. Largest assignment fees in the
+      method live here.
     when:
-      - "Units: 5+ (multifamily required — FHA fails on 5+)"
-      - "Price: $350K–$1.4M"
+      - "<strong>5+ units</strong> → always Tier A (FHA fails on 5+, no retail-buyer ambiguity)"
+      - "<strong>2-4 units (duplex/triplex/quadplex)</strong> → Tier A ONLY if NOT retail-desirable (per SF Course L957-L1074: <em>'You're probably not going to buy this property to live in it. The reason you wouldn't is because it's not super nice. It's like college living'</em>)"
+      - "Price: $200K–$1.4M (lowered from $350K to match SF Course duplex/triplex examples in $190K-$800K range)"
       - "DOM: 90+ days (the agent is now motivated)"
-      - "QUALIFICATION GATE: bank-rate CF ≤ 0 (DSCR fails — seller is stuck) AND Creative CF ≥ $100/mo (the SF restructure cash-flows for you)"
+      - "QUALIFICATION GATE: bank-rate CF ≤ 0 (DSCR fails or retail-buyer math fails — seller is stuck) AND Creative CF ≥ $100/mo (the SF restructure cash-flows for you)"
       - "Creative structure: asking + 10%, 10% down strict, 0% rate, 30yr amort, 5-7yr balloon"
       - "Reserves: 20% of rent (CapEx 5% + Mgmt 5% + Vacancy 10%) — matches Offer Oven defaults"
-      - "<strong>Target markets (Seller Finance Course primary-source):</strong> Cleveland OH (multiple MFH examples — <em>'multifamily houses, Cleveland, Ohio'</em>, line 715), Florida (<em>'we love Florida'</em>, Punta Gorda MFH example, line 88), plus broader Midwest/South where MFH 5+ exists at this price point"
+      - "<strong>Target markets (Seller Finance Course primary-source):</strong> Cleveland OH (multiple MFH examples — <em>'multifamily houses, Cleveland, Ohio'</em>, line 715), Florida (<em>'we love Florida'</em>, Punta Gorda MFH example, line 88), Minneapolis (quadruplex example, line 1037), plus broader Midwest/South"
     how_to:
-      - title: "Confirm the listing qualifies"
-        detail: "From the morning briefing, verify: unit count ≥ 5, price $350K-$1.4M, DOM ≥ 90 days. If any miss, this isn't Tier A."
+      - title: "Confirm the listing qualifies — unit count first"
+        detail: "From the morning briefing: <strong>5+ units</strong> → skip to step 2, you're cleared. <strong>2-4 units (duplex/triplex/quadplex)</strong> → tap the Zillow link and review photos. If photos show 'college rental' / 'ugly' / 'IKEA at best' aesthetic (per Richard's SF Course L989) — no owner-occupant would want to LIVE there — proceed. If photos show retail-desirable (marble countertops, carved wooden doors, beautiful staging) — DROP IT, an FHA buyer can take it conventionally and there's no SF angle."
+      - title: "Confirm the price + DOM + Creative CF"
+        detail: "Price $200K-$1.4M, DOM ≥ 90 days, and the briefing card's ✅ Creative CF banner is positive. If any miss, this isn't Tier A."
         link: { label: "Open BBC listing", url: "https://buyboxcartel.com/vip/lightning-leads", external: true }
       - title: "Verify the numbers — BBC's in-listing calculator first"
         detail: "Tap 'Search BBC ↗' on the briefing card → open the listing in BBC → use the <strong>built-in calculator</strong>. BBC auto-prefills the property data (taxes, insurance, rent, PITI, equity) so you only enter your offer terms. <strong>This is the canonical calculation</strong> — same engine that produced the briefing's CF number."
@@ -446,11 +452,23 @@ strategies:
       - text: "Balloon < 5 years → push back. 7 years is ideal; 5 is the floor."
       - text: "Seller wants full asking (no premium) → run numbers with 0% at asking. If CF works, accept; if not, reframe."
     sources:
-      - label: "PRIMARY SOURCE — SF Course transcript L88 (Florida MFH)"
+      - label: "PRIMARY SOURCE — SF Course L88 (Florida MFH, 'we love Florida')"
         url: "https://github.com/timfarr-ai/rt-companion/blob/main/transcripts/hmhw-transcript-seller-finance-course.txt#L88"
         icon: "📜"
-      - label: "PRIMARY SOURCE — SF Course transcript L715 (Cleveland OH MFH)"
+      - label: "PRIMARY SOURCE — SF Course L165 (FHA fails on 5+ units → DSCR-only logic)"
+        url: "https://github.com/timfarr-ai/rt-companion/blob/main/transcripts/hmhw-transcript-seller-finance-course.txt#L165"
+        icon: "📜"
+      - label: "PRIMARY SOURCE — SF Course L715 (Cleveland OH quadplex SF analysis)"
         url: "https://github.com/timfarr-ai/rt-companion/blob/main/transcripts/hmhw-transcript-seller-finance-course.txt#L715"
+        icon: "📜"
+      - label: "PRIMARY SOURCE — SF Course L894 (Cleveland duplex SF underwriting)"
+        url: "https://github.com/timfarr-ai/rt-companion/blob/main/transcripts/hmhw-transcript-seller-finance-course.txt#L894"
+        icon: "📜"
+      - label: "PRIMARY SOURCE — SF Course L957 ('retail desirable' duplex/triplex test)"
+        url: "https://github.com/timfarr-ai/rt-companion/blob/main/transcripts/hmhw-transcript-seller-finance-course.txt#L957"
+        icon: "📜"
+      - label: "PRIMARY SOURCE — SF Course L1037 (Minneapolis quadruplex SF underwriting)"
+        url: "https://github.com/timfarr-ai/rt-companion/blob/main/transcripts/hmhw-transcript-seller-finance-course.txt#L1037"
         icon: "📜"
       - label: "HMHW Seller Finance Course (full ~1h video)"
         url_key: "hmhw_sf_course"

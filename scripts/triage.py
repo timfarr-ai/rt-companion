@@ -279,14 +279,27 @@ def tier(s):
     - Tier C: Cash arbitrage SFH (rare in this search; mostly retired in favor of FF)
     Anything else is REJECT — Richard doesn't have a play for it."""
     pt = s['type'].lower()
-    is_mfh = s['units'] >= 5 or 'multi' in pt or 'apartment' in pt
+    is_mfh_5plus = s['units'] >= 5
+    is_mfh_24 = (2 <= s['units'] <= 4) or any(t in pt for t in ('duplex','triplex','fourplex','quadplex','quadruplex','plex'))
+    is_mfh = is_mfh_5plus or is_mfh_24 or 'multi' in pt or 'apartment' in pt
     dt = s.get('deal_type', 'sellerFinance')
     cf_creative = s.get('creative_cf', 0)
-    # Tier A — MFH Seller Finance Checkmate (5+ units, $350K-$1.4M, DOM 90+)
-    if is_mfh and 350_000 <= s['price'] <= 1_400_000 and s['dom'] >= 90 \
+    # Tier A — MFH Seller Finance Checkmate. Per Seller Finance Course:
+    #   - 5+ units → always Tier A (FHA fails → DSCR-only → DSCR fails at 7%+ → SF
+    #     is the only path; this is the canonical Checkmate Pitch territory).
+    #   - 2-4 units (duplex/triplex/quadplex) → also Tier A IF the retail-buyer
+    #     pool is eliminated (i.e., not 'retail desirable'). Per SF Course L957-
+    #     L1074, Richard underwrites duplex/triplex/quadplex for SF when they're
+    #     'college rental' / 'ugly' style — owner-occupants won't buy them with
+    #     FHA, so it's investor-only, same SF logic applies. Operator confirms
+    #     'not retail-desirable' via photo-check (added to playbook how_to).
+    #   - Price floor lowered to $200K because the SF Course duplex/triplex
+    #     examples ranged $190K-$800K, not just the 5+ unit $350K-$1.4M band.
+    if is_mfh and 200_000 <= s['price'] <= 1_400_000 and s['dom'] >= 90 \
        and dt == 'sellerFinance' and cf_creative >= 100:
         return 'A'
-    # Tier B — Cheap SFH Seller Finance (strict <$150K per deal-criteria.md)
+    # Tier B — Cheap SFH Seller Finance (strict <$150K per deal-criteria.md).
+    # SFH-only — 2-4 unit MFH at <$150K rolls up to Tier A, not B.
     if not is_mfh and s['price'] < 150_000 and s['dom'] >= 90 \
        and dt == 'sellerFinance' and cf_creative >= 100:
         return 'B'
