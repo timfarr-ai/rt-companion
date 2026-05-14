@@ -202,7 +202,16 @@
     nav.bottom a { color: var(--muted); margin: 0 8px; }
     .briefing-wrap iframe {
       width: 100%; border: 0; border-radius: 8px;
-      min-height: 400px; background: var(--panel-2);
+      /* Target viewport height so embedded briefing is actually usable —
+         old 400px was unworkable (one card barely fit). */
+      height: calc(100vh - 200px); min-height: 600px;
+      background: var(--panel-2);
+    }
+    .briefing-open-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 16px; background: #58a6ff; color: #0d1117;
+      border-radius: 8px; font-weight: 600; text-decoration: none;
+      font-size: 14px; margin-right: 10px;
     }
     .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
     .pill {
@@ -242,8 +251,9 @@
       /* Center bottom nav */
       nav.bottom { font-size: 14px; padding: 14px 0 28px; }
       nav.bottom a { margin: 0 12px; }
-      /* Briefing iframe — bigger on desktop */
-      .briefing-wrap iframe { min-height: 520px; }
+      /* Briefing iframe — bigger on desktop. calc(100vh - 200px) on mobile,
+         85vh on desktop where the dashboard header is more compact. */
+      .briefing-wrap iframe { height: 85vh; min-height: 720px; }
       /* Audio elements — constrain width on big screens */
       audio { max-width: 560px; }
     }
@@ -264,12 +274,15 @@
 
 <div class="section">
   <h2>📋 Today's Briefing</h2>
+  <div style="margin-bottom:10px;">
+    <a class="briefing-open-btn" href="/rt-companion/briefings/latest.html" target="_blank" rel="noopener">📋 Open full briefing ↗</a>
+    <a class="briefing-open-btn" href="/rt-companion/briefings/" style="background:#1c2128;color:#58a6ff;border:1px solid #30363d;">Past briefings →</a>
+  </div>
   <div class="briefing-wrap">
     <iframe src="/rt-companion/briefings/latest.html" loading="lazy"></iframe>
   </div>
-  <p style="margin-top:8px; font-size:13px;">
-    Briefing publishes weekday 6am AEST.
-    <a href="/rt-companion/briefings/" style="margin-left:6px;">Past briefings →</a>
+  <p style="margin-top:8px; font-size:13px; color:var(--muted);">
+    Briefing publishes weekday 6am AEST. For full screen, tap "Open full briefing" above.
   </p>
 </div>
 

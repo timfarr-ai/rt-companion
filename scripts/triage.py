@@ -329,7 +329,7 @@ def fetch_property_history(zpid):
     current_price = float(data.get('price') or 0)
     price_history = data.get('priceHistory') or []
     # Find most recent 'Sold' event (Public Record or similar)
-    sold_events = [e for e in price_history if (e.get('event') or '').lower() == 'sold' and e.get('price', 0) >= 20000]
+    sold_events = [e for e in price_history if (e.get('event') or '').lower() == 'sold' and (e.get('price') or 0) >= 20000]
     if not sold_events or current_price <= 0:
         return {'last_sold_price': None, 'last_sold_date': None,
                 'months_since_sale': None, 'flip_markup_pct': None, 'is_recent_flip': False}
@@ -588,6 +588,20 @@ def score(p):
             'foundation': (cd.get('foundation') or '').strip(),
             'image_count': len(p.get('images') or []),
             'images': [(img if isinstance(img, str) else img.get('url') or '') for img in (p.get('images') or [])[:8] if img],
+            # NEW: BBC fields previously dropped — closes the data gap on MT motivation
+            # signals + PITI breakdown. The big one is `balance` (loan owed) for MT.
+            'loan_balance': int(float(cd.get('balance') or cd.get('loanAmount') or 0)),
+            'interest_rate': float(cd.get('interestRate') or 0),
+            'monthly_payment_actual': int(float(cd.get('monthlyPayment') or 0)),
+            'tax_monthly': int(float(cd.get('tax') or 0)),
+            'insurance_monthly': int(float(cd.get('insurance') or 0)),
+            'hoa_monthly': int(float(cd.get('monthlyHoaFee') or 0)),
+            'bbc_offer_price': int(float(cd.get('offerPrice') or 0)),
+            'bbc_down_payment': int(float(cd.get('downPayment') or 0)),
+            'bbc_balloon_months': int(cd.get('balloon') or 0),
+            'lot_size_sqft': int(cd.get('lotSize') or 0),
+            'garage': (cd.get('garage') or '').strip().lower() == 'yes',
+            'piti_breakdown': cd.get('breakdown_of_PITI') or {},
             'is_zillow_active': bool(p.get('is_zillow_active'))}
 
 def condition_risk_flags(s):
@@ -1151,9 +1165,33 @@ def render_deal(d, t):
     else:
         sold_url = ''
     sold_link = f' <a class="zillow" href="{sold_url}" target="_blank">Sold comps ↗</a>' if sold_url else ''
+    # GOOGLE STREET VIEW — closes the gap on Richard's livestream eye-check step 3b.
+    # He opens Street View on every property in 5 sec to read the neighborhood +
+    # exterior condition before committing to dial. Uses Maps Search API URL with
+    # map_action=pano which lands directly in Street View mode when imagery exists,
+    # or falls back to address pin if not. Mobile-safe (opens Google Maps app on iOS).
+    sv_lat = d.get('lat')
+    sv_lng = d.get('lng')
+    if sv_lat and sv_lng:
+        street_view_url = f'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint={sv_lat},{sv_lng}'
+    else:
+        # Address-fallback when lat/lng missing
+        addr_q = urllib.parse.quote(d.get('address',''))
+        street_view_url = f'https://www.google.com/maps?q={addr_q}&layer=c'
+    street_view_link = f' <a class="zillow" href="{street_view_url}" target="_blank">📍 Street View ↗</a>'
     rent_link = ''  # Zillow Rent Zestimate on the property page (already linked) covers this
     # Local time pill — updated live by JS (data-tz = IANA timezone)
     tz_pill = f' <span class="pill local-time" data-tz="{d["tz"]}">--:-- local</span>'
+    # MT-specific pills — existing-mortgage rate + actual PITI (the numbers Richard
+    # eyeballs on the BBC card in his MT walkthroughs). Only render when meaningful.
+    mt_rate_pill = ''
+    if (t == 'MT' or d.get('deal_type_raw') == 'mortgageTakeover') and d.get('interest_rate'):
+        rate_v = d['interest_rate']
+        rate_class = 'background:#0d2818;color:#56d364;border-color:#1a4d2e;' if rate_v <= 5.0 else 'background:#1c2128;color:#8b949e;border-color:#30363d;'
+        mt_rate_pill = f' <span class="pill" style="{rate_class}font-weight:600;" title="Existing mortgage interest rate — sub-5% is the MT gold mine">📉 {rate_v:.2f}% existing</span>'
+    actual_pmt_pill = ''
+    if d.get('monthly_payment_actual') and (t == 'MT' or d.get('deal_type_raw') == 'mortgageTakeover'):
+        actual_pmt_pill = f' <span class="pill" title="BBC-reported actual monthly mortgage payment (PITI)">💳 ${d["monthly_payment_actual"]:,}/mo PITI</span>'
     # Agent block — only if unlocked
     agent_block = ''
     if d.get('agent'):
@@ -1215,6 +1253,44 @@ def render_deal(d, t):
             f'<div style="margin:6px 0 8px;padding:8px 12px;background:#3a2418;'
             f'border:1px solid #d29922;border-radius:6px;font-size:13px;line-height:1.5;color:#ffa657;">'
             f'<strong style="color:#ffa657;">CONDITION RISK — VERIFY ZILLOW BEFORE TRACKING:</strong><br>{risk_lines}'
+            f'</div>'
+        )
+    # OWE-VS-ASK MT MOTIVATION BANNER — closes the gap on Richard's Step 5 (the
+    # seller-motivation gate he runs in his head on every MT walkthrough). Richard's
+    # rule from MT Course L440-520: subtract realtor commission (6%) from asking, then
+    # compare to loan balance. If seller's NET is < $10K (or negative), they're stuck
+    # and would say yes to a takeover. We surface 3 numbers: balance owed, asking,
+    # net-to-seller-after-realtor. Color-coded by motivation level.
+    owe_banner = ''
+    bal = d.get('loan_balance') or 0
+    rate = d.get('interest_rate') or 0
+    if (t == 'MT' or d.get('deal_type_raw') == 'mortgageTakeover') and bal > 0 and d.get('price'):
+        seller_net = int(d['price'] * 0.94) - bal  # asking minus 6% realtor minus what they owe
+        rate_str = f"{rate:.2f}% rate" if rate else ""
+        if seller_net <= 5000:
+            # Very motivated — seller is stuck, would say yes
+            motivation = '🔥 STUCK SELLER — high "yes" probability'
+            bg, fg, border = '#3a1e1e', '#ff7b72', '#f85149'
+        elif seller_net <= 15000:
+            # Motivated — barely above water
+            motivation = '⚠️ Barely profitable — motivated'
+            bg, fg, border = '#2d2418', '#ffa657', '#d29922'
+        elif seller_net <= 30000:
+            # Some motivation
+            motivation = 'Some equity — possibly negotiable'
+            bg, fg, border = '#1c2128', '#8b949e', '#30363d'
+        else:
+            # Not motivated — seller has cushion
+            motivation = '💰 High equity — seller has cushion, harder to motivate'
+            bg, fg, border = '#1c2128', '#8b949e', '#30363d'
+        owe_banner = (
+            f'<div style="margin:6px 0 8px;padding:8px 12px;background:{bg};'
+            f'border:1px solid {border};border-radius:6px;font-size:13px;line-height:1.4;color:{fg};">'
+            f'<strong style="color:{fg};">🏠 Owe vs Ask:</strong> '
+            f'owes <strong>${bal:,}</strong> @ {rate_str} · '
+            f'asking <strong>${int(d["price"]):,}</strong> · '
+            f'seller net after 6% realtor = <strong>${seller_net:,}</strong> &nbsp;·&nbsp; '
+            f'<span style="font-weight:600;">{motivation}</span>'
             f'</div>'
         )
     # DESC-FLIP BANNER — listing description contained 3+ flip-vocab keywords.
@@ -1363,7 +1439,69 @@ def render_deal(d, t):
         import html as _html_mod
         pipeline_json_attr = _html_mod.escape(json.dumps(pipeline_payload), quote=True)
         pipeline_btn = f' <button class="zillow" type="button" onclick="bbcSavePipeline(this, this.dataset.payload)" data-payload="{pipeline_json_attr}" style="background:#1a4d2e;color:#56d364;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1a4d2e;cursor:pointer;font-family:inherit;font-size:12px;">🔑 Save to BBC Pipeline</button>'
-    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{photo_strip}{desc_flip_banner}{flip_banner}{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{buyer_pill}{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{risk_banner}{vision_banner}{track_link}{reject_link}{bbc_property_link}{gt_link}{pipeline_btn}{z}{bbc_link}{bbc_mobile_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
+    # CARD STRUCTURE — redesigned 2026-05-15 from wall-of-links to logical sections.
+    # 4 sections mirror Richard's livestream workflow:
+    #   ① CURRENT STATE   = BBC card facts (price, DOM, mortgage data, signals)
+    #   ② CREATIVE OUTCOME = Pitch math + risk banners
+    #   ③ RESEARCH        = Buttons for passive verification (Street View, Zillow, calcs)
+    #   ④ ACTION          = SOP-ordered: open playbook → copy values → call → commit → dispo
+    physical_meta = f'{d["units"]} units · {d["type"]}'
+    extras = []
+    if d.get('beds') or d.get('baths'):
+        bb = f"{d.get('beds',0)}bd/{d.get('baths',0)}ba"
+        if d.get('sqft'): bb += f"/{d['sqft']:,}sqft"
+        extras.append(bb)
+    if d.get('year_built'): extras.append(f"built {d['year_built']}")
+    if d.get('lot_size_sqft'): extras.append(f"lot {d['lot_size_sqft']:,}sqft")
+    if extras: physical_meta += ' · ' + ' · '.join(extras)
+    return (
+        f'<div class="deal {cls}">'
+        # HEADER
+        f'<div class="deal-header">'
+        f'<div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div>'
+        f'<div class="meta">{physical_meta}</div>'
+        f'</div>'
+        # PHOTOS
+        f'{photo_strip}'
+        # ① CURRENT STATE
+        f'<div class="card-section">'
+        f'<div class="section-label">① Current State</div>'
+        f'<div class="nums">'
+        f'{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}'
+        f'<span class="pill">${d["price"]:,.0f}</span>'
+        f'<span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>'
+        f'{bank_gap_pill}'
+        f'<span class="pill">CoC {d["coc"]}%</span>'
+        f'<span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>'
+        f'{mt_rate_pill}{actual_pmt_pill}{buyer_pill}{tz_pill}'
+        f'</div>'
+        f'{risk_banner}{vision_banner}'
+        f'</div>'
+        # ② CREATIVE / OUTCOME
+        f'<div class="card-section">'
+        f'<div class="section-label">② Creative Outcome (the pitch)</div>'
+        f'{creative_banner}'
+        f'{owe_banner}'
+        f'{desc_flip_banner}{flip_banner}'
+        f'{bl}'
+        f'</div>'
+        # ③ RESEARCH BUTTONS
+        f'<div class="card-section">'
+        f'<div class="section-label">③ Research (verify before dialing)</div>'
+        f'<div class="btn-row">{street_view_link}{z}{sold_link}{oven_link}{bbc_link}{bbc_mobile_link}</div>'
+        f'</div>'
+        # ④ ACTION SEQUENCE — SOP-ordered
+        f'<div class="card-section">'
+        f'<div class="section-label">④ Action Sequence (SOP flow)</div>'
+        f'{agent_block}'
+        f'<div class="btn-row btn-row-actions">'
+        f'<a class="btn btn-script" href="{playbook}">📖 Open Tier {t} playbook</a>'
+        f'{track_link}{reject_link}'
+        f'{bbc_property_link}{gt_link}{pipeline_btn}'
+        f'</div>'
+        f'</div>'
+        f'</div>'
+    )
 
 section_a = ('<h2>🎯 TIER A — Multifamily Seller Finance ($200K-$1.4M, 2+ units, DOM 90+; 2-4 units only if NOT retail-desirable)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
 section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale Seller Finance (&lt;$150K, SFH, DOM 90+)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
@@ -1377,7 +1515,39 @@ if buckets['REJECT']:
 
 agent_indicator = f' · 🔓 {unlocks_succeeded} agents captured (free)' if unlocks_succeeded else ''
 summary = f'{len(all_leads)} leads · {len(buckets["A"])} Tier A · {len(buckets["B"])} Tier B · {len(buckets["MT"])} MT · {len(buckets["FF"])} FF · {len(buckets["C"])} Tier C · {pushed} → watchlist{agent_indicator}'
-CSS = 'body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:12px;font-size:15px;line-height:1.5;}h2{font-size:14px;color:#8b949e;text-transform:uppercase;letter-spacing:0.04em;margin:18px 0 8px;}.summary{background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:14px;}.deal{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px;margin-bottom:10px;}.deal .addr{font-weight:600;font-size:15px;margin-bottom:4px;}.deal .meta{font-size:13px;color:#8b949e;margin-bottom:6px;}.deal .nums{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}.pill{background:#1c2128;border:1px solid #30363d;border-radius:12px;padding:2px 9px;font-size:12px;color:#8b949e;}.play-link{display:inline-block;padding:8px 12px;background:#58a6ff;color:#0d1117;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;margin-top:4px;}.tier-A{border-left:3px solid #ff7b72;}.tier-B{border-left:3px solid #d2a8ff;}.tier-MT{border-left:3px solid #79c0ff;}.tier-FF{border-left:3px solid #f0883e;}.tier-C{border-left:3px solid #56d364;}a.zillow{color:#58a6ff;font-size:12px;margin-left:8px;}.rejected{color:#8b949e;font-size:13px;padding:4px 0;}.date{color:#8b949e;font-size:13px;}.addr-copy{display:inline-block;margin-left:8px;padding:2px 9px;font-size:12px;background:#1c2128;border:1px solid #30363d;color:#58a6ff;border-radius:12px;cursor:pointer;font-family:inherit;}.addr-copy:hover{background:#21262d;}.addr-copy.copied{background:#1a4d2e;color:#56d364;border-color:#1a4d2e;}.deal .photos{display:flex;overflow-x:auto;gap:6px;margin:6px 0 8px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px;}.deal .photos img{height:110px;min-width:150px;max-width:150px;object-fit:cover;border-radius:6px;scroll-snap-align:start;background:#0d1117;}.deal .photos a{flex:0 0 auto;line-height:0;}'
+CSS = '''
+body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:12px;font-size:15px;line-height:1.5;}
+h2{font-size:14px;color:#8b949e;text-transform:uppercase;letter-spacing:0.04em;margin:18px 0 8px;}
+.summary{background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:14px;}
+.deal{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px;margin-bottom:14px;}
+.deal-header{margin-bottom:8px;}
+.deal .addr{font-weight:600;font-size:16px;margin-bottom:4px;}
+.deal .meta{font-size:13px;color:#8b949e;}
+.card-section{margin-top:12px;padding-top:10px;border-top:1px dashed #30363d;}
+.card-section:first-of-type{border-top:none;padding-top:8px;}
+.section-label{font-size:11px;color:#6e7681;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:6px;}
+.deal .nums{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+.pill{background:#1c2128;border:1px solid #30363d;border-radius:12px;padding:3px 10px;font-size:12px;color:#8b949e;}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
+.btn-row-actions{margin-top:8px;}
+.btn,a.btn,button.btn{display:inline-flex;align-items:center;gap:4px;padding:8px 14px;background:#1c2128;border:1px solid #30363d;border-radius:8px;font-size:13px;font-weight:500;color:#58a6ff;text-decoration:none;cursor:pointer;font-family:inherit;line-height:1.2;min-height:36px;}
+.btn:active{opacity:0.7;}
+.btn-script{background:#1e2c44;color:#79c0ff;border-color:#1e2c44;font-weight:600;}
+/* Make existing inline links button-shaped for consistency */
+a.zillow{display:inline-flex;align-items:center;gap:4px;padding:7px 12px;background:#1c2128;border:1px solid #30363d;border-radius:8px;font-size:12.5px;color:#58a6ff;text-decoration:none;line-height:1.2;min-height:34px;font-weight:500;}
+a.zillow:active{opacity:0.7;}
+.play-link{display:inline-flex;align-items:center;padding:9px 16px;background:#58a6ff;color:#0d1117;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-top:4px;min-height:36px;}
+.tier-A{border-left:3px solid #ff7b72;}.tier-B{border-left:3px solid #d2a8ff;}.tier-MT{border-left:3px solid #79c0ff;}.tier-FF{border-left:3px solid #f0883e;}.tier-C{border-left:3px solid #56d364;}
+.rejected{color:#8b949e;font-size:13px;padding:4px 0;}
+.date{color:#8b949e;font-size:13px;}
+.addr-copy{display:inline-block;margin-left:8px;padding:2px 9px;font-size:12px;background:#1c2128;border:1px solid #30363d;color:#58a6ff;border-radius:12px;cursor:pointer;font-family:inherit;}
+.addr-copy:hover{background:#21262d;}
+.addr-copy.copied{background:#1a4d2e;color:#56d364;border-color:#1a4d2e;}
+.deal .photos{display:flex;overflow-x:auto;gap:6px;margin:6px 0 8px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px;}
+.deal .photos img{height:110px;min-width:150px;max-width:150px;object-fit:cover;border-radius:6px;scroll-snap-align:start;background:#0d1117;}
+.deal .photos a{flex:0 0 auto;line-height:0;}
+@media (min-width:720px){.deal{padding:16px;}.deal .photos img{height:130px;min-width:180px;max-width:180px;}}
+'''.replace('\n','').strip()
 PROXY_JS = ''
 if BBC_PROXY_URL and BBC_PROXY_SECRET:
     PROXY_JS = '''<script>
