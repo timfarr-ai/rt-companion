@@ -11,6 +11,8 @@ KB_TABLE  = os.environ.get('KB_TABLE', 'tblh40Mq2rHwfe1I2')
 WL_TABLE  = os.environ.get('WL_TABLE', 'tbluV0qAWYNAFkD5S')
 DF_TABLE  = os.environ.get('DF_TABLE', 'tblk9fSDyWjpftLwm')  # Deal Flow — tracked deals
 RJ_TABLE  = os.environ.get('RJ_TABLE', 'tblMewF15iP58sJHm')  # Rejected by Tim — feedback loop
+BBC_PROXY_URL = os.environ.get('BBC_PROXY_URL', '')  # Cloudflare Worker URL (Save-to-BBC-Pipeline)
+BBC_PROXY_SECRET = os.environ.get('BBC_PROXY_SECRET', '')  # HMAC secret shared with Worker
 GH_PAT    = os.environ['GH_PAT']
 GH_REPO   = os.environ.get('GH_REPO', 'timfarr-ai/rt-companion')
 # 10-state list, each one with primary-source teaching from Richard's courses:
@@ -1043,8 +1045,6 @@ if buckets['REJECT']:
 agent_indicator = f' · 🔓 {unlocks_succeeded} agents captured (free)' if unlocks_succeeded else ''
 summary = f'{len(all_leads)} leads · {len(buckets["A"])} Tier A · {len(buckets["B"])} Tier B · {len(buckets["MT"])} MT · {len(buckets["FF"])} FF · {len(buckets["C"])} Tier C · {pushed} → watchlist{agent_indicator}'
 CSS = 'body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:12px;font-size:15px;line-height:1.5;}h2{font-size:14px;color:#8b949e;text-transform:uppercase;letter-spacing:0.04em;margin:18px 0 8px;}.summary{background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:14px;}.deal{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px;margin-bottom:10px;}.deal .addr{font-weight:600;font-size:15px;margin-bottom:4px;}.deal .meta{font-size:13px;color:#8b949e;margin-bottom:6px;}.deal .nums{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}.pill{background:#1c2128;border:1px solid #30363d;border-radius:12px;padding:2px 9px;font-size:12px;color:#8b949e;}.play-link{display:inline-block;padding:8px 12px;background:#58a6ff;color:#0d1117;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;margin-top:4px;}.tier-A{border-left:3px solid #ff7b72;}.tier-B{border-left:3px solid #d2a8ff;}.tier-MT{border-left:3px solid #79c0ff;}.tier-FF{border-left:3px solid #f0883e;}.tier-C{border-left:3px solid #56d364;}a.zillow{color:#58a6ff;font-size:12px;margin-left:8px;}.rejected{color:#8b949e;font-size:13px;padding:4px 0;}.date{color:#8b949e;font-size:13px;}.addr-copy{display:inline-block;margin-left:8px;padding:2px 9px;font-size:12px;background:#1c2128;border:1px solid #30363d;color:#58a6ff;border-radius:12px;cursor:pointer;font-family:inherit;}.addr-copy:hover{background:#21262d;}.addr-copy.copied{background:#1a4d2e;color:#56d364;border-color:#1a4d2e;}'
-BBC_PROXY_URL = os.environ.get('BBC_PROXY_URL', '')
-BBC_PROXY_SECRET = os.environ.get('BBC_PROXY_SECRET', '')
 PROXY_JS = ''
 if BBC_PROXY_URL and BBC_PROXY_SECRET:
     PROXY_JS = '''<script>
