@@ -1,4 +1,4 @@
-import urllib.request, urllib.error, urllib.parse, http.cookiejar, json, base64, sys
+import urllib.request, urllib.error, urllib.parse, http.cookiejar, json, base64, sys, re
 from datetime import datetime, date, timedelta
 
 import os
@@ -472,7 +472,7 @@ def score(p):
             'price': lp, 'cf': cf, 'coc': coc, 'dom': dom,
             'dom_flag': '🔥🔥' if dom>=150 else ('🔥' if dom>=90 else ''),
             'entry_fee': round(entry), 'entry_pct': round(entry/op*100,1) if op>0 else 0,
-            'equity': int(float(cd.get('equity') or 0)), 'zillow': p.get('zillowUrl'), 'pid': p.get('pid',''), 'in_pipeline': bool(p.get('isPropertyAlreadyInPipeline')),
+            'equity': int(float(cd.get('equity') or 0)), 'zillow': p.get('zillowUrl'), 'pid': p.get('pid',''), 'zpid': (p.get('zpid') or p.get('propertyId') or (re.search(r'(\d+)_zpid', p.get('zillowUrl') or '').group(1) if re.search(r'(\d+)_zpid', p.get('zillowUrl') or '') else '')), 'in_pipeline': bool(p.get('isPropertyAlreadyInPipeline')),
             'units': units(p),
             'market_status': p.get('market_status', 'Active'),
             'last_listed': last_listed,
@@ -856,6 +856,15 @@ def render_deal(d, t):
         f"setTimeout(()=>{{this.style.background='';this.style.color='';this.textContent=this.dataset.orig;}},1500);"
     )
     bbc_mobile_link = f' <a class="zillow" href="https://www.buyboxcartel.com/vip/lightning-leads" target="_blank" onclick="{bbc_copy_handler}">📋 Copy &quot;{bbc_query}&quot; + open BBC ↗</a>'
+    # Direct deep-link to BBC's property page — confirmed pattern /vip/property/{zpid}
+    # where zpid is Zillow's numeric ID (extracted from zillowUrl). This page IS the
+    # Create Offer flow: lands on Offer Type → Property Details → Buyer Type → Numbers
+    # → Buyer's Offer, with Save to Pipeline + Submit JV buttons inside. Replaces the
+    # search-and-scroll workflow with a one-tap deep-link. Falls back to search link
+    # only if BBC didn't include a zpid (rare — most Lightning Leads have one).
+    bbc_property_link = ''
+    if d.get('zpid'):
+        bbc_property_link = f' <a class="zillow" href="https://www.buyboxcartel.com/vip/property/{d["zpid"]}" target="_blank" style="background:#1a4d2e;color:#56d364;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1a4d2e;">🏦 Create Offer in BBC ↗</a>'
     # Offer Oven prefill — uses the SAME creative_offer/creative_down/rent numbers
     # already computed in score(), so the dashboard pill, the call pitch, and the
     # Offer Oven verification all reconcile to the same restructured deal.
@@ -1099,7 +1108,7 @@ def render_deal(d, t):
         import html as _html_mod
         pipeline_json_attr = _html_mod.escape(json.dumps(pipeline_payload), quote=True)
         pipeline_btn = f' <button class="zillow" type="button" onclick="bbcSavePipeline(this, this.dataset.payload)" data-payload="{pipeline_json_attr}" style="background:#1a4d2e;color:#56d364;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1a4d2e;cursor:pointer;font-family:inherit;font-size:12px;">🔑 Save to BBC Pipeline</button>'
-    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{photo_strip}{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{buyer_pill}{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{risk_banner}{vision_banner}{track_link}{reject_link}{pipeline_btn}{z}{bbc_link}{bbc_mobile_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
+    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{photo_strip}{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{buyer_pill}{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{risk_banner}{vision_banner}{track_link}{reject_link}{bbc_property_link}{pipeline_btn}{z}{bbc_link}{bbc_mobile_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
 
 section_a = ('<h2>🎯 TIER A — Multifamily Seller Finance ($200K-$1.4M, 2+ units, DOM 90+; 2-4 units only if NOT retail-desirable)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
 section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale Seller Finance (&lt;$150K, SFH, DOM 90+)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
