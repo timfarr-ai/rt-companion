@@ -865,6 +865,22 @@ def render_deal(d, t):
     bbc_property_link = ''
     if d.get('zpid'):
         bbc_property_link = f' <a class="zillow" href="https://www.buyboxcartel.com/vip/property/{d["zpid"]}" target="_blank" style="background:#1a4d2e;color:#56d364;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1a4d2e;">🏦 Create Offer in BBC ↗</a>'
+    # Grand In Taylor JV submission — Richard Taylor's own wholesale company. Phase-1
+    # dispo channel: instead of self-listing on BBC Marketplace, Tim submits the deal
+    # here, Richard's team places it with their buyer network, JV split applies. Two
+    # forms by deal type: Creative Finance for A/B/MT/SF, Cash Alternative for FF/C.
+    # No URL prefill wired yet (Salesmate's hash-route params not verified) — opens
+    # clean form, Tim pastes address from triage. Later: add ?prefill[Field]=val once
+    # we capture Salesmate's accepted param format from one real submission.
+    gt_url = {
+        'A':  'https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78',
+        'B':  'https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78',
+        'MT': 'https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78',
+        'FF': 'https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587',
+        'C':  'https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587',
+    }.get(t, '')
+    gt_label = 'Creative' if t in ('A','B','MT') else 'Cash'
+    gt_link = f' <a class="zillow" href="{gt_url}" target="_blank" style="background:#2a1a44;color:#d2a8ff;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #2a1a44;">🤝 Submit to Grand In Taylor ({gt_label}) ↗</a>' if gt_url else ''
     # Offer Oven prefill — uses the SAME creative_offer/creative_down/rent numbers
     # already computed in score(), so the dashboard pill, the call pitch, and the
     # Offer Oven verification all reconcile to the same restructured deal.
@@ -1108,7 +1124,7 @@ def render_deal(d, t):
         import html as _html_mod
         pipeline_json_attr = _html_mod.escape(json.dumps(pipeline_payload), quote=True)
         pipeline_btn = f' <button class="zillow" type="button" onclick="bbcSavePipeline(this, this.dataset.payload)" data-payload="{pipeline_json_attr}" style="background:#1a4d2e;color:#56d364;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1a4d2e;cursor:pointer;font-family:inherit;font-size:12px;">🔑 Save to BBC Pipeline</button>'
-    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{photo_strip}{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{buyer_pill}{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{risk_banner}{vision_banner}{track_link}{reject_link}{bbc_property_link}{pipeline_btn}{z}{bbc_link}{bbc_mobile_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
+    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{photo_strip}{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{buyer_pill}{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{risk_banner}{vision_banner}{track_link}{reject_link}{bbc_property_link}{gt_link}{pipeline_btn}{z}{bbc_link}{bbc_mobile_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
 
 section_a = ('<h2>🎯 TIER A — Multifamily Seller Finance ($200K-$1.4M, 2+ units, DOM 90+; 2-4 units only if NOT retail-desirable)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
 section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale Seller Finance (&lt;$150K, SFH, DOM 90+)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
