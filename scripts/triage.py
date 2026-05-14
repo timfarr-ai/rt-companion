@@ -401,11 +401,26 @@ NON_RESIDENTIAL_TYPES = ('vacant', 'land', 'lot', 'acreage', 'commercial', 'indu
 buckets = {'A':[], 'B':[], 'MT':[], 'FF':[], 'C':[], 'REJECT':[]}
 land_skipped = 0
 tracked_skipped = 0
+new_construction_skipped = 0
+import datetime
+this_year = datetime.date.today().year
 for p in all_leads:
     # Deal Flow dedupe — if Tim has tracked this property at any status, drop from daily.
     # He manages it via Airtable Deal Flow kanban from here.
     if p.get('pid') in tracked_pids:
         tracked_skipped += 1
+        continue
+    # New construction / planned development filter — Richard's method targets
+    # distressed EXISTING listings with stale DOM; new builds have a builder-seller
+    # (different motivation profile) and no rental history. Signals:
+    #   - sqft = 0 (no structure built yet — e.g. 517 Prospect St Indianapolis IN)
+    #   - yearBuilt > current year (under construction or planned)
+    sqft_val = int(p.get('sqft') or 0)
+    cd_p = p.get('calculatedData') or {}
+    yb = cd_p.get('yearBuilt')
+    yb_int = int(yb) if (yb and str(yb).isdigit()) else 0
+    if sqft_val == 0 or (yb_int and yb_int > this_year):
+        new_construction_skipped += 1
         continue
     s = score(p)
     if s['cf'] == 0 and s['price'] == 0: continue
@@ -421,7 +436,7 @@ for p in all_leads:
 for t in ('A','B','MT','C'): buckets[t].sort(key=lambda x: (-x['creative_cf'], -x['dom']))
 # Fix & Flip: sort by DOM desc (motivation) since CF isn't the relevant metric
 buckets['FF'].sort(key=lambda x: -x['dom'])
-print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  MT={len(buckets["MT"])}  FF={len(buckets["FF"])}  C={len(buckets["C"])}  REJECT={len(buckets["REJECT"])}  Land-skipped={land_skipped}  Tracked-skipped={tracked_skipped}', file=sys.stderr)
+print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  MT={len(buckets["MT"])}  FF={len(buckets["FF"])}  C={len(buckets["C"])}  REJECT={len(buckets["REJECT"])}  Land-skipped={land_skipped}  NewConstruction-skipped={new_construction_skipped}  Tracked-skipped={tracked_skipped}', file=sys.stderr)
 
 # 5b. Surface agent info — cookie-free via BBC's contact-seller endpoint (the one
 # behind the Create Offer modal). Cost: $0/unlock. Run on ALL Tier A/B/C deals.
