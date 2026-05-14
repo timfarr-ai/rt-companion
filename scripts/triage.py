@@ -347,7 +347,50 @@ def fetch_property_history(zpid):
     markup = (current_price - last_sold_price) / last_sold_price if last_sold_price > 0 else None
     is_flip = bool(markup and markup >= 0.35 and months_since is not None and months_since <= 24)
     return {'last_sold_price': int(last_sold_price), 'last_sold_date': last_sold_date,
-            'months_since_sale': months_since, 'flip_markup_pct': markup, 'is_recent_flip': is_flip}
+            'months_since_sale': months_since, 'flip_markup_pct': markup, 'is_recent_flip': is_flip,
+            'description': data.get('description') or ''}
+
+# Description-keyword filters — terminal disqualifiers + flip-vocab signals
+# discovered 2026-05-15 from 9904 Aetna Rd Cleveland OH listing that had
+# "****NO ASSIGNMENT CONTRACTS****" in description (which mechanically breaks
+# HMHW assignment-wholesale model) plus "Freshly Updated... move-in-ready
+# updates completed recently" (clear flip language). These signals fire when
+# BBC's priceHistory has no Sold event (so the markup-based flip detector misses).
+TERMINAL_DESC_KEYWORDS = [
+    'no assignment',          # explicit method disqualifier
+    'no assignments',
+    'no wholesalers', 'no wholesaler', 'no wholesale',
+    'no investors', 'no investor offers',
+    'principal buyers only',
+    'end buyers only',
+    'owner-occupants only', 'owner occupants only',
+    'no double close', 'no double-close',
+]
+FLIP_DESC_KEYWORDS = [
+    'freshly updated', 'newly updated', 'recently updated',
+    'completely renovated', 'fully renovated', 'totally renovated',
+    'move-in ready', 'move in ready',
+    'turnkey rental', 'turn-key rental', 'turn key rental',
+    'updates completed recently', 'just renovated', 'just completed',
+    'brand new', 'brand-new',
+    'fresh paint', 'new flooring', 'new kitchen', 'new bathroom',
+    'portfolio package',  # investor offloading multiple — Tacoma + Aetna pattern
+]
+
+def desc_terminal_match(description):
+    """Returns the first terminal keyword found in description, or None.
+    Case-insensitive whole-substring match."""
+    if not description: return None
+    desc_lower = description.lower()
+    for kw in TERMINAL_DESC_KEYWORDS:
+        if kw in desc_lower: return kw
+    return None
+
+def desc_flip_signals(description):
+    """Returns list of flip-vocab keywords found. 3+ = strong flip signal."""
+    if not description: return []
+    desc_lower = description.lower()
+    return [kw for kw in FLIP_DESC_KEYWORDS if kw in desc_lower]
 
 def unlock_agent(pid):
     """Get listing agent contact info via BBC's contact-seller endpoint — the one
@@ -789,7 +832,9 @@ else:
 # BBC's cumulative DOM (644 days) was masking this; Zillow's reset DOM (48 days)
 # would have caught it but Richard says ignore Zillow DOM. This closes the gap.
 flip_detected = 0
-print(f'\nRecent-flip detection on Tier A/B/MT properties...', file=sys.stderr)
+desc_rejected = 0
+desc_flip_demoted = 0
+print(f'\nProperty-history + description-keyword pass on Tier A/B/MT properties...', file=sys.stderr)
 for tier_name in ('A','B','MT'):
     for s in list(buckets[tier_name]):
         zpid = s.get('zpid')
@@ -800,6 +845,17 @@ for tier_name in ('A','B','MT'):
         s['last_sold_price'] = history.get('last_sold_price')
         s['last_sold_date'] = history.get('last_sold_date')
         s['months_since_sale'] = history.get('months_since_sale')
+        description = history.get('description') or ''
+        s['description'] = description[:500]  # truncate for storage
+        # 1. TERMINAL description keywords — auto-reject. "No assignment" etc.
+        # mechanically break the HMHW assignment-wholesale model.
+        terminal_kw = desc_terminal_match(description)
+        if terminal_kw:
+            desc_rejected += 1
+            buckets[tier_name].remove(s)
+            print(f"  ✗ {s['address'][:50]}: DESC-REJECTED — found '{terminal_kw}' in listing description", file=sys.stderr)
+            continue  # skip flip checks for rejected
+        # 2. RECENT FLIP via sold-event + markup — same as before
         if history.get('is_recent_flip'):
             flip_detected += 1
             buckets[tier_name].remove(s)
@@ -810,7 +866,23 @@ for tier_name in ('A','B','MT'):
             s['creative_terms'] = f"Cash offer ${s['creative_offer']:,} (flip relist — +{markup_pct}% over ${history['last_sold_price']:,} sold {history['last_sold_date']})"
             buckets['FF'].append(s)
             print(f"  → {s['address'][:50]}: FLIP-DEMOTED {tier_name}→FF (+{markup_pct}% over ${history['last_sold_price']:,}, {history['months_since_sale']}mo ago)", file=sys.stderr)
-print(f'Recent-flip: {flip_detected} properties demoted to FF (investor relist after recent purchase)', file=sys.stderr)
+            continue
+        # 3. SUSPECTED FLIP via description vocab (when no sold-event signal) —
+        # 3+ flip keywords = strong investor-flip signal even without priceHistory sale.
+        # Catches the 9904 Aetna Rd case (no Sold record but description gushes
+        # "Freshly Updated", "move-in-ready", "Instant Income Potential").
+        flip_kws = desc_flip_signals(description)
+        s['desc_flip_keywords'] = flip_kws
+        if len(flip_kws) >= 3:
+            desc_flip_demoted += 1
+            buckets[tier_name].remove(s)
+            s['deal_type_raw'] = 'fixAndFlip'
+            s['creative_offer'] = round(s['price'] * 0.70) if s.get('price') else 0
+            s['creative_down'] = 0
+            s['creative_terms'] = f"Cash offer ${s['creative_offer']:,} (suspected flip — description signals: {', '.join(flip_kws[:3])})"
+            buckets['FF'].append(s)
+            print(f"  → {s['address'][:50]}: DESC-FLIP-DEMOTED {tier_name}→FF ({len(flip_kws)} flip keywords: {', '.join(flip_kws[:4])})", file=sys.stderr)
+print(f'History+desc: {desc_rejected} rejected (terminal kw) · {flip_detected} demoted (sold-event flip) · {desc_flip_demoted} demoted (desc-flip ≥3 kw)', file=sys.stderr)
 
 # Re-sort buckets after vision-driven moves
 for t in ('A','B','MT','C'): buckets[t].sort(key=lambda x: (-x.get('creative_cf',0), -x.get('dom',0)))
@@ -1145,6 +1217,20 @@ def render_deal(d, t):
             f'<strong style="color:#ffa657;">CONDITION RISK — VERIFY ZILLOW BEFORE TRACKING:</strong><br>{risk_lines}'
             f'</div>'
         )
+    # DESC-FLIP BANNER — listing description contained 3+ flip-vocab keywords.
+    # Shows on FF cards that were demoted from A/B/MT via the desc-keyword pass
+    # (cases where BBC's priceHistory had no Sold event so the markup detector missed).
+    desc_flip_kws = d.get('desc_flip_keywords') or []
+    desc_flip_banner = ''
+    if len(desc_flip_kws) >= 3:
+        desc_flip_banner = (
+            f'<div style="margin:6px 0 8px;padding:8px 12px;background:#3a1e1e;'
+            f'border:1px solid #f85149;border-radius:6px;font-size:13px;line-height:1.4;color:#ff7b72;">'
+            f'<strong style="color:#ff7b72;">🔥 SUSPECTED FLIP (description):</strong> '
+            f'{len(desc_flip_kws)} flip-vocab keywords in listing — '
+            f'<em>{", ".join(desc_flip_kws[:4])}</em>'
+            f'</div>'
+        )
     # FLIP-RELIST BANNER — surfaces when property was bought cheap recently and
     # relisted with markup. Seller wants cash, not SF. Banner shows even for cards
     # that weren't demoted (e.g. markup 20-34%) so operator has the context.
@@ -1211,7 +1297,10 @@ def render_deal(d, t):
         'prefill_First Tracked': date_iso,
     }
     track_qs = '&'.join(f'{urllib.parse.quote(k)}={urllib.parse.quote(v)}' for k,v in track_params.items() if v)
-    track_url = f'https://airtable.com/{AT_BASE}/{DF_TABLE}?{track_qs}'
+    # Use the published Form share URL — same fix as the Reject button. Bare Grid
+    # URL prefill is unreliable, especially on mobile. Form view: viwLacCnkkZZF59Ko,
+    # share token: shrccLE11iM5TsWa2 (created 2026-05-15 via CDP).
+    track_url = f'https://airtable.com/{AT_BASE}/shrccLE11iM5TsWa2?{track_qs}'
     track_link = f' <a class="zillow" href="{track_url}" target="_blank" style="background:#1e2c44;color:#79c0ff;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1e2c44;">+ Track Property</a>'
     # REJECT button — opens 'Rejected by Tim' Airtable with prefilled context. Each
     # rejection feeds the weekly optimization agent which proposes new filter rules
@@ -1274,7 +1363,7 @@ def render_deal(d, t):
         import html as _html_mod
         pipeline_json_attr = _html_mod.escape(json.dumps(pipeline_payload), quote=True)
         pipeline_btn = f' <button class="zillow" type="button" onclick="bbcSavePipeline(this, this.dataset.payload)" data-payload="{pipeline_json_attr}" style="background:#1a4d2e;color:#56d364;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1a4d2e;cursor:pointer;font-family:inherit;font-size:12px;">🔑 Save to BBC Pipeline</button>'
-    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{photo_strip}{flip_banner}{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{buyer_pill}{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{risk_banner}{vision_banner}{track_link}{reject_link}{bbc_property_link}{gt_link}{pipeline_btn}{z}{bbc_link}{bbc_mobile_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
+    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{photo_strip}{desc_flip_banner}{flip_banner}{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{buyer_pill}{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{risk_banner}{vision_banner}{track_link}{reject_link}{bbc_property_link}{gt_link}{pipeline_btn}{z}{bbc_link}{bbc_mobile_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
 
 section_a = ('<h2>🎯 TIER A — Multifamily Seller Finance ($200K-$1.4M, 2+ units, DOM 90+; 2-4 units only if NOT retail-desirable)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
 section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale Seller Finance (&lt;$150K, SFH, DOM 90+)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
