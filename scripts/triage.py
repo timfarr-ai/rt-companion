@@ -1228,7 +1228,11 @@ def render_deal(d, t):
         'prefill_Rejected Date': date_iso,
     }
     reject_qs = '&'.join(f'{urllib.parse.quote(k)}={urllib.parse.quote(v)}' for k,v in reject_params.items() if v)
-    reject_url = f'https://airtable.com/{AT_BASE}/{RJ_TABLE}?{reject_qs}'
+    # Use the published Form share URL (shrHDH8RyCB4xXCTZ) — confirmed working with
+    # ?prefill_FieldName=value across mobile + desktop. The bare table URL didn't
+    # reliably open a Create Record modal (especially on mobile Safari).
+    # Form view: viwValWHCe30R9EOS, created 2026-05-15 via CDP UI.
+    reject_url = f'https://airtable.com/{AT_BASE}/shrHDH8RyCB4xXCTZ?{reject_qs}'
     reject_link = f' <a class="zillow" href="{reject_url}" target="_blank" style="background:#3a1e1e;color:#ff7b72;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #3a1e1e;" title="Permanently reject from future triage + feed the optimization agent">✗ Reject</a>'
 
     # SAVE TO BBC PIPELINE button — only renders when Cloudflare Worker is configured
