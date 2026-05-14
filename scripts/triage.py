@@ -112,6 +112,45 @@ while url:
     url = f'https://api.airtable.com/v0/{AT_BASE}/{RJ_TABLE}?pageSize=100&fields%5B%5D=PID&offset={offset}' if offset else None
 print(f'Rejected by Tim: {len(rejected_pids)} PIDs permanently excluded', file=sys.stderr)
 
+# 3d. Fetch BBC BuyBoxes — state×strategy buyer-activity signal. Used as a dispo-
+# confidence pill on each card. NOT actual buyer contacts (those live in /vip/buyerslist);
+# this is the market signal: "is BBC's buyer network active for {strategy} in {state}?"
+# Returns 3 buckets: fixFlipBuyer / creativeBuyer / sectionEightBuyer; each row has
+# bbname (state, lowercase) + is_activeBuyer (bool). One call per run, ~1KB response.
+STATE_CODE_TO_NAME = {
+    'AL':'alabama','AK':'alaska','AZ':'arizona','AR':'arkansas','CA':'california',
+    'CO':'colorado','CT':'connecticut','DE':'delaware','FL':'florida','GA':'georgia',
+    'HI':'hawaii','ID':'idaho','IL':'illinois','IN':'indiana','IA':'iowa','KS':'kansas',
+    'KY':'kentucky','LA':'louisiana','ME':'maine','MD':'maryland','MA':'massachusetts',
+    'MI':'michigan','MN':'minnesota','MS':'mississippi','MO':'missouri','MT':'montana',
+    'NE':'nebraska','NV':'nevada','NH':'new hampshire','NJ':'new jersey','NM':'new mexico',
+    'NY':'new york','NC':'north carolina','ND':'north dakota','OH':'ohio','OK':'oklahoma',
+    'OR':'oregon','PA':'pennsylvania','RI':'rhode island','SC':'south carolina',
+    'SD':'south dakota','TN':'tennessee','TX':'texas','UT':'utah','VT':'vermont',
+    'VA':'virginia','WA':'washington','WV':'west virginia','WI':'wisconsin','WY':'wyoming',
+    'DC':'washington, d.c.',
+}
+buyer_signals = {'creative': {}, 'fixflip': {}, 'section8': {}}
+code, body = http_req('https://www.buyboxcartel.com/api/buyBox/get-info?state=',
+                      headers={'Authorization': f'Bearer {bbc_token}'}, use_opener=True)
+if code == 200:
+    try:
+        bb_data = json.loads(body)
+        for row in bb_data.get('creativeBuyer') or []:
+            buyer_signals['creative'][(row.get('bbname') or '').lower()] = bool(row.get('is_activeBuyer'))
+        for row in bb_data.get('fixFlipBuyer') or []:
+            buyer_signals['fixflip'][(row.get('bbname') or '').lower()] = bool(row.get('is_activeBuyer'))
+        for row in bb_data.get('sectionEightBuyer') or []:
+            buyer_signals['section8'][(row.get('bbname') or '').lower()] = bool(row.get('is_activeBuyer'))
+        a_cr = sum(1 for v in buyer_signals['creative'].values() if v)
+        a_ff = sum(1 for v in buyer_signals['fixflip'].values() if v)
+        a_s8 = sum(1 for v in buyer_signals['section8'].values() if v)
+        print(f'BuyBoxes: {a_cr} creative + {a_ff} fix-flip + {a_s8} section-8 active states', file=sys.stderr)
+    except Exception as e:
+        print(f'BuyBoxes parse failed: {e}', file=sys.stderr)
+else:
+    print(f'BuyBoxes fetch failed ({code})', file=sys.stderr)
+
 # 4. Fetch leads per state — uses opener for cookies
 all_leads = []
 for state in STATES:
@@ -456,6 +495,7 @@ def score(p):
             'year_built': int(cd.get('yearBuilt')) if (cd.get('yearBuilt') and str(cd.get('yearBuilt')).isdigit()) else 0,
             'foundation': (cd.get('foundation') or '').strip(),
             'image_count': len(p.get('images') or []),
+            'images': [(img if isinstance(img, str) else img.get('url') or '') for img in (p.get('images') or [])[:8] if img],
             'is_zillow_active': bool(p.get('is_zillow_active'))}
 
 def condition_risk_flags(s):
@@ -906,6 +946,35 @@ def render_deal(d, t):
         op_link = f' &nbsp; <a href="openphone://call?number={phone_clean}" style="color:#79c0ff;">via OpenPhone</a>' if phone_clean else ''
         email_link = f' &nbsp; <a href="mailto:{a["email"]}" style="color:#8b949e;">✉ {a["email"]}</a>' if a.get('email') and a['email'] != 'Not Available' else ''
         agent_block = f'<div style="margin-top:8px;padding:8px 10px;background:#161b22;border:1px solid #30363d;border-radius:6px;font-size:13px;"><div style="color:#e6edf3;font-weight:600;margin-bottom:2px;">🔓 {a["name"]}</div><div>{tel_link}{op_link}{email_link}</div></div>'
+    # PHOTO STRIP — horizontal scroll of all BBC photos (up to 8). Mirrors Richard's
+    # livestream eye-check: condition + neighborhood read happens here, inline,
+    # before the operator commits to dialing. Lazy-loaded so briefing HTML stays light.
+    photo_strip = ''
+    photos = d.get('images') or []
+    if photos:
+        photo_tags = ''.join(
+            f'<a href="{u}" target="_blank" rel="noopener"><img src="{u}" loading="lazy" alt=""></a>'
+            for u in photos
+        )
+        photo_strip = f'<div class="photos">{photo_tags}</div>'
+    # BUYER SIGNAL pill — BBC BuyBoxes is_activeBuyer for this tier×state. NOT a buyer
+    # count or contacts — just "is BBC's network demanding this strategy in this state?"
+    # Tier mapping: A/B/MT → creative; FF/C → fixflip. Tier B also peeks section8 as bonus.
+    state_name_lc = STATE_CODE_TO_NAME.get((d.get('state') or '').upper(), '')
+    buyer_pill = ''
+    if state_name_lc:
+        bucket = {'A':'creative','B':'creative','MT':'creative','FF':'fixflip','C':'fixflip'}.get(t)
+        if bucket:
+            is_active = buyer_signals.get(bucket, {}).get(state_name_lc)
+            bucket_label = {'creative':'Creative buyers','fixflip':'Fix&amp;Flip buyers'}[bucket]
+            if is_active is True:
+                # Tier B bonus: also show section8 if active (rental-investor crossover)
+                s8_bonus = ''
+                if t == 'B' and buyer_signals.get('section8', {}).get(state_name_lc):
+                    s8_bonus = ' + Sec8'
+                buyer_pill = f' <span class="pill" style="background:#0d2818;color:#56d364;border-color:#1a4d2e;font-weight:600;" title="BBC BuyBoxes: this state is currently active for this strategy">🎯 {bucket_label}{s8_bonus} active</span>'
+            elif is_active is False:
+                buyer_pill = f' <span class="pill" style="background:#3a2418;color:#ffa657;border-color:#3a2418;" title="BBC BuyBoxes: low buyer activity for this strategy in this state — dispo will be harder">⚠️ Low {bucket_label.lower().replace("&amp;","&")} activity</span>'
     # CREATIVE CF BANNER — the call hook. Reads: "After restructuring, this deal
     # cash-flows $X/mo. Pitch to seller: $OFFER at 0%, $DOWN down, 30yr."
     cc = d.get('creative_cf', 0)
@@ -1030,7 +1099,7 @@ def render_deal(d, t):
         import html as _html_mod
         pipeline_json_attr = _html_mod.escape(json.dumps(pipeline_payload), quote=True)
         pipeline_btn = f' <button class="zillow" type="button" onclick="bbcSavePipeline(this, this.dataset.payload)" data-payload="{pipeline_json_attr}" style="background:#1a4d2e;color:#56d364;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1a4d2e;cursor:pointer;font-family:inherit;font-size:12px;">🔑 Save to BBC Pipeline</button>'
-    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{risk_banner}{vision_banner}{track_link}{reject_link}{pipeline_btn}{z}{bbc_link}{bbc_mobile_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
+    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{photo_strip}{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{buyer_pill}{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{risk_banner}{vision_banner}{track_link}{reject_link}{pipeline_btn}{z}{bbc_link}{bbc_mobile_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
 
 section_a = ('<h2>🎯 TIER A — Multifamily Seller Finance ($200K-$1.4M, 2+ units, DOM 90+; 2-4 units only if NOT retail-desirable)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
 section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale Seller Finance (&lt;$150K, SFH, DOM 90+)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
@@ -1044,7 +1113,7 @@ if buckets['REJECT']:
 
 agent_indicator = f' · 🔓 {unlocks_succeeded} agents captured (free)' if unlocks_succeeded else ''
 summary = f'{len(all_leads)} leads · {len(buckets["A"])} Tier A · {len(buckets["B"])} Tier B · {len(buckets["MT"])} MT · {len(buckets["FF"])} FF · {len(buckets["C"])} Tier C · {pushed} → watchlist{agent_indicator}'
-CSS = 'body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:12px;font-size:15px;line-height:1.5;}h2{font-size:14px;color:#8b949e;text-transform:uppercase;letter-spacing:0.04em;margin:18px 0 8px;}.summary{background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:14px;}.deal{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px;margin-bottom:10px;}.deal .addr{font-weight:600;font-size:15px;margin-bottom:4px;}.deal .meta{font-size:13px;color:#8b949e;margin-bottom:6px;}.deal .nums{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}.pill{background:#1c2128;border:1px solid #30363d;border-radius:12px;padding:2px 9px;font-size:12px;color:#8b949e;}.play-link{display:inline-block;padding:8px 12px;background:#58a6ff;color:#0d1117;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;margin-top:4px;}.tier-A{border-left:3px solid #ff7b72;}.tier-B{border-left:3px solid #d2a8ff;}.tier-MT{border-left:3px solid #79c0ff;}.tier-FF{border-left:3px solid #f0883e;}.tier-C{border-left:3px solid #56d364;}a.zillow{color:#58a6ff;font-size:12px;margin-left:8px;}.rejected{color:#8b949e;font-size:13px;padding:4px 0;}.date{color:#8b949e;font-size:13px;}.addr-copy{display:inline-block;margin-left:8px;padding:2px 9px;font-size:12px;background:#1c2128;border:1px solid #30363d;color:#58a6ff;border-radius:12px;cursor:pointer;font-family:inherit;}.addr-copy:hover{background:#21262d;}.addr-copy.copied{background:#1a4d2e;color:#56d364;border-color:#1a4d2e;}'
+CSS = 'body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:12px;font-size:15px;line-height:1.5;}h2{font-size:14px;color:#8b949e;text-transform:uppercase;letter-spacing:0.04em;margin:18px 0 8px;}.summary{background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:14px;}.deal{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px;margin-bottom:10px;}.deal .addr{font-weight:600;font-size:15px;margin-bottom:4px;}.deal .meta{font-size:13px;color:#8b949e;margin-bottom:6px;}.deal .nums{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}.pill{background:#1c2128;border:1px solid #30363d;border-radius:12px;padding:2px 9px;font-size:12px;color:#8b949e;}.play-link{display:inline-block;padding:8px 12px;background:#58a6ff;color:#0d1117;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;margin-top:4px;}.tier-A{border-left:3px solid #ff7b72;}.tier-B{border-left:3px solid #d2a8ff;}.tier-MT{border-left:3px solid #79c0ff;}.tier-FF{border-left:3px solid #f0883e;}.tier-C{border-left:3px solid #56d364;}a.zillow{color:#58a6ff;font-size:12px;margin-left:8px;}.rejected{color:#8b949e;font-size:13px;padding:4px 0;}.date{color:#8b949e;font-size:13px;}.addr-copy{display:inline-block;margin-left:8px;padding:2px 9px;font-size:12px;background:#1c2128;border:1px solid #30363d;color:#58a6ff;border-radius:12px;cursor:pointer;font-family:inherit;}.addr-copy:hover{background:#21262d;}.addr-copy.copied{background:#1a4d2e;color:#56d364;border-color:#1a4d2e;}.deal .photos{display:flex;overflow-x:auto;gap:6px;margin:6px 0 8px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px;}.deal .photos img{height:110px;min-width:150px;max-width:150px;object-fit:cover;border-radius:6px;scroll-snap-align:start;background:#0d1117;}.deal .photos a{flex:0 0 auto;line-height:0;}'
 PROXY_JS = ''
 if BBC_PROXY_URL and BBC_PROXY_SECRET:
     PROXY_JS = '''<script>
