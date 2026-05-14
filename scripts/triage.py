@@ -165,15 +165,31 @@ def unlock_agent(pid):
 
 # 5. Score + tier
 def units(p):
+    """Return unit count for the property. Trust explicit numbers and named plexes
+    (duplex/triplex/quadplex). For generic 'Multi Family' with NO explicit count,
+    do a dimensional sanity check — BBC frequently mislabels SFH listings as MFH
+    (verified 2026-05-14: 1001 Starboard Dr Greensboro = 3bd/2ba/1784sqft SFH but
+    BBC propertyType='Multi Family'). Old code blindly defaulted to 4 units."""
     for k in ('numberOfUnits','units','unitCount','totalUnits'):
         v = p.get(k) or (p.get('calculatedData') or {}).get(k)
         if v:
             try: return int(v)
             except: pass
     pt = (p.get('address') or {}).get('propertyType','').lower()
-    if 'fourplex' in pt or 'quad' in pt: return 4
+    # Named plexes — trust the count baked into the type label
+    if 'duplex' in pt: return 2
     if 'triplex' in pt: return 3
-    if 'multi' in pt or 'plex' in pt: return 4
+    if 'fourplex' in pt or 'quadplex' in pt or 'quadruplex' in pt: return 4
+    # Generic 'Multi Family' or 'plex' without an explicit count → dimensional check.
+    # Real 4-unit MFH typically has 6-8+ bedrooms and 2800+ sqft total. Below that,
+    # BBC's 'Multi Family' label is almost certainly a misclassified SFH/Townhouse.
+    if 'multi' in pt or 'plex' in pt:
+        bed = int(p.get('bed') or 0)
+        sqft = int(p.get('sqft') or 0)
+        if bed >= 8 or sqft >= 3500: return 4
+        if bed >= 6 or sqft >= 2800: return 3
+        if bed >= 4 or sqft >= 2000: return 2
+        return 1  # 1001 Starboard-style: BBC says MFH but data is SFH-shaped
     return 1
 
 def score(p):
@@ -201,46 +217,72 @@ def score(p):
     expense_total = piti or (monthly_payment + lp * 0.005)  # P&I + ~taxes/ins fallback
     monthly_rent = round((cf + expense_total) / 0.80) if expense_total > 0 else 0
 
-    # CREATIVE CF — BBC's monthlyCashFlow IS already computed at the deal_type's
-    # creative terms (SF: ~0%, 10-12% down; MT: existing loan rate). Verified via
-    # probe: 11311 Ardsley Dr S (SF, $558K) shows monthlyPayment $1190 — only
-    # explicable at 0%/10%-down on a $558K listing. So we use cf directly as
-    # creative_cf and don't recompute.
-    creative_cf = round(cf)
+    # BBC also exposes per-property tax + insurance (monthly amounts) and rent.
+    # Prefer these over derived/back-calc values when present.
+    tax_m = float(cd.get('tax') or 0)
+    ins_m = float(cd.get('insurance') or 0)
+    hoa_m = float(cd.get('monthlyHoaFee') or 0)
+    rent_bbc = float(cd.get('rent') or 0)
+    if rent_bbc > 0:
+        monthly_rent = round(rent_bbc)  # BBC's explicit rent is the source of truth
 
-    # BANK GAP — what would this deal look like under a STANDARD 7% bank mortgage?
-    # We must compute this separately because BBC only shows the creative scenario.
-    # 25% down, 7% rate, 30yr, +1.5%/yr taxes & insurance, minus 20% reserves.
+    # CREATIVE CF + TERMS — recomputed per tier using Richard's actual offer/down
+    # structure (not BBC's blanket assumptions). BBC's monthlyCashFlow uses BBC's
+    # offer terms (e.g. +12% premium, ~8% down) regardless of strategy — those
+    # don't match Richard's tier-specific terms. We use BBC's rent + tax + insurance
+    # (per-property) and apply Richard's terms to produce a faithful creative_cf.
+    def _sf_cf(offer_mult, down_pct, balloon_yr):
+        if monthly_rent <= 0 or lp <= 0: return 0, 0, 0
+        offer = lp * offer_mult
+        down = offer * down_pct
+        loan = offer - down
+        pi = loan / 360  # 0% rate, 30yr amort. P&I = pure principal.
+        ti = (tax_m + ins_m) if (tax_m + ins_m) > 0 else (lp * 0.015 / 12)
+        piti_per_month = pi + ti + hoa_m
+        reserves = monthly_rent * 0.20  # CapEx 5% + Mgmt 5% + Vacancy 10% (Offer Oven defaults)
+        cf_val = monthly_rent - piti_per_month - reserves
+        return round(cf_val), round(offer), round(down)
+
+    if dt == 'sellerFinance' and is_mfh:
+        # Tier A: asking + 10%, 10% down, 0%, 30yr, 5-7yr balloon
+        creative_cf, creative_offer, creative_down = _sf_cf(1.10, 0.10, 5)
+        creative_terms = f"${creative_offer:,} @ 0%, 10% down (${creative_down:,}), 30yr / 5yr balloon"
+    elif dt == 'sellerFinance':
+        # Tier B: asking + 20%, 12% down, 0%, 30yr, 7yr balloon
+        creative_cf, creative_offer, creative_down = _sf_cf(1.20, 0.12, 7)
+        creative_terms = f"${creative_offer:,} @ 0%, 12% down (${creative_down:,}), 30yr / 7yr balloon"
+    elif dt == 'mortgageTakeover':
+        # MT: take over existing loan at existing terms. BBC's monthlyCashFlow
+        # already uses the existing loan's payment, which IS the right number.
+        creative_cf = round(cf)
+        creative_offer = round(lp)
+        creative_down = 10000
+        creative_terms = f"Take over existing loan, ~${creative_down:,} to seller"
+    elif dt == 'fixAndFlip':
+        # Cash Course 70% rule. F&F is a flip play — monthly CF is not the metric.
+        # We surface the offer math; rental CF is a sanity check from BBC's cf.
+        creative_offer = round(lp * 0.70)
+        creative_down = 0
+        creative_cf = round(cf)  # BBC's rental CF (post-flip-and-rent scenario)
+        creative_terms = f"Cash offer ${creative_offer:,} (70% of list — Cash Course rule)"
+    else:
+        # Cash arb (Tier C): BBC's CF at cash-purchased terms is correct
+        creative_offer = round(op or lp)
+        creative_down = round(down)
+        creative_cf = round(cf)
+        creative_terms = "Cash offer / standard"
+
+    # BANK GAP — what a standard 7% bank mortgage would look like vs the creative
+    # scenario above. Reuses the same rent + tax + ins + reserve numbers.
     bank_gap = 0
     if monthly_rent > 0 and lp > 0:
         bank_loan = lp * 0.75
         r = 0.07 / 12
         bank_pi = bank_loan * r / (1 - (1 + r) ** -360)
-        bank_piti = bank_pi + lp * 0.015 / 12
-        bank_cf = monthly_rent * 0.80 - bank_piti  # 20% reserves applied to rent side
-        bank_gap = round(max(0, creative_cf - bank_cf))  # how much more creative saves
-
-    # CREATIVE TERMS — the offer structure to pitch (driven by dealType)
-    if dt == 'sellerFinance':
-        sf_offer = round(lp * (1.10 if is_mfh else 1.20))
-        sf_down_pct = 0.10 if is_mfh else 0.12
-        sf_down = round(sf_offer * sf_down_pct)
-        creative_terms = f"${sf_offer:,} @ 0%, {int(sf_down_pct*100)}% down (${sf_down:,}), 30yr"
-        creative_offer = sf_offer
-        creative_down = sf_down
-    elif dt == 'mortgageTakeover':
-        creative_offer = round(lp)
-        creative_down = 10000
-        creative_terms = f"Take over existing loan, ~${creative_down:,} to seller"
-    elif dt == 'fixAndFlip':
-        # Richard's Cash Course rule: offer 70% of list price
-        creative_offer = round(lp * 0.70)
-        creative_down = 0  # cash deal — no down/loan
-        creative_terms = f"Cash offer ${creative_offer:,} (70% of list — Cash Course rule)"
-    else:
-        creative_offer = round(op or lp)
-        creative_down = round(down)
-        creative_terms = "Cash offer / standard"
+        bank_ti = (tax_m + ins_m) if (tax_m + ins_m) > 0 else (lp * 0.015 / 12)
+        bank_piti = bank_pi + bank_ti + hoa_m
+        bank_cf = monthly_rent - bank_piti - (monthly_rent * 0.20)
+        bank_gap = round(max(0, creative_cf - bank_cf))
 
     # monthly_piti for the bank-gap pill's tooltip
     monthly_piti = round(expense_total)

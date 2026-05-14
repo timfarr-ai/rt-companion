@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         BBC Lightning Leads — Auto-Search from URL hash
 // @namespace    https://github.com/timfarr-ai/rt-companion
-// @version      1.3
-// @description  Auto-fills the BBC Lightning Leads search box when URL contains "#auto:<City, State>[|street:Street]" — sets max page size, sorts by DOM desc, runs search, then paginates up to 5 pages looking for the specific street. Highlights and scrolls to the match.
+// @version      1.4
+// @description  Auto-fills the BBC Lightning Leads search box (character-by-character with keydown events so BBC's validation enables the Search button) when URL contains "#auto:<City, State>[|street:Street]" — sets max page size, sorts by DOM desc, runs search, paginates up to 5 pages looking for the specific street, highlights the match, and auto-opens its Create Offer modal so agent info is ready.
 // @author       Tim Farr
 // @match        https://www.buyboxcartel.com/vip/lightning-leads*
 // @match        https://buyboxcartel.com/vip/lightning-leads*
@@ -43,11 +43,24 @@
     );
   }
 
-  function setReactInputValue(input, value) {
+  // BBC's location input validation pipeline only activates on keydown events
+  // (verified via CDP probe 2026-05-14: bulk setReactInputValue leaves Search
+  // button disabled; character-by-character with keydown/keyup enables it).
+  async function typeIntoInput(input, value) {
     const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-    setter.call(input, value);
+    input.focus();
+    setter.call(input, '');
     input.dispatchEvent(new Event('input', { bubbles: true }));
+    await new Promise(r => setTimeout(r, 80));
+    for (const ch of value) {
+      setter.call(input, input.value + ch);
+      input.dispatchEvent(new KeyboardEvent('keydown', { key: ch, bubbles: true }));
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new KeyboardEvent('keyup', { key: ch, bubbles: true }));
+      await new Promise(r => setTimeout(r, 25));
+    }
     input.dispatchEvent(new Event('change', { bubbles: true }));
+    input.dispatchEvent(new Event('blur', { bubbles: true }));
   }
 
   function setReactSelectValue(sel, value) {
@@ -122,7 +135,11 @@
     return null;
   }
 
-  function highlightAndScroll(card, street) {
+  function findCreateOfferButton(card) {
+    return Array.from(card.querySelectorAll('button')).find(b => /create offer/i.test(b.textContent));
+  }
+
+  function highlightScrollAndOpen(card, street) {
     card.scrollIntoView({ behavior: 'smooth', block: 'center' });
     const oldOutline = card.style.outline;
     const oldShadow = card.style.boxShadow;
@@ -130,7 +147,15 @@
     card.style.boxShadow = '0 0 24px rgba(86, 211, 100, 0.7)';
     card.style.transition = 'all 0.3s ease';
     setTimeout(() => { card.style.outline = oldOutline; card.style.boxShadow = oldShadow; }, 6000);
-    showBanner('🎯 Found: ' + street, '#1a4d2e');
+    // Auto-click Create Offer on the found card — opens modal with agent info
+    // and the Save to Pipeline button, which is usually what Tim wants next.
+    const offerBtn = findCreateOfferButton(card);
+    if (offerBtn) {
+      setTimeout(() => offerBtn.click(), 700);  // small delay so scroll completes first
+      showBanner('🎯 Found: ' + street + ' — opening offer', '#1a4d2e');
+    } else {
+      showBanner('🎯 Found: ' + street, '#1a4d2e');
+    }
   }
 
   // Find the pagination "Next" button (typically labelled "Next" or has an arrow).
@@ -147,7 +172,7 @@
       await new Promise(r => setTimeout(r, page === 1 ? SEARCH_RENDER_WAIT_MS : PAGE_RENDER_WAIT_MS));
       const card = findCardByStreet(street);
       if (card) {
-        highlightAndScroll(card, street);
+        highlightScrollAndOpen(card, street);
         return true;
       }
       // Not on this page — try next page if available
@@ -181,13 +206,21 @@
       const input = findSearchInput();
       const btn = findSearchButton();
       if (input && btn) {
-        setReactInputValue(input, q);
-        await new Promise(r => setTimeout(r, 200));
-        // Set sort + page size BEFORE clicking search so results come back maxed + DOM-desc
+        // Type city,state character-by-character so BBC's keydown-validation
+        // enables the Search button (bulk-set leaves Search disabled → 500-ish errors)
+        await typeIntoInput(input, q);
+        await new Promise(r => setTimeout(r, 300));
+        // Set sort + page size BEFORE clicking search
         setSortDomDesc();
         setPageSize();
-        await new Promise(r => setTimeout(r, 150));
-        btn.click();
+        await new Promise(r => setTimeout(r, 200));
+        // Re-find the search button — it may have re-rendered after typing enabled it
+        const liveBtn = findSearchButton();
+        if (!liveBtn || liveBtn.disabled) {
+          showBanner('⚠️ Search button still disabled after typing — BBC may have changed validation. Submit manually.', '#7d4d1a');
+          return;
+        }
+        liveBtn.click();
         showBanner('🔍 Auto-searched: ' + q + (street ? ' · seeking ' + street : ''), '#1a4d2e');
         history.replaceState(null, '', location.pathname + location.search);
         if (street) {
