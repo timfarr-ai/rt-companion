@@ -881,19 +881,59 @@ def render_deal(d, t):
     }.get(t, '')
     gt_label = 'Creative' if t in ('A','B','MT') else 'Cash'
     gt_link = f' <a class="zillow" href="{gt_url}" target="_blank" style="background:#2a1a44;color:#d2a8ff;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #2a1a44;">🤝 Submit to Grand In Taylor ({gt_label}) ↗</a>' if gt_url else ''
-    # Offer Oven prefill — uses the SAME creative_offer/creative_down/rent numbers
-    # already computed in score(), so the dashboard pill, the call pitch, and the
-    # Offer Oven verification all reconcile to the same restructured deal.
+    # HMHW calculator deep-links — tier-routed to the right calculator. The previous
+    # #prefill={JSON} hash was a speculative no-op: HMHW's Vite app has zero URL-prefill
+    # mechanism (verified 2026-05-14 — no useSearchParams, no hashParams, no localStorage
+    # state, no URL↔state sync; only `prefill` references in the bundle are inside an
+    # embedded address-autocomplete library). So we ship clean per-tier deep-links plus
+    # a 📋 Copy values button that puts the SAME numbers (rendered in the creative_banner
+    # above) onto clipboard formatted for paste-by-line into the calculator. Saves 30s
+    # of arithmetic per property; user paste-tabs through the form.
     balloon_yr = 7 if t == 'B' else 5
     rent_annual = round((d.get('monthly_rent') or 0) * 12)
-    prefill_payload = {
-        'price': d.get('creative_offer', 0), 'down': d.get('creative_down', 0),
-        'rate': 0, 'term': 30, 'balloon': balloon_yr,
-        'rent': rent_annual, 'assignment': 5000,
-        'closing': round((d.get('creative_offer') or 0) * 0.01)
-    }
-    oven_url = f'https://www.hmhw.group/tools/offer-oven#prefill={urllib.parse.quote(json.dumps(prefill_payload))}'
-    oven_link = f' <a class="zillow" href="{oven_url}" target="_blank">Verify in Offer Oven ↗</a>' if t in ('A','B','MT') else ''
+    creative_offer_v = d.get('creative_offer', 0) or 0
+    creative_down_v = d.get('creative_down', 0) or 0
+    closing_v = round(creative_offer_v * 0.01)
+    # Tier-routed calculators (8 confirmed in HMHW bundle):
+    #   A/B → seller-finance (SF-specific) + offer-oven (universal creative builder)
+    #   MT  → mortgage-takeover
+    #   FF  → fix-and-flip + rehab-estimator
+    #   C   → cash-deal-checker
+    hmhw_calcs = {
+        'A':  [('Seller Finance', '/tools/seller-finance'), ('Offer Oven', '/tools/offer-oven')],
+        'B':  [('Seller Finance', '/tools/seller-finance'), ('Offer Oven', '/tools/offer-oven')],
+        'MT': [('Mortgage Takeover', '/tools/mortgage-takeover'), ('Offer Oven', '/tools/offer-oven')],
+        'FF': [('Fix & Flip', '/tools/fix-and-flip'), ('Rehab Estimator', '/tools/rehab-estimator')],
+        'C':  [('Cash Deal Checker', '/tools/cash-deal-checker')],
+    }.get(t, [])
+    calc_links_html = ''.join(
+        f' <a class="zillow" href="https://www.hmhw.group{path}" target="_blank">🧮 {name} ↗</a>'
+        for name, path in hmhw_calcs
+    )
+    # Clipboard payload — plain-text values, one per line, ready for Tab-key paste.
+    # Order matches the Offer Oven field sequence (Purchase Price, Down Payment, Rate,
+    # Term, Loan Balance for sub-to, Rental Revenue, Assignment, Closing).
+    if t in ('A', 'B', 'MT'):
+        copy_payload = (
+            f'Purchase Price: ${creative_offer_v:,}\\n'
+            f'Down Payment: ${creative_down_v:,}\\n'
+            f'Interest Rate: 0%\\n'
+            f'Term: 30 years\\n'
+            f'Balloon: {balloon_yr} years\\n'
+            f'Rental Revenue (Annual): ${rent_annual:,}\\n'
+            f'Assignment Fee: $5,000\\n'
+            f'Closing Costs (1%): ${closing_v:,}'
+        )
+        copy_handler = (
+            f"navigator.clipboard.writeText(`{copy_payload}`);"
+            f"this.style.background='#1a4d2e';this.style.color='#56d364';"
+            f"this.dataset.orig=this.textContent;this.textContent='✓ Copied — paste into HMHW';"
+            f"setTimeout(()=>{{this.style.background='';this.style.color='';this.textContent=this.dataset.orig;}},2000);"
+        )
+        copy_btn = f' <button class="zillow" type="button" onclick="{copy_handler}" style="background:#1c2128;color:#58a6ff;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #30363d;cursor:pointer;font-family:inherit;font-size:12px;">📋 Copy values</button>'
+    else:
+        copy_btn = ''
+    oven_link = calc_links_html + copy_btn
     pipe = ' <span class="pill" style="background:#1a4d2e;color:#56d364;">in pipeline</span>' if d.get('in_pipeline') else ''
     # Deal type pill (human readable from BBC's dealType field)
     dt_map = {'sellerFinance': 'Seller Finance', 'mortgageTakeover': 'Mortgage Takeover', 'section8': 'Section 8', 'fixAndFlip': 'Fix & Flip', 'cash': 'Cash'}
