@@ -10,6 +10,7 @@ AT_BASE   = os.environ.get('AT_BASE', 'appv6jhEzhGaAITcs')
 KB_TABLE  = os.environ.get('KB_TABLE', 'tblh40Mq2rHwfe1I2')
 WL_TABLE  = os.environ.get('WL_TABLE', 'tbluV0qAWYNAFkD5S')
 DF_TABLE  = os.environ.get('DF_TABLE', 'tblk9fSDyWjpftLwm')  # Deal Flow — tracked deals
+RJ_TABLE  = os.environ.get('RJ_TABLE', 'tblMewF15iP58sJHm')  # Rejected by Tim — feedback loop
 GH_PAT    = os.environ['GH_PAT']
 GH_REPO   = os.environ.get('GH_REPO', 'timfarr-ai/rt-companion')
 # 10-state list, each one with primary-source teaching from Richard's courses:
@@ -94,6 +95,21 @@ while url:
     url = f'https://api.airtable.com/v0/{AT_BASE}/{DF_TABLE}?pageSize=100&fields%5B%5D=PID&offset={offset}' if offset else None
 print(f'Deal Flow: {len(tracked_pids)} tracked PIDs to exclude from daily', file=sys.stderr)
 
+# 3c. Fetch rejected PIDs from 'Rejected by Tim' — Tim's manual filter feedback.
+# Existence = permanent exclude. Reasons collected feed the weekly optimization agent.
+rejected_pids = set()
+url = f'https://api.airtable.com/v0/{AT_BASE}/{RJ_TABLE}?pageSize=100&fields%5B%5D=PID'
+while url:
+    code, body = http_req(url, headers={'Authorization': f'Bearer {AT_TOKEN}'})
+    if code != 200: break
+    data = json.loads(body)
+    for r in data.get('records', []):
+        pid = (r.get('fields') or {}).get('PID', '').strip()
+        if pid: rejected_pids.add(pid)
+    offset = data.get('offset')
+    url = f'https://api.airtable.com/v0/{AT_BASE}/{RJ_TABLE}?pageSize=100&fields%5B%5D=PID&offset={offset}' if offset else None
+print(f'Rejected by Tim: {len(rejected_pids)} PIDs permanently excluded', file=sys.stderr)
+
 # 4. Fetch leads per state — uses opener for cookies
 all_leads = []
 for state in STATES:
@@ -129,6 +145,42 @@ for state in STATES:
                     print(f'{state}: ERROR event: {line[5:200]}', file=sys.stderr)
     print(f'{state}: +{len(all_leads)-state_count_before} (cumulative {len(all_leads)})', file=sys.stderr)
 
+# 4a. SECOND PASS — Off-market MT only. Per Richard's MT Course L1011-1024, the
+# $9K-style takeover deals tend to be on REMOVED listings (seller couldn't profit
+# at retail, pulled the listing). Active-only search misses these.
+print(f'\nOff-market MT pass...', file=sys.stderr)
+om_count_before = len(all_leads)
+for state in STATES:
+    payload = {'search_query': state,
+               'deal_type': ['mortgageTakeover'],
+               'market_status': 'Off Market', 'page': 1, 'limit': 25,
+               'sort_field': 'daysOnMarket', 'sort_order': 'desc',
+               'price_range': {'max': 1_400_000}}
+    code, body = http_req('https://www.buyboxcartel.com/api/lightning-leads/search-property',
+                          method='POST', json_body=payload,
+                          headers={'Accept': 'text/event-stream',
+                                   'Authorization': f'Bearer {bbc_token}'},
+                          use_opener=True)
+    if code != 200:
+        print(f'{state} (off-market): HTTP {code} — skipping', file=sys.stderr); continue
+    text = body.decode(errors='ignore')
+    state_before = len(all_leads)
+    for block in text.split('\n\n'):
+        if 'event: complete' in block:
+            for line in block.split('\n'):
+                if line.startswith('data:'):
+                    try:
+                        d = json.loads(line[5:])
+                        for p in d.get('propertyDetails', []):
+                            p['_off_market'] = True  # tag for later filtering / labeling
+                            all_leads.append(p)
+                    except: pass
+            break
+    delta = len(all_leads) - state_before
+    if delta:
+        print(f'  {state} (off-market): +{delta}', file=sys.stderr)
+print(f'Off-market MT pass: +{len(all_leads) - om_count_before} listings added', file=sys.stderr)
+
 # 4b. Helpers: agent unlock + timezone lookup
 # US state → IANA timezone (covers 99% of triage target states; some states span multiple TZs,
 # we pick the dominant metro TZ. East-TN/El-Paso/etc. are slight approximations.)
@@ -139,6 +191,73 @@ STATE_TZ = {
     'NC': 'America/New_York', 'AZ': 'America/Phoenix',
     'MS': 'America/Chicago', 'AR': 'America/Chicago', 'MO': 'America/Chicago',
 }
+
+# Claude vision — analyze BBC property photos for REO/condition/distress signals
+# that BBC's API doesn't expose. Closes the detection gap that scraping Zillow
+# can't (PerimeterX blocks). Cost: Haiku 4.5 at ~$0.005/property × ~100 quals/day
+# = ~$0.50/day. Only runs on qualified properties (post-tier, post-agent-unlock).
+ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
+VISION_MODEL = 'claude-haiku-4-5-20251001'
+VISION_PROMPT = '''You are evaluating a residential listing for a creative-finance wholesaler (Richard Taylor's HMHW method). The method works on STANDARD residential listings with individual sellers — NOT REO/auction/bank-owned, not heavily distressed properties needing gut rehab, not commercial buildings.
+
+Given these property photos, return ONLY a single JSON object with these fields:
+- condition (int 1-5): 5=move-in ready, 4=light cosmetic only, 3=cosmetic renovation, 2=significant rehab (kitchen/bath/floors), 1=heavy gut / structural / water damage
+- reo_or_auction (bool): visible REO sign, auction sign, bank-owned marketing, lockbox-only, completely empty/staged-for-auction look
+- commercial_or_unusual (bool): commercial use, warehouse/industrial, vacant lot photos labelled as a house, mobile home on leased lot
+- recommended_action (string): "qualify" | "demote_to_ff" | "reject"
+  - "qualify" = clean residential, Richard's method applies
+  - "demote_to_ff" = condition is 2-3, route to Fix & Flip instead of Seller Finance
+  - "reject" = condition 1 OR reo_or_auction OR commercial_or_unusual
+- notes (string, max 100 chars): brief reasoning visible to operator
+
+Output ONLY the JSON. No prose, no markdown fences.'''
+
+vision_cache = {}  # PID → analysis dict
+vision_calls = 0
+vision_skipped = 0
+
+def analyze_property_vision(p):
+    """Send up to 2 BBC photos to Claude vision; return analysis dict or None on
+    failure. Caches per-PID for the run. Skips if ANTHROPIC_API_KEY missing or
+    no images on the listing."""
+    global vision_calls
+    pid = p.get('pid')
+    if not pid or not ANTHROPIC_API_KEY: return None
+    if pid in vision_cache: return vision_cache[pid]
+    images = p.get('images') or []
+    if not images: return None
+    # Use top 2 photos — usually exterior + interior — enough for condition + REO assessment
+    photo_urls = [img if isinstance(img, str) else img.get('url') for img in images[:2]]
+    photo_urls = [u for u in photo_urls if u]
+    if not photo_urls: return None
+    content = []
+    for url in photo_urls:
+        content.append({'type': 'image', 'source': {'type': 'url', 'url': url}})
+    content.append({'type': 'text', 'text': VISION_PROMPT})
+    body = {
+        'model': VISION_MODEL,
+        'max_tokens': 200,
+        'messages': [{'role': 'user', 'content': content}]
+    }
+    code, resp = http_req('https://api.anthropic.com/v1/messages', method='POST',
+                          json_body=body,
+                          headers={'x-api-key': ANTHROPIC_API_KEY,
+                                   'anthropic-version': '2023-06-01'})
+    vision_calls += 1
+    if code != 200:
+        return None
+    try:
+        data = json.loads(resp)
+        text = data['content'][0]['text'].strip()
+        # Strip markdown fences if present
+        if text.startswith('```'):
+            text = text.split('\n', 1)[1].rsplit('```', 1)[0].strip()
+        analysis = json.loads(text)
+        vision_cache[pid] = analysis
+        return analysis
+    except Exception as e:
+        print(f'  vision parse error for {pid}: {e}', file=sys.stderr)
+        return None
 
 def unlock_agent(pid):
     """Get listing agent contact info via BBC's contact-seller endpoint — the one
@@ -450,6 +569,12 @@ for p in all_leads:
     if p.get('pid') in tracked_pids:
         tracked_skipped += 1
         continue
+    # 'Rejected by Tim' dedupe — permanent exclude. The reason captured in that
+    # table will be reviewed by the weekly optimization agent to propose new
+    # filter rules.
+    if p.get('pid') in rejected_pids:
+        tracked_skipped += 1  # counts toward same bucket for summary
+        continue
     # New construction / planned development filter — Richard's method targets
     # distressed EXISTING listings with stale DOM; new builds have a builder-seller
     # (different motivation profile) and no rental history. Signals:
@@ -528,6 +653,45 @@ if unlock_targets:
 # Strip auction-rejected from their tier buckets (they shouldn't appear in briefing)
 for t in ('A','B','MT','FF','C'):
     buckets[t] = [s for s in buckets[t] if not s.get('_auction_reject')]
+
+# 5b. Vision analysis — Claude looks at BBC's photos and flags REO/condition/distress
+# that the data fields don't expose. Closes the detection gap.
+vision_rejected = 0
+vision_demoted = 0
+if ANTHROPIC_API_KEY:
+    print(f'\nClaude vision analysis on qualified properties...', file=sys.stderr)
+    # Build a lookup: PID → original BBC property dict (for photo URLs)
+    p_by_pid = {p.get('pid'): p for p in all_leads if p.get('pid')}
+    for tier_name in ('A','B','MT','FF','C'):
+        for s in list(buckets[tier_name]):
+            pid = s.get('pid')
+            orig_p = p_by_pid.get(pid)
+            if not orig_p: continue
+            analysis = analyze_property_vision(orig_p)
+            if not analysis: continue
+            s['vision'] = analysis
+            action = (analysis.get('recommended_action') or '').lower()
+            if action == 'reject':
+                vision_rejected += 1
+                buckets[tier_name].remove(s)
+                print(f"  ✗ {s['address'][:50]}: VISION-REJECTED — {analysis.get('notes','')[:80]}", file=sys.stderr)
+            elif action == 'demote_to_ff' and tier_name != 'FF':
+                vision_demoted += 1
+                buckets[tier_name].remove(s)
+                # Reroute to FF — change deal_type label and creative_terms
+                s['deal_type_raw'] = 'fixAndFlip'
+                s['creative_offer'] = round(s['price'] * 0.70) if s.get('price') else 0
+                s['creative_down'] = 0
+                s['creative_terms'] = f"Cash offer ${s['creative_offer']:,} (vision-demoted — condition {analysis.get('condition','?')}/5)"
+                buckets['FF'].append(s)
+                print(f"  → {s['address'][:50]}: VISION-DEMOTED {tier_name}→FF (condition {analysis.get('condition','?')}/5): {analysis.get('notes','')[:60]}", file=sys.stderr)
+    print(f'Vision: {vision_calls} API calls (~${vision_calls * 0.005:.2f}) · {vision_rejected} rejected · {vision_demoted} demoted to FF', file=sys.stderr)
+else:
+    print(f'\nClaude vision SKIPPED — ANTHROPIC_API_KEY not set. To enable: export ANTHROPIC_API_KEY=sk-...', file=sys.stderr)
+
+# Re-sort buckets after vision-driven moves
+for t in ('A','B','MT','C'): buckets[t].sort(key=lambda x: (-x.get('creative_cf',0), -x.get('dom',0)))
+buckets['FF'].sort(key=lambda x: -x.get('dom',0))
 
 # 5c. Persist captured agents to Airtable Known Agents (upsert by phone or by name+state)
 KA_TABLE = 'tbl0yOlg317evTwdS'  # Known Agents table created 2026-05-13
@@ -764,6 +928,19 @@ def render_deal(d, t):
             f'<strong style="color:#ffa657;">CONDITION RISK — VERIFY ZILLOW BEFORE TRACKING:</strong><br>{risk_lines}'
             f'</div>'
         )
+    # VISION VERDICT — Claude's photo-based assessment surfaced inline
+    vision = d.get('vision') or {}
+    vision_banner = ''
+    if vision:
+        cond = vision.get('condition', '?')
+        notes = (vision.get('notes') or '').replace('<','').replace('>','')[:120]
+        cond_emoji = {5:'🟢',4:'🟢',3:'🟡',2:'🟠',1:'🔴'}.get(cond, '⚪')
+        vision_banner = (
+            f'<div style="margin:6px 0 8px;padding:6px 10px;background:#161b22;'
+            f'border:1px solid #30363d;border-radius:6px;font-size:12px;color:#8b949e;">'
+            f'{cond_emoji} <strong style="color:#e6edf3;">Claude vision:</strong> condition {cond}/5 · {notes}'
+            f'</div>'
+        )
     # TRACK PROPERTY button — prefilled Airtable link. Tapping creates a Deal Flow
     # record so the property drops out of tomorrow's daily. Tim manages it through
     # the Airtable kanban from here. Uses Airtable's URL prefill (?prefill_Field=val).
@@ -794,7 +971,64 @@ def render_deal(d, t):
     track_qs = '&'.join(f'{urllib.parse.quote(k)}={urllib.parse.quote(v)}' for k,v in track_params.items() if v)
     track_url = f'https://airtable.com/{AT_BASE}/{DF_TABLE}?{track_qs}'
     track_link = f' <a class="zillow" href="{track_url}" target="_blank" style="background:#1e2c44;color:#79c0ff;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1e2c44;">+ Track Property</a>'
-    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{risk_banner}{track_link}{z}{bbc_link}{bbc_mobile_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
+    # REJECT button — opens 'Rejected by Tim' Airtable with prefilled context. Each
+    # rejection feeds the weekly optimization agent which proposes new filter rules
+    # so this category of mistake doesn't repeat. Permanent dedupe by PID.
+    reject_params = {
+        'prefill_Address': d['address'],
+        'prefill_PID': d.get('pid',''),
+        'prefill_Tier (was)': tier_label,
+        'prefill_List Price': str(int(d['price'])) if d.get('price') else '',
+        'prefill_City': city_at,
+        'prefill_State': state_at,
+        'prefill_Zillow URL': d.get('zillow','') or '',
+        'prefill_Agent Name (at reject)': agent_name_at,
+        'prefill_Rejected Date': date_iso,
+    }
+    reject_qs = '&'.join(f'{urllib.parse.quote(k)}={urllib.parse.quote(v)}' for k,v in reject_params.items() if v)
+    reject_url = f'https://airtable.com/{AT_BASE}/{RJ_TABLE}?{reject_qs}'
+    reject_link = f' <a class="zillow" href="{reject_url}" target="_blank" style="background:#3a1e1e;color:#ff7b72;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #3a1e1e;" title="Permanently reject from future triage + feed the optimization agent">✗ Reject</a>'
+
+    # SAVE TO BBC PIPELINE button — only renders when Cloudflare Worker is configured
+    # via BBC_PROXY_URL + BBC_PROXY_SECRET env vars. Hits the Worker which calls
+    # BBC's /pipeline/add server-side, bypassing iPhone's no-userscript problem.
+    pipeline_btn = ''
+    if BBC_PROXY_URL and BBC_PROXY_SECRET:
+        # Build the pipelineData payload BBC's API expects (mirrors what the
+        # Save to Pipeline button in BBC's Create Offer modal sends).
+        pipeline_payload = {
+            'address': d['address'],
+            'pid': d.get('pid', ''),
+            'creative_contract_details': {
+                'listPrice': str(d['price']),
+                'rent': str(d.get('monthly_rent', 0)),
+                'monthlyCashFlow': str(d.get('creative_cf', 0)),
+                'offerPrice': str(d.get('creative_offer', d['price'])),
+                'downPayment': str(d.get('creative_down', 0)),
+                'balloon': 96,
+                'dealType': d.get('deal_type_raw', 'sellerFinance'),
+            },
+            'email_data': {
+                'address': d['address'],
+                'offerPrice': str(d.get('creative_offer', d['price'])),
+                'downPayment': str(d.get('creative_down', 0)),
+            },
+            'property_info_details': {
+                'street': addr_parts[0] if addr_parts else d['address'],
+                'city': city_at, 'state': state_at,
+                'zip': d.get('zip', ''),
+                'latitude': d.get('lat', ''), 'longitude': d.get('lng', ''),
+                'property_type': d.get('type', ''),
+                'beds': d.get('beds', 0), 'baths': d.get('baths', 0),
+                'sqft': d.get('sqft', 0),
+                'daysOnMarket': d.get('dom', 0),
+            }
+        }
+        # JSON-encode + escape for embedding in onclick attribute
+        import html as _html_mod
+        pipeline_json_attr = _html_mod.escape(json.dumps(pipeline_payload), quote=True)
+        pipeline_btn = f' <button class="zillow" type="button" onclick="bbcSavePipeline(this, this.dataset.payload)" data-payload="{pipeline_json_attr}" style="background:#1a4d2e;color:#56d364;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1a4d2e;cursor:pointer;font-family:inherit;font-size:12px;">🔑 Save to BBC Pipeline</button>'
+    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{risk_banner}{vision_banner}{track_link}{reject_link}{pipeline_btn}{z}{bbc_link}{bbc_mobile_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
 
 section_a = ('<h2>🎯 TIER A — Multifamily Seller Finance ($200K-$1.4M, 2+ units, DOM 90+; 2-4 units only if NOT retail-desirable)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
 section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale Seller Finance (&lt;$150K, SFH, DOM 90+)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
@@ -809,6 +1043,44 @@ if buckets['REJECT']:
 agent_indicator = f' · 🔓 {unlocks_succeeded} agents captured (free)' if unlocks_succeeded else ''
 summary = f'{len(all_leads)} leads · {len(buckets["A"])} Tier A · {len(buckets["B"])} Tier B · {len(buckets["MT"])} MT · {len(buckets["FF"])} FF · {len(buckets["C"])} Tier C · {pushed} → watchlist{agent_indicator}'
 CSS = 'body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:12px;font-size:15px;line-height:1.5;}h2{font-size:14px;color:#8b949e;text-transform:uppercase;letter-spacing:0.04em;margin:18px 0 8px;}.summary{background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:14px;}.deal{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px;margin-bottom:10px;}.deal .addr{font-weight:600;font-size:15px;margin-bottom:4px;}.deal .meta{font-size:13px;color:#8b949e;margin-bottom:6px;}.deal .nums{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}.pill{background:#1c2128;border:1px solid #30363d;border-radius:12px;padding:2px 9px;font-size:12px;color:#8b949e;}.play-link{display:inline-block;padding:8px 12px;background:#58a6ff;color:#0d1117;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;margin-top:4px;}.tier-A{border-left:3px solid #ff7b72;}.tier-B{border-left:3px solid #d2a8ff;}.tier-MT{border-left:3px solid #79c0ff;}.tier-FF{border-left:3px solid #f0883e;}.tier-C{border-left:3px solid #56d364;}a.zillow{color:#58a6ff;font-size:12px;margin-left:8px;}.rejected{color:#8b949e;font-size:13px;padding:4px 0;}.date{color:#8b949e;font-size:13px;}.addr-copy{display:inline-block;margin-left:8px;padding:2px 9px;font-size:12px;background:#1c2128;border:1px solid #30363d;color:#58a6ff;border-radius:12px;cursor:pointer;font-family:inherit;}.addr-copy:hover{background:#21262d;}.addr-copy.copied{background:#1a4d2e;color:#56d364;border-color:#1a4d2e;}'
+BBC_PROXY_URL = os.environ.get('BBC_PROXY_URL', '')
+BBC_PROXY_SECRET = os.environ.get('BBC_PROXY_SECRET', '')
+PROXY_JS = ''
+if BBC_PROXY_URL and BBC_PROXY_SECRET:
+    PROXY_JS = '''<script>
+const BBC_PROXY_URL = ''' + json.dumps(BBC_PROXY_URL) + ''';
+const BBC_PROXY_SECRET = ''' + json.dumps(BBC_PROXY_SECRET) + ''';
+async function hmacHex(message, secret) {
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret),
+    {name:'HMAC', hash:'SHA-256'}, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(message));
+  return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+async function bbcSavePipeline(btn, payloadJson) {
+  const body = JSON.stringify(JSON.parse(payloadJson));
+  btn.disabled = true;
+  const origText = btn.textContent;
+  btn.textContent = '⏳ Sending…';
+  try {
+    const sig = await hmacHex(body, BBC_PROXY_SECRET);
+    const resp = await fetch(BBC_PROXY_URL + '/pipeline', {
+      method: 'POST', body, headers: {'Content-Type':'application/json', 'X-Signature':sig}
+    });
+    const result = await resp.json();
+    if (resp.ok && (result.status === 201 || result.status === 200)) {
+      btn.style.background = '#1a4d2e'; btn.style.color = '#56d364';
+      btn.textContent = '✓ Saved to BBC Pipeline';
+    } else {
+      btn.style.background = '#3a1e1e'; btn.style.color = '#ff7b72';
+      btn.textContent = '✗ Failed (' + (result.status || resp.status) + ')';
+    }
+  } catch (e) {
+    btn.style.background = '#3a1e1e'; btn.style.color = '#ff7b72';
+    btn.textContent = '✗ Error: ' + e.message.slice(0, 40);
+  }
+}
+</script>'''
+
 CLOCK_JS = '''<script>
 function updateLocalTimes(){
   document.querySelectorAll('.local-time').forEach(function(el){
@@ -824,7 +1096,7 @@ function updateLocalTimes(){
 updateLocalTimes();
 setInterval(updateLocalTimes, 30000);
 </script>'''
-html = f'<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Triage {date_iso}</title><style>{CSS}</style></head><body><p class="date">📋 {date_human} · TN/TX/GA/OH/MI &nbsp;·&nbsp; <a href="https://www.buyboxcartel.com/vip/lightning-leads" target="_blank" style="color:#58a6ff;">Open BBC Lightning Leads ↗</a></p><div class="summary">{summary}</div>{section_a}{section_b}{section_mt}{section_ff}{section_c}{rej_section}' + CLOCK_JS + '</body></html>'
+html = f'<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Triage {date_iso}</title><style>{CSS}</style></head><body><p class="date">📋 {date_human} · TN/TX/GA/OH/MI &nbsp;·&nbsp; <a href="https://www.buyboxcartel.com/vip/lightning-leads" target="_blank" style="color:#58a6ff;">Open BBC Lightning Leads ↗</a></p><div class="summary">{summary}</div>{section_a}{section_b}{section_mt}{section_ff}{section_c}{rej_section}' + PROXY_JS + CLOCK_JS + '</body></html>'
 
 # 8. Publish
 b64 = base64.b64encode(html.encode()).decode()
