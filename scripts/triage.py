@@ -331,7 +331,44 @@ def score(p):
             'baths': int(float(p.get('bath') or 0)),
             'sqft': int(p.get('sqft') or 0),
             'lat': addr.get('latitude') or '',
-            'lng': addr.get('longitude') or ''}
+            'lng': addr.get('longitude') or '',
+            'year_built': int(cd.get('yearBuilt')) if (cd.get('yearBuilt') and str(cd.get('yearBuilt')).isdigit()) else 0,
+            'foundation': (cd.get('foundation') or '').strip(),
+            'image_count': len(p.get('images') or []),
+            'is_zillow_active': bool(p.get('is_zillow_active'))}
+
+def condition_risk_flags(s):
+    """Heuristic signals that a listing is likely a heavy-rehab / REO / auction
+    rather than a clean seller-finance candidate. BBC's API doesn't expose
+    condition or REO status, so we infer from indirect indicators. This is
+    HEURISTIC — operator MUST verify on Zillow before tracking.
+
+    Returns list of warning strings to surface on the card. Empty list = clean."""
+    flags = []
+    foundation = (s.get('foundation') or '').upper()
+    year_built = s.get('year_built') or 0
+    sqft_val = s.get('sqft') or 0
+    img_count = s.get('image_count') or 0
+    dom = s.get('dom') or 0
+    price = s.get('price') or 0
+
+    # Foundation 'N/A' + old build year = data is missing / property may have foundation issues
+    if foundation in ('N/A', '', 'NONE') and year_built and year_built < 1960:
+        flags.append('⚠️ Old build + foundation unrecorded — verify condition on Zillow')
+
+    # Pre-1940 + very cheap = likely needs significant work
+    if year_built and year_built > 0 and year_built < 1940 and price > 0 and price < 80_000:
+        flags.append('⚠️ Pre-1940 + <$80K = likely heavy rehab — consider F&F not SF')
+
+    # Very low image count for a long-stale listing = under-marketed / poor condition
+    if img_count > 0 and img_count < 4 and dom > 365:
+        flags.append('⚠️ Only ' + str(img_count) + ' photos despite ' + str(dom) + ' DOM — verify on Zillow')
+
+    # 100% equity + very stale + cheap urban (Detroit, Highland Park MI, Memphis) = REO or distress
+    if dom > 500 and price > 0 and price < 100_000 and (s.get('cf') or 0) == 0:
+        flags.append('⚠️ Stale + cheap + null cash flow — possibly REO/auction; verify listing status')
+
+    return flags
 
 def tier(s):
     """Strict adherence to Richard's tier framework from deal-criteria.md:
@@ -397,7 +434,11 @@ def match_buyers(s, t, buyers):
 #     Exception (manual): MT plays where seller is underwater, or luxury beachfront.
 #     Tim hand-picks those from BBC directly; daily triage default-excludes them.
 NON_RESIDENTIAL_TYPES = ('vacant', 'land', 'lot', 'acreage', 'commercial', 'industrial',
-                         'condo', 'apartment')  # 'apartment' = single condo-style unit
+                         'condo', 'apartment',       # 'apartment' = single condo-style unit
+                         'manufactured', 'mobile')   # manufactured/mobile homes — often on leased
+                                                     # land (no real estate to underwrite), depreciate,
+                                                     # not lendable conventionally. Per Tim's 7717
+                                                     # Arbor Ridge Ct example 2026-05-14.
 buckets = {'A':[], 'B':[], 'MT':[], 'FF':[], 'C':[], 'REJECT':[]}
 land_skipped = 0
 tracked_skipped = 0
@@ -428,6 +469,15 @@ for p in all_leads:
     if any(token in pt_lower for token in NON_RESIDENTIAL_TYPES):
         land_skipped += 1
         continue
+    # Condition / REO risk heuristic — heuristic flags computed once, surfaced on
+    # card AND used to demote heavy-rehab-flavored SF candidates into Fix & Flip path
+    s['risk_flags'] = condition_risk_flags(s)
+    # If a listing looks like heavy-rehab (pre-1940 + cheap), demote SF → FF candidate
+    if (s.get('deal_type') == 'sellerFinance'
+        and s.get('year_built') and s['year_built'] < 1940
+        and s.get('price') and s['price'] < 80_000):
+        s['deal_type'] = 'fixAndFlip'  # reroute through tier()
+        s['deal_type_raw'] = 'fixAndFlip'
     t = tier(s)
     s['buyer_matches'] = match_buyers(s, t, buyers) if t != 'REJECT' else []
     s['tz'] = STATE_TZ.get(s['state'], 'America/New_York')
@@ -440,9 +490,17 @@ print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  MT={len(buckets["MT"])} 
 
 # 5b. Surface agent info — cookie-free via BBC's contact-seller endpoint (the one
 # behind the Create Offer modal). Cost: $0/unlock. Run on ALL Tier A/B/C deals.
+# ALSO: detect REO/auction/foreclosure based on agent name keywords — these
+# 'agents' are corporate asset managers (Auction.com, Williams & Williams, etc.),
+# NOT individual realtors. Properties they list are bank-owned auctions, which
+# Richard's method doesn't address. We REJECT them post-unlock.
+AUCTION_AGENT_KEYWORDS = ('auction', 'reo', 'foreclosure', 'bank ', 'asset management',
+                          'williams &', 'altisource', 'bidsale', 'hubzu', 'xome',
+                          'realty trust', 'asset disposition', 'servicelink')
 unlock_targets = buckets['A'] + buckets['B'] + buckets['MT'] + buckets['FF'] + buckets['C']
 unlocks_attempted = 0
 unlocks_succeeded = 0
+auction_rejected = 0
 captured_agents = []  # for Airtable persistence
 if unlock_targets:
     print(f'\nFetching agent info for {len(unlock_targets)} Tier A/B/C deals (cookie-free)...', file=sys.stderr)
@@ -450,6 +508,15 @@ if unlock_targets:
         unlocks_attempted += 1
         agent = unlock_agent(s['pid'])
         if agent:
+            agent_name_lower = (agent.get('name') or '').lower()
+            is_auction = any(kw in agent_name_lower for kw in AUCTION_AGENT_KEYWORDS)
+            if is_auction:
+                # Move from its qualified tier to REJECT bucket — this is an REO/auction listing
+                s['agent'] = agent
+                s['_auction_reject'] = True
+                auction_rejected += 1
+                print(f"  ✗ {s['address'][:50]}: REJECTED — agent '{agent['name']}' looks like auction/REO", file=sys.stderr)
+                continue
             s['agent'] = agent
             unlocks_succeeded += 1
             captured_agents.append({**agent, 'pid': s['pid'], 'address': s['address'], 'state': s['state']})
@@ -457,7 +524,11 @@ if unlock_targets:
             print(f"  ✓ {s['address'][:50]}: {agent['name']} / {phone_str}", file=sys.stderr)
         else:
             print(f"  · {s['address'][:50]}: no agent record in BBC", file=sys.stderr)
-    print(f'Agents captured: {unlocks_succeeded}/{unlocks_attempted}', file=sys.stderr)
+    print(f'Agents captured: {unlocks_succeeded}/{unlocks_attempted} (auction-rejected: {auction_rejected})', file=sys.stderr)
+
+# Strip auction-rejected from their tier buckets (they shouldn't appear in briefing)
+for t in ('A','B','MT','FF','C'):
+    buckets[t] = [s for s in buckets[t] if not s.get('_auction_reject')]
 
 # 5c. Persist captured agents to Airtable Known Agents (upsert by phone or by name+state)
 KA_TABLE = 'tbl0yOlg317evTwdS'  # Known Agents table created 2026-05-13
@@ -565,9 +636,21 @@ def render_deal(d, t):
     state_part = (parts[2].split()[0] if len(parts) >= 3 and parts[2] else '')  # strip zip from "MI 48316"
     bbc_query = f'{city_part}, {state_part}' if city_part and state_part else d['address']
     bbc_hash_payload = f'{bbc_query}|street:{street_part}' if street_part else bbc_query
-    # BBC search URL with #auto: hash — userscript on BBC side auto-fills + searches
+    # BBC search URL with #auto: hash — userscript on BBC side auto-fills + searches.
+    # Works on desktop browsers with Tampermonkey/Userscripts installed.
     bbc_search = f'https://www.buyboxcartel.com/vip/lightning-leads#auto:{urllib.parse.quote(bbc_hash_payload)}'
-    bbc_link = f' <a class="zillow" href="{bbc_search}" target="_blank">Search BBC ↗</a>'
+    bbc_link = f' <a class="zillow" href="{bbc_search}" target="_blank">🔍 Search BBC (desktop) ↗</a>'
+    # iPhone/Safari fallback — no userscript dependency. Copies "City, State" to
+    # clipboard (BBC's search box only accepts that format) and opens BBC; Tim
+    # pastes and scrolls. One tap on mobile, zero install requirements.
+    bbc_copy_payload = bbc_query.replace("'", "\\'")  # escape for inline JS
+    bbc_copy_handler = (
+        f"navigator.clipboard.writeText('{bbc_copy_payload}');"
+        f"this.style.background='#1a4d2e';this.style.color='#56d364';"
+        f"this.dataset.orig=this.textContent;this.textContent='✓ Copied · BBC opening';"
+        f"setTimeout(()=>{{this.style.background='';this.style.color='';this.textContent=this.dataset.orig;}},1500);"
+    )
+    bbc_mobile_link = f' <a class="zillow" href="https://www.buyboxcartel.com/vip/lightning-leads" target="_blank" onclick="{bbc_copy_handler}">📋 Copy &quot;{bbc_query}&quot; + open BBC ↗</a>'
     # Offer Oven prefill — uses the SAME creative_offer/creative_down/rent numbers
     # already computed in score(), so the dashboard pill, the call pitch, and the
     # Offer Oven verification all reconcile to the same restructured deal.
@@ -669,6 +752,19 @@ def render_deal(d, t):
         f'<span style="color:#e6edf3;">{d.get("creative_terms","")}</span>'
         f'</div>'
     )
+    # RISK FLAGS — heuristic warnings about heavy rehab / REO / data issues
+    # BBC's API doesn't expose condition or REO status, so these are inferred from
+    # year/foundation/imagery/DOM signals. Operator MUST verify on Zillow.
+    risk_flags = d.get('risk_flags') or []
+    risk_banner = ''
+    if risk_flags:
+        risk_lines = '<br>'.join(risk_flags)
+        risk_banner = (
+            f'<div style="margin:6px 0 8px;padding:8px 12px;background:#3a2418;'
+            f'border:1px solid #d29922;border-radius:6px;font-size:13px;line-height:1.5;color:#ffa657;">'
+            f'<strong style="color:#ffa657;">CONDITION RISK — VERIFY ZILLOW BEFORE TRACKING:</strong><br>{risk_lines}'
+            f'</div>'
+        )
     # TRACK PROPERTY button — prefilled Airtable link. Tapping creates a Deal Flow
     # record so the property drops out of tomorrow's daily. Tim manages it through
     # the Airtable kanban from here. Uses Airtable's URL prefill (?prefill_Field=val).
@@ -699,7 +795,7 @@ def render_deal(d, t):
     track_qs = '&'.join(f'{urllib.parse.quote(k)}={urllib.parse.quote(v)}' for k,v in track_params.items() if v)
     track_url = f'https://airtable.com/{AT_BASE}/{DF_TABLE}?{track_qs}'
     track_link = f' <a class="zillow" href="{track_url}" target="_blank" style="background:#1e2c44;color:#79c0ff;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1e2c44;">+ Track Property</a>'
-    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{track_link}{z}{bbc_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
+    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{risk_banner}{track_link}{z}{bbc_link}{bbc_mobile_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
 
 section_a = ('<h2>🎯 TIER A — Multifamily Seller Finance ($200K-$1.4M, 2+ units, DOM 90+; 2-4 units only if NOT retail-desirable)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
 section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale Seller Finance (&lt;$150K, SFH, DOM 90+)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
