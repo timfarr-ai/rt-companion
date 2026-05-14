@@ -300,6 +300,55 @@ def analyze_property_vision(p):
         print(f'  vision parse error for {pid}: {e}', file=sys.stderr)
         return None
 
+def fetch_property_history(zpid):
+    """Fetch full Zillow-equivalent property detail (including priceHistory) for a
+    given zpid via BBC's /api/searchProperty?zpid endpoint. Returns dict with
+    last-sold price/date + flip markup analysis, or None on failure.
+
+    Used to detect 'investor flip relist' pattern: property was bought cheap recently,
+    renovated, and relisted with a 30%+ markup. These sellers want cash to roll into
+    the next flip — NOT receptive to seller finance, despite BBC's stale-DOM signal
+    (BBC's DOM is cumulative across relists; doesn't differentiate).
+
+    Returns:
+      {
+        'last_sold_price': int | None,
+        'last_sold_date': 'YYYY-MM-DD' | None,
+        'months_since_sale': int | None,
+        'flip_markup_pct': float | None,   # 0.389 = 38.9% markup over last sold
+        'is_recent_flip': bool,             # True if markup >= 35% AND sold within 24mo
+      }"""
+    if not zpid: return None
+    code, body = http_req(f'https://www.buyboxcartel.com/api/searchProperty?zpid={zpid}',
+                          method='GET', use_opener=True,
+                          headers={'Authorization': f'Bearer {bbc_token}'})
+    if code != 200: return None
+    try:
+        data = json.loads(body)
+    except: return None
+    current_price = float(data.get('price') or 0)
+    price_history = data.get('priceHistory') or []
+    # Find most recent 'Sold' event (Public Record or similar)
+    sold_events = [e for e in price_history if (e.get('event') or '').lower() == 'sold' and e.get('price', 0) >= 20000]
+    if not sold_events or current_price <= 0:
+        return {'last_sold_price': None, 'last_sold_date': None,
+                'months_since_sale': None, 'flip_markup_pct': None, 'is_recent_flip': False}
+    most_recent = max(sold_events, key=lambda e: e.get('time') or 0)
+    last_sold_price = float(most_recent.get('price') or 0)
+    last_sold_date = most_recent.get('date') or ''
+    # Compute months since sale
+    months_since = None
+    try:
+        sale_dt = datetime.strptime(last_sold_date, '%Y-%m-%d').date()
+        today = date.today()
+        months_since = (today.year - sale_dt.year) * 12 + (today.month - sale_dt.month)
+    except Exception:
+        pass
+    markup = (current_price - last_sold_price) / last_sold_price if last_sold_price > 0 else None
+    is_flip = bool(markup and markup >= 0.35 and months_since is not None and months_since <= 24)
+    return {'last_sold_price': int(last_sold_price), 'last_sold_date': last_sold_date,
+            'months_since_sale': months_since, 'flip_markup_pct': markup, 'is_recent_flip': is_flip}
+
 def unlock_agent(pid):
     """Get listing agent contact info via BBC's contact-seller endpoint — the one
     that backs the 'Create Offer' modal. Confirmed cookie-free 2026-05-13 by CDP
@@ -731,6 +780,38 @@ if ANTHROPIC_API_KEY:
 else:
     print(f'\nClaude vision SKIPPED — ANTHROPIC_API_KEY not set. To enable: export ANTHROPIC_API_KEY=sk-...', file=sys.stderr)
 
+# 5b2. Recent-flip detection — calls BBC's per-property detail endpoint for each
+# A/B/MT card to fetch priceHistory + lastSoldPrice. Properties bought cheap in
+# the last 24 months and relisted with 35%+ markup are investor flips: seller
+# wants cash to roll into the next deal, NOT receptive to SF. Detected real-world
+# 2026-05-15 on 16031 Tacoma St Detroit MI (sold $54K Dec 2024, relisted $75K =
+# +38.9% — described as 'beautifully renovated... part of 20 unit portfolio package').
+# BBC's cumulative DOM (644 days) was masking this; Zillow's reset DOM (48 days)
+# would have caught it but Richard says ignore Zillow DOM. This closes the gap.
+flip_detected = 0
+print(f'\nRecent-flip detection on Tier A/B/MT properties...', file=sys.stderr)
+for tier_name in ('A','B','MT'):
+    for s in list(buckets[tier_name]):
+        zpid = s.get('zpid')
+        if not zpid: continue
+        history = fetch_property_history(zpid)
+        if not history: continue
+        s['flip_markup_pct'] = history.get('flip_markup_pct')
+        s['last_sold_price'] = history.get('last_sold_price')
+        s['last_sold_date'] = history.get('last_sold_date')
+        s['months_since_sale'] = history.get('months_since_sale')
+        if history.get('is_recent_flip'):
+            flip_detected += 1
+            buckets[tier_name].remove(s)
+            markup_pct = round((history.get('flip_markup_pct') or 0) * 100, 1)
+            s['deal_type_raw'] = 'fixAndFlip'
+            s['creative_offer'] = round(s['price'] * 0.70) if s.get('price') else 0
+            s['creative_down'] = 0
+            s['creative_terms'] = f"Cash offer ${s['creative_offer']:,} (flip relist — +{markup_pct}% over ${history['last_sold_price']:,} sold {history['last_sold_date']})"
+            buckets['FF'].append(s)
+            print(f"  → {s['address'][:50]}: FLIP-DEMOTED {tier_name}→FF (+{markup_pct}% over ${history['last_sold_price']:,}, {history['months_since_sale']}mo ago)", file=sys.stderr)
+print(f'Recent-flip: {flip_detected} properties demoted to FF (investor relist after recent purchase)', file=sys.stderr)
+
 # Re-sort buckets after vision-driven moves
 for t in ('A','B','MT','C'): buckets[t].sort(key=lambda x: (-x.get('creative_cf',0), -x.get('dom',0)))
 buckets['FF'].sort(key=lambda x: -x.get('dom',0))
@@ -1064,6 +1145,31 @@ def render_deal(d, t):
             f'<strong style="color:#ffa657;">CONDITION RISK — VERIFY ZILLOW BEFORE TRACKING:</strong><br>{risk_lines}'
             f'</div>'
         )
+    # FLIP-RELIST BANNER — surfaces when property was bought cheap recently and
+    # relisted with markup. Seller wants cash, not SF. Banner shows even for cards
+    # that weren't demoted (e.g. markup 20-34%) so operator has the context.
+    flip_banner = ''
+    markup = d.get('flip_markup_pct')
+    if markup is not None and markup >= 0.20 and d.get('last_sold_price') and d.get('last_sold_date'):
+        markup_pct = round(markup * 100, 1)
+        mo_ago = d.get('months_since_sale') or 0
+        if markup >= 0.35 and mo_ago <= 24:
+            flip_banner = (
+                f'<div style="margin:6px 0 8px;padding:8px 12px;background:#3a1e1e;'
+                f'border:1px solid #f85149;border-radius:6px;font-size:13px;line-height:1.4;color:#ff7b72;">'
+                f'<strong style="color:#ff7b72;">🔥 INVESTOR FLIP RELIST:</strong> '
+                f'sold ${d["last_sold_price"]:,} on {d["last_sold_date"]} ({mo_ago}mo ago) → relisted +{markup_pct}% — '
+                f'seller wants cash to roll into next deal, NOT receptive to SF'
+                f'</div>'
+            )
+        elif markup >= 0.20:
+            # Soft warning for 20-34% markup — could be flip or legit equity gain
+            flip_banner = (
+                f'<div style="margin:6px 0 8px;padding:6px 10px;background:#2d2418;'
+                f'border:1px solid #d29922;border-radius:6px;font-size:12px;color:#ffa657;">'
+                f'⚠️ Markup vs last sale: ${d["last_sold_price"]:,} → ${d["price"]:,.0f} (+{markup_pct}%) {mo_ago}mo ago'
+                f'</div>'
+            )
     # VISION VERDICT — Claude's photo-based assessment surfaced inline
     vision = d.get('vision') or {}
     vision_banner = ''
@@ -1164,7 +1270,7 @@ def render_deal(d, t):
         import html as _html_mod
         pipeline_json_attr = _html_mod.escape(json.dumps(pipeline_payload), quote=True)
         pipeline_btn = f' <button class="zillow" type="button" onclick="bbcSavePipeline(this, this.dataset.payload)" data-payload="{pipeline_json_attr}" style="background:#1a4d2e;color:#56d364;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1a4d2e;cursor:pointer;font-family:inherit;font-size:12px;">🔑 Save to BBC Pipeline</button>'
-    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{photo_strip}{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{buyer_pill}{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{risk_banner}{vision_banner}{track_link}{reject_link}{bbc_property_link}{gt_link}{pipeline_btn}{z}{bbc_link}{bbc_mobile_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
+    return f'<div class="deal {cls}"><div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div><div class="meta">{d["units"]} units · {d["type"]}</div>{photo_strip}{flip_banner}{creative_banner}<div class="nums">{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}<span class="pill">${d["price"]:,.0f}</span><span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>{bank_gap_pill}<span class="pill">CoC {d["coc"]}%</span><span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>{buyer_pill}{tz_pill}</div><a class="play-link" href="{playbook}">Open Tier {t} playbook →</a>{risk_banner}{vision_banner}{track_link}{reject_link}{bbc_property_link}{gt_link}{pipeline_btn}{z}{bbc_link}{bbc_mobile_link}{oven_link}{rent_link}{sold_link}{bl}{agent_block}</div>'
 
 section_a = ('<h2>🎯 TIER A — Multifamily Seller Finance ($200K-$1.4M, 2+ units, DOM 90+; 2-4 units only if NOT retail-desirable)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
 section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale Seller Finance (&lt;$150K, SFH, DOM 90+)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
