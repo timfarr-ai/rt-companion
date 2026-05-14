@@ -443,8 +443,7 @@ buckets = {'A':[], 'B':[], 'MT':[], 'FF':[], 'C':[], 'REJECT':[]}
 land_skipped = 0
 tracked_skipped = 0
 new_construction_skipped = 0
-import datetime
-this_year = datetime.date.today().year
+this_year = date.today().year  # date imported at module top from datetime
 for p in all_leads:
     # Deal Flow dedupe — if Tim has tracked this property at any status, drop from daily.
     # He manages it via Airtable Deal Flow kanban from here.
