@@ -1386,12 +1386,14 @@ def render_deal(d, t):
         'prefill_Lot Size Sqft': str(d.get('lot_size_sqft','')) if d.get('lot_size_sqft') else '',
         'prefill_Property Type': d.get('type','') or '',
         'prefill_Loan Balance': str(d.get('loan_balance','')) if d.get('loan_balance') else '',
-        'prefill_Existing Rate': str(d.get('interest_rate', 0) / 100) if d.get('interest_rate') else '',  # percent → decimal
+        # Airtable percent fields: send the literal percent number (6.25 for 6.25%)
+        # NOT decimal (0.0625). Verified 2026-05-15 via CDP form prefill test.
+        'prefill_Existing Rate': str(d.get('interest_rate', 0)) if d.get('interest_rate') else '',
         'prefill_Existing PITI': str(d.get('monthly_payment_actual','')) if d.get('monthly_payment_actual') else '',
         'prefill_Bank Gap': str(d.get('bank_gap','')) if d.get('bank_gap') else '',
         'prefill_Monthly Rent': str(d.get('monthly_rent','')) if d.get('monthly_rent') else '',
-        'prefill_CoC %': str(d.get('coc', 0) / 100) if d.get('coc') else '',  # percent → decimal
-        'prefill_Equity %': str(d.get('equity', 0) / 100) if d.get('equity') else '',
+        'prefill_CoC %': str(d.get('coc', 0)) if d.get('coc') else '',
+        'prefill_Equity %': str(d.get('equity', 0)) if d.get('equity') else '',
         'prefill_Creative Offer': str(int(creative_offer_v)) if creative_offer_v else '',
         'prefill_Creative Down': str(int(creative_down_v)) if creative_down_v else '',
         'prefill_Creative Terms': (d.get('creative_terms','') or '')[:200],
@@ -1431,7 +1433,7 @@ def render_deal(d, t):
         'prefill_Tier (was)': tier_label,
         'prefill_Agent Name (at reject)': agent_name_at,
         'prefill_Rejected Date': date_iso,
-        'prefill_Flip Markup %': str(flip_markup_v) if flip_markup_v else '',
+        'prefill_Flip Markup %': str(round(flip_markup_v * 100, 1)) if flip_markup_v else '',
         'prefill_Description Snippet': (d.get('description','') or '')[:400],
         'prefill_Risk Flags': '\n'.join(risk_flags_v) if risk_flags_v else '',
     }
