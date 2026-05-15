@@ -557,9 +557,15 @@ def score(p):
 
     # BANK GAP — what a standard 7% bank mortgage would look like vs the creative
     # scenario above. Reuses the same rent + tax + ins + reserve numbers.
+    # Assumptions per primary source (Cash Course L300-302):
+    #   20% down ("I'm going to be required to put down 20%")
+    #   7% interest rate ("probably a 7% interest rate right now")
+    #   30-year amortization ("30-year amortization. This should always be 30.")
+    #   Principal+Interest payment structure (Richard never mentions interest-only;
+    #   DSCR loans require positive CF at amortized terms — SF Course L190-225).
     bank_gap = 0
     if monthly_rent > 0 and lp > 0:
-        bank_loan = lp * 0.75
+        bank_loan = lp * 0.80  # 20% down per Richard's standard (was 0.75 = 25% down)
         r = 0.07 / 12
         bank_pi = bank_loan * r / (1 - (1 + r) ** -360)
         bank_ti = (tax_m + ins_m) if (tax_m + ins_m) > 0 else (lp * 0.015 / 12)
@@ -1236,13 +1242,12 @@ def render_deal(d, t):
     bank_piti_pill = ''
     if d.get('monthly_piti') and not (t == 'MT' or d.get('deal_type_raw') == 'mortgageTakeover'):
         bank_piti_pill = f' <span class="pill" title="Computed PITI at market rate (what an investor pays at conventional financing)">💳 ${d["monthly_piti"]:,}/mo bank PITI</span>'
-    # Tax + Insurance combined pill — use the top-level tax_monthly/insurance_monthly
-    # fields we already capture in the score record (not the nested piti_breakdown dict).
-    tax_v = d.get('tax_monthly') or 0
-    ins_v = d.get('insurance_monthly') or 0
+    # Tax + Insurance pill — REMOVED 2026-05-15 after verifying BBC's cd.tax /
+    # cd.insurance fields are unit-inconsistent across properties (sometimes monthly,
+    # sometimes annual — Lead 1's $577 combined would exceed its PITI if monthly;
+    # Lead 3's $24.50 insurance can't be annual). Display was misleading. The PITI
+    # pill ($880/mo bank PITI) already aggregates T+I and is BBC-authoritative.
     tax_ins_pill = ''
-    if tax_v or ins_v:
-        tax_ins_pill = f' <span class="pill" title="Tax + Insurance per month (BBC source)">📊 T${tax_v} + I${ins_v}/mo</span>'
     # Agent block — only if unlocked
     agent_block = ''
     if d.get('agent'):
