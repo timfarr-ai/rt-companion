@@ -279,12 +279,24 @@
     <a class="briefing-open-btn" href="/rt-companion/briefings/" style="background:#1c2128;color:#58a6ff;border:1px solid #30363d;">Past briefings →</a>
   </div>
   <div class="briefing-wrap">
-    <iframe src="/rt-companion/briefings/latest.html" loading="lazy"></iframe>
+    <iframe src="/rt-companion/briefings/latest.html" loading="lazy" id="briefing-iframe"></iframe>
   </div>
   <p style="margin-top:8px; font-size:13px; color:var(--muted);">
     Briefing publishes weekday 6am AEST. For full screen, tap "Open full briefing" above.
   </p>
 </div>
+<script>
+  // Cache-bust the iframe on every page load so the latest briefing is shown,
+  // bypassing GitHub Pages CDN + browser caching for the embedded HTML.
+  // Without this, the iframe can show stale content even when latest.html has
+  // been overwritten by a new triage run.
+  (function() {
+    var iframe = document.getElementById('briefing-iframe');
+    if (iframe) {
+      iframe.src = '/rt-companion/briefings/latest.html?_=' + Date.now();
+    }
+  })();
+</script>
 
 <div class="grid-2">
   <div class="section">
