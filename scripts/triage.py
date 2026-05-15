@@ -416,6 +416,37 @@ def unlock_agent(pid):
             'email': '' if email == 'Not Available' else email}
 
 # 5. Score + tier
+def potential_assignment_fee(tier_letter, creative_offer, price):
+    """Richard's per-tier assignment-fee estimate (gross, before any JV split).
+
+    Based on primary-source examples from the HMHW transcripts:
+      - Tier A (MFH SF):  SF L1134 — $100K+ on multifamily ($1.3M/72-bed). SF L22:
+                           "every assignment fee above $50K comes from seller financing."
+                           Estimate: 7.5% of offer, floor $25K, cap $200K.
+      - Tier B (cheap SFH SF): SF L96 — $25K assignment on $325K SF SFH.
+                           Estimate: 7.5% of offer, floor $5K, cap $25K.
+      - MT (Mortgage Takeover): typical $5-10K spread on takeover. Fixed $7.5K.
+      - FF (Cash flip): Cash L335 — $5K Offer Oven default. Cash L1000 — $11K Orlando.
+                           Estimate: 5% of offer, floor $5K, cap $15K.
+      - C (Cash arbitrage): Similar to FF but smaller. Floor $3K, cap $10K.
+
+    Returns gross fee (solo dispo). If user goes through Grand In Taylor JV,
+    typical 50/50 split — Tim's net is ~half. The card surfaces gross + Tim
+    mentally halves for JV scenarios.
+    """
+    offer = creative_offer or price or 0
+    if tier_letter == 'A':
+        return max(25000, min(int(offer * 0.075), 200000))
+    elif tier_letter == 'B':
+        return max(5000, min(int(offer * 0.075), 25000))
+    elif tier_letter == 'MT':
+        return 7500
+    elif tier_letter == 'FF':
+        return max(5000, min(int(offer * 0.05), 15000))
+    elif tier_letter == 'C':
+        return max(3000, min(int(offer * 0.04), 10000))
+    return 5000
+
 def units(p):
     """Return unit count for the property. Trust explicit numbers and named plexes
     (duplex/triplex/quadplex). For generic 'Multi Family' with NO explicit count,
@@ -1256,13 +1287,18 @@ def render_deal(d, t):
     cc = d.get('creative_cf', 0)
     coc_v = d.get('coc', 0)
     entry_v = d.get('entry_fee', 0)
-    # CoC% and Entry $ are CREATIVE-side numbers (computed against the restructured
-    # offer + down payment), so they live in the banner not in Current State pills.
+    # Potential assignment fee per Richard's per-tier math. Surface ABOVE the CF
+    # number because it's the headline takeaway ("what's the $ to me?") not the
+    # operating numbers. Solo dispo fee — JV through Grand In Taylor splits ~50/50.
+    potential_fee = potential_assignment_fee(t, d.get('creative_offer'), d.get('price'))
+    d['potential_fee'] = potential_fee  # capture for Airtable
+    fee_part = f'<span style="color:#e3b341;font-weight:700;font-size:15px;">💰 Potential fee: ${potential_fee:,}</span> <span style="color:#8b949e;font-size:11px;">(solo — JV splits ~50/50)</span><br>'
     coc_part = f'<span style="color:#8b949e;"> &nbsp;·&nbsp; </span><span style="color:#56d364;font-weight:600;">CoC {coc_v}%</span>' if coc_v else ''
     entry_part = f'<span style="color:#8b949e;"> &nbsp;·&nbsp; </span><span style="color:#e6edf3;">Entry ${entry_v:,}</span>' if entry_v else ''
     creative_banner = (
         f'<div style="margin:6px 0 8px;padding:8px 12px;background:linear-gradient(90deg,#0d2818,#0d1f24);'
         f'border:1px solid #1a4d2e;border-radius:6px;font-size:14px;line-height:1.4;">'
+        f'{fee_part}'
         f'<span style="color:#56d364;font-weight:700;font-size:16px;">✅ Creative CF +${cc:,}/mo</span>'
         f'{coc_part}{entry_part}'
         f'<br><span style="color:#e6edf3;">{d.get("creative_terms","")}</span>'
@@ -1423,6 +1459,7 @@ def render_deal(d, t):
         'prefill_Creative Offer': str(int(creative_offer_v)) if creative_offer_v else '',
         'prefill_Creative Down': str(int(creative_down_v)) if creative_down_v else '',
         'prefill_Creative Terms': (d.get('creative_terms','') or '')[:200],
+        'prefill_Potential Fee': str(d.get('potential_fee','')) if d.get('potential_fee') else '',
         'prefill_Vision Condition': str(vision_d.get('condition','')) if vision_d.get('condition') else '',
         'prefill_Vision Notes': (vision_d.get('notes','') or '')[:200],
         'prefill_Buyer Signal': buyer_signal_label,
