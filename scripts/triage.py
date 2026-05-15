@@ -1355,20 +1355,63 @@ def render_deal(d, t):
     state_at = (addr_parts[2].split()[0] if len(addr_parts) >= 3 else d.get('state',''))
     agent_name_at = (d.get('agent') or {}).get('name', '')
     agent_phone_at = (d.get('agent') or {}).get('phone', '')
-    track_params = {
+    agent_email_at = (d.get('agent') or {}).get('email', '')
+    # Build the FULL data-capture prefill payload — every signal we surface on the
+    # card should land in the Airtable record. Updated 2026-05-15 to capture all 25
+    # new fields (MT loan data, vision verdict, flip signals, buyer signal, etc.)
+    # plus the existing 15. Percent fields use decimal (Airtable convention: 0.235).
+    vision_d = d.get('vision') or {}
+    buyer_signal_label = 'N/A'
+    bs_bucket = {'A':'creative','B':'creative','MT':'creative','FF':'fixflip','C':'fixflip'}.get(t)
+    if bs_bucket and state_name_lc:
+        bs_active = buyer_signals.get(bs_bucket, {}).get(state_name_lc)
+        if bs_active is True: buyer_signal_label = 'Active'
+        elif bs_active is False: buyer_signal_label = 'Low Activity'
+    first_photo = (d.get('images') or [''])[0] if d.get('images') else ''
+    creative_offer_v = d.get('creative_offer') or 0
+    creative_down_v = d.get('creative_down') or 0
+    # Common payload — same shape for Track + Reject (both tables share these fields)
+    common_capture = {
         'prefill_Address': d['address'],
         'prefill_PID': d.get('pid',''),
+        'prefill_State': state_at,
+        'prefill_City': city_at,
+        'prefill_ZIP': d.get('zip',''),
+        'prefill_List Price': str(int(d['price'])) if d.get('price') else '',
+        'prefill_Zillow URL': d.get('zillow','') or '',
+        'prefill_Beds': str(d.get('beds','')) if d.get('beds') else '',
+        'prefill_Baths': str(d.get('baths','')) if d.get('baths') else '',
+        'prefill_Sqft': str(d.get('sqft','')) if d.get('sqft') else '',
+        'prefill_Year Built': str(d.get('year_built','')) if d.get('year_built') else '',
+        'prefill_Lot Size Sqft': str(d.get('lot_size_sqft','')) if d.get('lot_size_sqft') else '',
+        'prefill_Property Type': d.get('type','') or '',
+        'prefill_Loan Balance': str(d.get('loan_balance','')) if d.get('loan_balance') else '',
+        'prefill_Existing Rate': str(d.get('interest_rate', 0) / 100) if d.get('interest_rate') else '',  # percent → decimal
+        'prefill_Existing PITI': str(d.get('monthly_payment_actual','')) if d.get('monthly_payment_actual') else '',
+        'prefill_Bank Gap': str(d.get('bank_gap','')) if d.get('bank_gap') else '',
+        'prefill_Monthly Rent': str(d.get('monthly_rent','')) if d.get('monthly_rent') else '',
+        'prefill_CoC %': str(d.get('coc', 0) / 100) if d.get('coc') else '',  # percent → decimal
+        'prefill_Equity %': str(d.get('equity', 0) / 100) if d.get('equity') else '',
+        'prefill_Creative Offer': str(int(creative_offer_v)) if creative_offer_v else '',
+        'prefill_Creative Down': str(int(creative_down_v)) if creative_down_v else '',
+        'prefill_Creative Terms': (d.get('creative_terms','') or '')[:200],
+        'prefill_Vision Condition': str(vision_d.get('condition','')) if vision_d.get('condition') else '',
+        'prefill_Vision Notes': (vision_d.get('notes','') or '')[:200],
+        'prefill_Buyer Signal': buyer_signal_label,
+        'prefill_Status State': d.get('status_state',''),
+        'prefill_Last Sold Price': str(d.get('last_sold_price','')) if d.get('last_sold_price') else '',
+        'prefill_Last Sold Date': d.get('last_sold_date','') or '',
+        'prefill_Agent Email': agent_email_at,
+        'prefill_First Photo URL': first_photo,
+    }
+    track_params = {**common_capture,
         'prefill_Status': 'Triage',
         'prefill_Tier': tier_label,
         'prefill_Deal Type': dt_label_at,
-        'prefill_State': state_at,
-        'prefill_City': city_at,
-        'prefill_List Price': str(int(d['price'])) if d.get('price') else '',
         'prefill_Creative CF': str(int(cc)) if cc else '',
         'prefill_DOM': str(d.get('dom','')),
         'prefill_Agent Name': agent_name_at,
         'prefill_Agent Phone': agent_phone_at,
-        'prefill_Zillow URL': d.get('zillow','') or '',
         'prefill_Briefing Date': date_iso,
         'prefill_First Tracked': date_iso,
     }
@@ -1381,16 +1424,16 @@ def render_deal(d, t):
     # REJECT button — opens 'Rejected by Tim' Airtable with prefilled context. Each
     # rejection feeds the weekly optimization agent which proposes new filter rules
     # so this category of mistake doesn't repeat. Permanent dedupe by PID.
-    reject_params = {
-        'prefill_Address': d['address'],
-        'prefill_PID': d.get('pid',''),
+    # Extra reject-only fields: flip markup %, description snippet, risk flags.
+    flip_markup_v = d.get('flip_markup_pct')
+    risk_flags_v = d.get('risk_flags') or []
+    reject_params = {**common_capture,
         'prefill_Tier (was)': tier_label,
-        'prefill_List Price': str(int(d['price'])) if d.get('price') else '',
-        'prefill_City': city_at,
-        'prefill_State': state_at,
-        'prefill_Zillow URL': d.get('zillow','') or '',
         'prefill_Agent Name (at reject)': agent_name_at,
         'prefill_Rejected Date': date_iso,
+        'prefill_Flip Markup %': str(flip_markup_v) if flip_markup_v else '',
+        'prefill_Description Snippet': (d.get('description','') or '')[:400],
+        'prefill_Risk Flags': '\n'.join(risk_flags_v) if risk_flags_v else '',
     }
     reject_qs = '&'.join(f'{urllib.parse.quote(k)}={urllib.parse.quote(v)}' for k,v in reject_params.items() if v)
     # Use the published Form share URL (shrHDH8RyCB4xXCTZ) — confirmed working with
