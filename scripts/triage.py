@@ -1205,15 +1205,13 @@ def render_deal(d, t):
     bank_piti_pill = ''
     if d.get('monthly_piti') and not (t == 'MT' or d.get('deal_type_raw') == 'mortgageTakeover'):
         bank_piti_pill = f' <span class="pill" title="Computed PITI at market rate (what an investor pays at conventional financing)">💳 ${d["monthly_piti"]:,}/mo bank PITI</span>'
-    # Tax + Insurance combined pill — present on every BBC lead regardless of tier
-    tax_v = d.get('piti_breakdown',{}).get('tax') if isinstance(d.get('piti_breakdown'), dict) else None
-    ins_v = d.get('piti_breakdown',{}).get('insurance') if isinstance(d.get('piti_breakdown'), dict) else None
+    # Tax + Insurance combined pill — use the top-level tax_monthly/insurance_monthly
+    # fields we already capture in the score record (not the nested piti_breakdown dict).
+    tax_v = d.get('tax_monthly') or 0
+    ins_v = d.get('insurance_monthly') or 0
     tax_ins_pill = ''
-    if tax_v and ins_v:
-        try:
-            tax_v = int(float(tax_v)); ins_v = int(float(ins_v))
-            tax_ins_pill = f' <span class="pill" title="Tax + Insurance per month (BBC source)">📊 T${tax_v} + I${ins_v}/mo</span>'
-        except: pass
+    if tax_v or ins_v:
+        tax_ins_pill = f' <span class="pill" title="Tax + Insurance per month (BBC source)">📊 T${tax_v} + I${ins_v}/mo</span>'
     # Agent block — only if unlocked
     agent_block = ''
     if d.get('agent'):
