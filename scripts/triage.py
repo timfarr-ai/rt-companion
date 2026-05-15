@@ -1254,12 +1254,18 @@ def render_deal(d, t):
     # CREATIVE CF BANNER — the call hook. Reads: "After restructuring, this deal
     # cash-flows $X/mo. Pitch to seller: $OFFER at 0%, $DOWN down, 30yr."
     cc = d.get('creative_cf', 0)
+    coc_v = d.get('coc', 0)
+    entry_v = d.get('entry_fee', 0)
+    # CoC% and Entry $ are CREATIVE-side numbers (computed against the restructured
+    # offer + down payment), so they live in the banner not in Current State pills.
+    coc_part = f'<span style="color:#8b949e;"> &nbsp;·&nbsp; </span><span style="color:#56d364;font-weight:600;">CoC {coc_v}%</span>' if coc_v else ''
+    entry_part = f'<span style="color:#8b949e;"> &nbsp;·&nbsp; </span><span style="color:#e6edf3;">Entry ${entry_v:,}</span>' if entry_v else ''
     creative_banner = (
         f'<div style="margin:6px 0 8px;padding:8px 12px;background:linear-gradient(90deg,#0d2818,#0d1f24);'
         f'border:1px solid #1a4d2e;border-radius:6px;font-size:14px;line-height:1.4;">'
         f'<span style="color:#56d364;font-weight:700;font-size:16px;">✅ Creative CF +${cc:,}/mo</span>'
-        f'<span style="color:#8b949e;"> &nbsp;·&nbsp; </span>'
-        f'<span style="color:#e6edf3;">{d.get("creative_terms","")}</span>'
+        f'{coc_part}{entry_part}'
+        f'<br><span style="color:#e6edf3;">{d.get("creative_terms","")}</span>'
         f'</div>'
     )
     # RISK FLAGS — heuristic warnings about heavy rehab / REO / data issues
@@ -1528,7 +1534,9 @@ def render_deal(d, t):
         f'</div>'
         # PHOTOS
         f'{photo_strip}'
-        # ① CURRENT STATE
+        # ① CURRENT STATE — facts about the listing as-is + warning signals about
+        # those facts (owe-vs-ask, flip history, vision, risk flags). CoC% moved out
+        # to Creative Outcome since it's computed against the restructured offer.
         f'<div class="card-section">'
         f'<div class="section-label">① Current State</div>'
         f'<div class="nums">'
@@ -1536,18 +1544,21 @@ def render_deal(d, t):
         f'<span class="pill">${d["price"]:,.0f}</span>'
         f'<span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>'
         f'{bank_gap_pill}'
-        f'<span class="pill">CoC {d["coc"]}%</span>'
         f'<span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>'
         f'{mt_rate_pill}{actual_pmt_pill}{bank_piti_pill}{rent_pill}{tax_ins_pill}{buyer_pill}{tz_pill}'
         f'</div>'
+        # Banners that reflect the CURRENT STATE of the listing — loan vs asking,
+        # flip-detection (sold/relisted history is current-state evidence), description
+        # signals, risk flags, vision verdict.
+        f'{owe_banner}'
+        f'{flip_banner}{desc_flip_banner}'
         f'{risk_banner}{vision_banner}'
         f'</div>'
-        # ② CREATIVE / OUTCOME
+        # ② CREATIVE OUTCOME — what the deal looks like AFTER our restructure.
+        # Just the creative_banner (CF + CoC + entry + terms) and buyer match.
         f'<div class="card-section">'
         f'<div class="section-label">② Creative Outcome (the pitch)</div>'
         f'{creative_banner}'
-        f'{owe_banner}'
-        f'{desc_flip_banner}{flip_banner}'
         f'{bl}'
         f'</div>'
         # ③ RESEARCH BUTTONS
