@@ -1192,6 +1192,28 @@ def render_deal(d, t):
     actual_pmt_pill = ''
     if d.get('monthly_payment_actual') and (t == 'MT' or d.get('deal_type_raw') == 'mortgageTakeover'):
         actual_pmt_pill = f' <span class="pill" title="BBC-reported actual monthly mortgage payment (PITI)">💳 ${d["monthly_payment_actual"]:,}/mo PITI</span>'
+    # Rent pill — every tier where BBC has a rent estimate. The "what does it rent
+    # for" number Richard eyeballs before deciding to dial. Tier B / FF cards depend
+    # on it; SF / MT cards too (CF math relies on it).
+    rent_pill = ''
+    if d.get('monthly_rent'):
+        rent_pill = f' <span class="pill" title="BBC rent estimate (used in CF + bank gap calcs)">🏠 Rent ${d["monthly_rent"]:,}/mo</span>'
+    # Bank-rate PITI pill — shown on non-MT cards (MT already has 💳 actual PITI).
+    # This is OUR computed PITI at market rate (price × 0.8 @ ~7%, with tax + ins),
+    # the number an investor would actually pay if they got a conventional loan.
+    # Helps non-MT cards show "this is what a normal cash-with-loan would cost".
+    bank_piti_pill = ''
+    if d.get('monthly_piti') and not (t == 'MT' or d.get('deal_type_raw') == 'mortgageTakeover'):
+        bank_piti_pill = f' <span class="pill" title="Computed PITI at market rate (what an investor pays at conventional financing)">💳 ${d["monthly_piti"]:,}/mo bank PITI</span>'
+    # Tax + Insurance combined pill — present on every BBC lead regardless of tier
+    tax_v = d.get('piti_breakdown',{}).get('tax') if isinstance(d.get('piti_breakdown'), dict) else None
+    ins_v = d.get('piti_breakdown',{}).get('insurance') if isinstance(d.get('piti_breakdown'), dict) else None
+    tax_ins_pill = ''
+    if tax_v and ins_v:
+        try:
+            tax_v = int(float(tax_v)); ins_v = int(float(ins_v))
+            tax_ins_pill = f' <span class="pill" title="Tax + Insurance per month (BBC source)">📊 T${tax_v} + I${ins_v}/mo</span>'
+        except: pass
     # Agent block — only if unlocked
     agent_block = ''
     if d.get('agent'):
@@ -1518,7 +1540,7 @@ def render_deal(d, t):
         f'{bank_gap_pill}'
         f'<span class="pill">CoC {d["coc"]}%</span>'
         f'<span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>'
-        f'{mt_rate_pill}{actual_pmt_pill}{buyer_pill}{tz_pill}'
+        f'{mt_rate_pill}{actual_pmt_pill}{bank_piti_pill}{rent_pill}{tax_ins_pill}{buyer_pill}{tz_pill}'
         f'</div>'
         f'{risk_banner}{vision_banner}'
         f'</div>'
