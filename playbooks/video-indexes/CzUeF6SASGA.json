@@ -1,0 +1,262 @@
+{
+  "video_id": "CzUeF6SASGA",
+  "title": "Cold calling until I get a deal",
+  "duration": "2:34:29",
+  "url": "https://youtu.be/CzUeF6SASGA",
+  "segments": [
+    {
+      "start": "0:01:00",
+      "start_seconds": 60,
+      "end": "0:02:30",
+      "duration": "~1.5 min",
+      "type": "Coaching",
+      "strategy": "Coaching",
+      "who": "student",
+      "summary": "Student OB3 brings a Texas quadplex lead from agent Kathy West; seller's husband has cancer, distressed. Sets up later call.",
+      "highlight": false
+    },
+    {
+      "start": "0:03:00",
+      "start_seconds": 180,
+      "end": "0:09:30",
+      "duration": "~6.5 min",
+      "type": "call",
+      "strategy": "Cash",
+      "who": "student",
+      "summary": "Student Angel locks Detroit duplex at $170K (listed $197K), section-8 fully renovated. Richard calls cash buyer Joseph live, sells in one call for $178K, $8K assignment fee. Real-time cash-on-cash math: 36%.",
+      "highlight": true
+    },
+    {
+      "start": "0:09:30",
+      "start_seconds": 570,
+      "end": "0:14:30",
+      "duration": "~5 min",
+      "type": "Coaching",
+      "strategy": "Coaching",
+      "who": "Richard solo",
+      "summary": "Richard breaks down why the deal worked: occupied rent + condition. Coaches Angel on contract: 6-day inspection, $2K non-refundable EMD post-inspection, no need for assignment clause (default-assignable).",
+      "highlight": true
+    },
+    {
+      "start": "0:18:00",
+      "start_seconds": 1080,
+      "end": "0:20:00",
+      "duration": "~2 min",
+      "type": "call",
+      "strategy": "MT",
+      "who": "agent",
+      "summary": "Voicemail to Kathy West (Texas quadplex agent). Richard leaves credibility-builder VM: 'I own a number of these around Texas... love this... structure something creative.'",
+      "highlight": false
+    },
+    {
+      "start": "0:21:00",
+      "start_seconds": 1260,
+      "end": "0:35:00",
+      "duration": "~14 min",
+      "type": "call",
+      "strategy": "MT",
+      "who": "seller",
+      "summary": "Mortgage takeover pitch on $527K Surprise AZ luxury home — third call after months of back-and-forth. Pitches trust-based MT, $0 down, asks seller to split closing costs 50/50. Handles dense objections: refinance equity, default protection, deed of trust. Seller agrees pending 3K closing decision. Masterclass in MT pitch.",
+      "highlight": true
+    },
+    {
+      "start": "0:35:00",
+      "start_seconds": 2100,
+      "end": "0:36:00",
+      "duration": "~1 min",
+      "type": "Setup",
+      "strategy": "Cash",
+      "who": "Richard solo",
+      "summary": "'Deal number one secured.' Brief celebration + voicemail to Mia about her properties.",
+      "highlight": false
+    },
+    {
+      "start": "0:36:30",
+      "start_seconds": 2190,
+      "end": "0:45:00",
+      "duration": "~8.5 min",
+      "type": "call",
+      "strategy": "Cash",
+      "who": "agent",
+      "summary": "Live call with agent Kathy West (Rockport TX quadplex). Diagnoses $100K floor-rot quote as inflated (also includes bathroom remodel seller wants), asks for second contractor opinion. Schedules followup next week. Demonstrates how to interrogate a high rehab quote.",
+      "highlight": true
+    },
+    {
+      "start": "0:46:00",
+      "start_seconds": 2760,
+      "end": "0:54:00",
+      "duration": "~8 min",
+      "type": "call",
+      "strategy": "MT",
+      "who": "agent",
+      "summary": "Richard live-pitches the Surprise AZ MT deal to cash buyer Jason Ellis: 6-9K all-in entry to $527K luxury home with tenant-buyer strategy. Jason explains lease-option mechanics — 10% non-refundable down, two-year contracts, equity/tax play not cash flow. Best buyer-side strategy education.",
+      "highlight": true
+    },
+    {
+      "start": "0:55:00",
+      "start_seconds": 3300,
+      "end": "1:01:00",
+      "duration": "~6 min",
+      "type": "Coaching",
+      "strategy": "Cash",
+      "who": "student",
+      "summary": "Angel calls Detroit agent to negotiate EMD timing: shorter inspection in exchange for getting contractor in tomorrow. Richard coaches financing + appraisal contingencies so EMD stays refundable.",
+      "highlight": false
+    },
+    {
+      "start": "1:02:00",
+      "start_seconds": 3720,
+      "end": "1:04:00",
+      "duration": "~2 min",
+      "type": "call",
+      "strategy": "MT",
+      "who": "seller",
+      "summary": "Quick callback to Jason — seller AZ agreed to 6K all-in. 'I made $3,000 in two calls.' Bridges to TC merge call.",
+      "highlight": true
+    },
+    {
+      "start": "1:05:30",
+      "start_seconds": 3930,
+      "end": "1:09:00",
+      "duration": "~3.5 min",
+      "type": "Setup",
+      "strategy": "MT",
+      "who": "student",
+      "summary": "Richard briefs his TC (transaction coordinator) Lexi on both deals — Surprise AZ MT and the Texas seller-finance quadplex from Val. 'Done start to finish in 30 minutes.'",
+      "highlight": false
+    },
+    {
+      "start": "1:09:00",
+      "start_seconds": 4140,
+      "end": "1:10:00",
+      "duration": "~1 min",
+      "type": "call",
+      "strategy": "MT",
+      "who": "seller",
+      "summary": "Quick callback to Matthew — tries to lower DP $5K to add $5K to finder fee on existing pending deal. Seller says no. 'I'll give him a week to cook.' Clinical objection handling.",
+      "highlight": false
+    },
+    {
+      "start": "1:10:00",
+      "start_seconds": 4200,
+      "end": "1:15:30",
+      "duration": "~5.5 min",
+      "type": "call",
+      "strategy": "Cash",
+      "who": "agent",
+      "summary": "Memphis Zillow cold call — Roselle St, 385 days on market, fully flipped. Diagnoses problem on the call: rent ($950) too low vs price ($120K). Pitches lower cash offer or $140K seller-finance. Agent says hard money loan rules out SF. Walks away clean. Great 'qualifying out' demo.",
+      "highlight": true
+    },
+    {
+      "start": "1:16:00",
+      "start_seconds": 4560,
+      "end": "1:22:30",
+      "duration": "~6.5 min",
+      "type": "Setup",
+      "strategy": "Cash",
+      "who": "Richard solo",
+      "summary": "Live underwriting Oakwood St Memphis — 113-day Zillow listing, $1,300 occupied rent at $120K asking. Runs cash-on-cash math at $80K offer: 20% return. Decides to triple-dial after no answer.",
+      "highlight": false
+    },
+    {
+      "start": "1:22:30",
+      "start_seconds": 4950,
+      "end": "1:28:00",
+      "duration": "~5.5 min",
+      "type": "call",
+      "strategy": "Cash",
+      "who": "agent",
+      "summary": "Oakwood St call connects on third dial. Agent has lost 3 contracts (lender issue, EMD flake, tree complaint). Richard opens at $83K (37K below list), provides POF + portfolio credibility. Agent counters mid-$90s, kills SF idea (seller wants cash for next project). Textbook agent rapport + counter-offer dance.",
+      "highlight": true
+    },
+    {
+      "start": "1:28:00",
+      "start_seconds": 5040,
+      "end": "1:34:00",
+      "duration": "~6 min",
+      "type": "Setup",
+      "strategy": "Coaching",
+      "who": "Richard solo",
+      "summary": "Drops proof-of-funds screenshot into chat. Goes on hater-rant. Quick voicemails to other Memphis listings. AI auto-attendant on one listing — Richard refuses to leave message. Comedic but skippable.",
+      "highlight": false
+    },
+    {
+      "start": "1:34:00",
+      "start_seconds": 5040,
+      "end": "1:36:30",
+      "duration": "~2.5 min",
+      "type": "call",
+      "strategy": "Cash",
+      "who": "agent",
+      "summary": "Clarendon St Memphis cold call to Harris Realty — agent claims to know nothing, has no info in front of her. Richard re-pitches credibility + portfolio, agrees to email offer. Demonstrates how to handle 'I don't have info' agents.",
+      "highlight": false
+    },
+    {
+      "start": "1:37:00",
+      "start_seconds": 5820,
+      "end": "1:44:00",
+      "duration": "~7 min",
+      "type": "Coaching",
+      "strategy": "Coaching",
+      "who": "Richard solo",
+      "summary": "Big philosophical block: shows $111K in checks one day from a fix-and-flip; 12yo Anson Lee deal in Singapore; Yousef in Egypt earning $15K; lender wired $24-27K renovation funds with zero collateral. Why wholesaling is a *gateway*, not endgame. Worth listening once.",
+      "highlight": true
+    },
+    {
+      "start": "1:45:00",
+      "start_seconds": 6300,
+      "end": "2:09:00",
+      "duration": "~24 min",
+      "type": "call",
+      "strategy": "SF",
+      "who": "seller",
+      "summary": "Inbound from young Louisiana investor (27yo, building $3M luxury new-builds in Houston). Owns 9 of 12 condos in one Lafayette building + 3 mobile homes + 36-unit complex. Richard pitches creative trust structure for SF — explains his actual model (added-to-trust, deed of trust, default = kicked out). Best deep-dive on the SF/MT mechanics in the video.",
+      "highlight": true
+    },
+    {
+      "start": "2:10:30",
+      "start_seconds": 7830,
+      "end": "2:14:30",
+      "duration": "~4 min",
+      "type": "Q&A",
+      "strategy": "Coaching",
+      "who": "student",
+      "summary": "Bria asks about Jackson MS deal ($55K counter from $50K offer). Richard tells her Jackson is dead market unless creative — recommends $40K shot. POF discussion: wholesaledoubleclose.com workaround, never forge by inspect-element.",
+      "highlight": false
+    },
+    {
+      "start": "2:14:30",
+      "start_seconds": 8070,
+      "end": "2:22:00",
+      "duration": "~7.5 min",
+      "type": "Q&A",
+      "strategy": "MT",
+      "who": "student",
+      "summary": "OB3 brings two Austin deals: duplex sub2/SF hybrid (numbers don't work, payments $2600 vs rent $2800) and 10-unit $1.119M. Richard demonstrates how to mathematically prove a deal is dead: 'I'd have to hold you at gunpoint to make you buy this.' Lowball-then-pivot-to-SF playbook.",
+      "highlight": true
+    },
+    {
+      "start": "2:22:00",
+      "start_seconds": 8520,
+      "end": "2:26:00",
+      "duration": "~4 min",
+      "type": "Coaching",
+      "strategy": "Coaching",
+      "who": "Richard solo",
+      "summary": "Leaks 4 recent closing addresses + realtor phone numbers as proof: $10K St Louis, $5K + $8K assignment fees in one day, plus Detroit fix-flip. Demonstrates how to prove track record to skeptics.",
+      "highlight": false
+    },
+    {
+      "start": "2:30:00",
+      "start_seconds": 9000,
+      "end": "2:32:30",
+      "duration": "~2.5 min",
+      "type": "Q&A",
+      "strategy": "Coaching",
+      "who": "student",
+      "summary": "Hand-off to next host Kira — she shares she's done $90K in assignment fees in ~1 year, aims to double via fix-and-flip.",
+      "highlight": false
+    }
+  ],
+  "summary": "DENSE — 2.5hrs of mostly live calls. Two real deals closed live (Detroit duplex $8K assignment, Surprise AZ MT $3K). The Surprise AZ MT call (0:21-0:35) is the showpiece — full mortgage-takeover pitch with deep objection handling. Skip 1:28-1:34, 2:22-2:32. Best 60min window: 0:03-1:05."
+}
