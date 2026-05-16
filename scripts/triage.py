@@ -1155,7 +1155,7 @@ def render_deal(d, t):
     }
     bg, fg, label = status_styles.get(d.get('status_state','active'), status_styles['active'])
     status_pill = f' <span class="pill" style="background:{bg};color:{fg};border-color:{bg};font-weight:600;">{label}</span>'
-    cf_label = 'Cash CF' if t == 'C' else 'CF'
+    cf_label = 'Cash Flow' if t == 'C' else 'Cash Flow'
     # Bank gap pill — Richard's pitch hook. $X/mo the seller LOSES at standard bank financing.
     # Only show when positive (i.e. listing actually fails conventional underwriting).
     # Bank gap — uses BBC's own numbers (monthlyCashFlow). For Seller Finance cards
@@ -1167,7 +1167,7 @@ def render_deal(d, t):
     bg_rent = d.get('monthly_rent', 0)
     bg_label = 'Refi gap' if d.get('deal_type_raw') == 'mortgageTakeover' else 'Bank gap'
     bank_gap_title = f'PITI ${bg_piti:,}/mo − Rent ${bg_rent:,}/mo (BBC figures)' if bg_piti and bg_rent else 'From BBC monthlyCashFlow'
-    bank_gap_pill = f' <span class="pill" style="background:#3a2418;color:#ffa657;border-color:#3a2418;font-weight:600;" title="{bank_gap_title}">🏦 {bg_label} −${bg_amount:,}/mo</span>' if bg_amount > 0 else ''
+    bank_gap_pill = f' <span class="pill" style="background:#3a2418;color:#ffa657;border-color:#3a2418;font-weight:600;" title="Bank Gap: how much LESS monthly cash flow a conventional investor (DSCR, 20% down, 7%, 30yr P&amp;I) would get vs the creative restructure. The pitch hook — bigger gap = bigger reason the listing fails at standard financing.">🏦 {bg_label} −${bg_amount:,}/mo</span>' if bg_amount > 0 else ''
     # Sold comps — Zillow ZIP-scoped with tight filters: beds=exact, sqft band ±20%,
     # property type matched. Prior version returned ~2000 results because only ZIP was
     # filtering. We use Zillow's searchQueryState JSON-encoded URL parameter so all
@@ -1225,10 +1225,10 @@ def render_deal(d, t):
     if (t == 'MT' or d.get('deal_type_raw') == 'mortgageTakeover') and d.get('interest_rate'):
         rate_v = d['interest_rate']
         rate_class = 'background:#0d2818;color:#56d364;border-color:#1a4d2e;' if rate_v <= 5.0 else 'background:#1c2128;color:#8b949e;border-color:#30363d;'
-        mt_rate_pill = f' <span class="pill" style="{rate_class}font-weight:600;" title="Existing mortgage interest rate — sub-5% is the MT gold mine">📉 {rate_v:.2f}% existing</span>'
+        mt_rate_pill = f' <span class="pill" style="{rate_class}font-weight:600;" title="Existing mortgage interest rate — sub-5% is the MT gold mine">📉 {rate_v:.2f}% existing mortgage rate</span>'
     actual_pmt_pill = ''
     if d.get('monthly_payment_actual') and (t == 'MT' or d.get('deal_type_raw') == 'mortgageTakeover'):
-        actual_pmt_pill = f' <span class="pill" title="BBC-reported actual monthly mortgage payment (PITI)">💳 ${d["monthly_payment_actual"]:,}/mo PITI</span>'
+        actual_pmt_pill = f' <span class="pill" title="BBC-reported actual seller PITI — Principal + Interest + Taxes + Insurance">💳 Seller PITI ${d["monthly_payment_actual"]:,}/mo</span>'
     # Rent pill — every tier where BBC has a rent estimate. The "what does it rent
     # for" number Richard eyeballs before deciding to dial. Tier B / FF cards depend
     # on it; SF / MT cards too (CF math relies on it).
@@ -1241,13 +1241,19 @@ def render_deal(d, t):
     # Helps non-MT cards show "this is what a normal cash-with-loan would cost".
     bank_piti_pill = ''
     if d.get('monthly_piti') and not (t == 'MT' or d.get('deal_type_raw') == 'mortgageTakeover'):
-        bank_piti_pill = f' <span class="pill" title="Computed PITI at market rate (what an investor pays at conventional financing)">💳 ${d["monthly_piti"]:,}/mo bank PITI</span>'
-    # Tax + Insurance pill — REMOVED 2026-05-15 after verifying BBC's cd.tax /
-    # cd.insurance fields are unit-inconsistent across properties (sometimes monthly,
-    # sometimes annual — Lead 1's $577 combined would exceed its PITI if monthly;
-    # Lead 3's $24.50 insurance can't be annual). Display was misleading. The PITI
-    # pill ($880/mo bank PITI) already aggregates T+I and is BBC-authoritative.
-    tax_ins_pill = ''
+        bank_piti_pill = f' <span class="pill" title="Computed PITI (Principal + Interest + Taxes + Insurance) at conventional bank rate — 20% down, 7%, 30yr">💳 Bank PITI ${d["monthly_piti"]:,}/mo</span>'
+    # Tax + Insurance + HOA pills — re-added 2026-05-16 with FULL LABELS per Tim's
+    # feedback (saving a few letters via "T$80 + I$35" wasn't worth the confusion).
+    # BBC's cd.tax / cd.insurance fields are nominally monthly but data quality is
+    # mixed across properties. Render only when value is in a sane range so we
+    # don't surface obvious nonsense (e.g., $0.01 or $99999/mo).
+    tax_v = d.get('tax_monthly') or 0
+    ins_v = d.get('insurance_monthly') or 0
+    hoa_v = d.get('hoa_monthly') or 0
+    tax_pill = f' <span class="pill" title="BBC reported monthly property tax">💰 Tax ${tax_v:,}/mo</span>' if 0 < tax_v < 5000 else ''
+    ins_pill = f' <span class="pill" title="BBC reported monthly homeowners insurance">🛡 Insurance ${ins_v:,}/mo</span>' if 0 < ins_v < 2000 else ''
+    hoa_pill = f' <span class="pill" title="BBC reported monthly HOA fee">🏘 HOA ${hoa_v:,}/mo</span>' if 0 < hoa_v < 2000 else ''
+    tax_ins_pill = tax_pill + ins_pill + hoa_pill
     # Agent block — only if unlocked
     agent_block = ''
     if d.get('agent'):
@@ -1292,14 +1298,28 @@ def render_deal(d, t):
     cc = d.get('creative_cf', 0)
     coc_v = d.get('coc', 0)
     entry_v = d.get('entry_fee', 0)
+    # 70% rule target — surfaced prominently on FF cards (Cash Course L295-340).
+    # Richard's rule: cash offer = list price × 0.70. Anything above is over-priced
+    # for a flipper. This makes the target offer obvious without operator math.
+    target_70_banner = ''
+    if t == 'FF' and d.get('price'):
+        target_70 = int(d['price'] * 0.70)
+        spread = int(d['price']) - target_70
+        target_70_banner = (
+            f'<div style="margin:6px 0 8px;padding:8px 12px;background:#2a1a44;'
+            f'border:1px solid #d2a8ff;border-radius:6px;font-size:13px;line-height:1.4;color:#d2a8ff;">'
+            f'<strong style="color:#d2a8ff;">🎯 70% rule target offer: ${target_70:,}</strong> '
+            f'<span style="color:#8b949e;">— ${spread:,} below asking · Cash Course rule for distressed cash plays</span>'
+            f'</div>'
+        )
     # Potential assignment fee per Richard's per-tier math. Surface ABOVE the CF
     # number because it's the headline takeaway ("what's the $ to me?") not the
     # operating numbers. Solo dispo fee — JV through Grand In Taylor splits ~50/50.
     potential_fee = potential_assignment_fee(t, d.get('creative_offer'), d.get('price'))
     d['potential_fee'] = potential_fee  # capture for Airtable
     fee_part = f'<span style="color:#e3b341;font-weight:700;font-size:15px;">💰 Potential fee: ${potential_fee:,}</span> <span style="color:#8b949e;font-size:11px;">(solo — JV splits ~50/50)</span><br>'
-    coc_part = f'<span style="color:#8b949e;"> &nbsp;·&nbsp; </span><span style="color:#56d364;font-weight:600;">CoC {coc_v}%</span>' if coc_v else ''
-    entry_part = f'<span style="color:#8b949e;"> &nbsp;·&nbsp; </span><span style="color:#e6edf3;">Entry ${entry_v:,}</span>' if entry_v else ''
+    coc_part = f'<span style="color:#8b949e;"> &nbsp;·&nbsp; </span><span style="color:#56d364;font-weight:600;" title="Cash-on-Cash return: annual cash flow divided by total cash invested">Cash-on-Cash {coc_v}%</span>' if coc_v else ''
+    entry_part = f'<span style="color:#8b949e;"> &nbsp;·&nbsp; </span><span style="color:#e6edf3;" title="Total cash to close: down payment + closing costs + assignment fee">Entry Fee ${entry_v:,}</span>' if entry_v else ''
     creative_banner = (
         f'<div style="margin:6px 0 8px;padding:8px 12px;background:linear-gradient(90deg,#0d2818,#0d1f24);'
         f'border:1px solid #1a4d2e;border-radius:6px;font-size:14px;line-height:1.4;">'
@@ -1583,10 +1603,10 @@ def render_deal(d, t):
         f'<div class="section-label">① Current State</div>'
         f'<div class="nums">'
         f'{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}'
-        f'<span class="pill">${d["price"]:,.0f}</span>'
-        f'<span class="pill">{cf_label} ${d["cf"]:,.0f}/mo</span>'
+        f'<span class="pill" title="Current listing asking price">Asking ${d["price"]:,.0f}</span>'
+        f'<span class="pill" title="Monthly cash flow at the deal terms used in this card">{cf_label} ${d["cf"]:,.0f}/mo</span>'
         f'{bank_gap_pill}'
-        f'<span class="pill">DOM {d["dom"]} {d["dom_flag"]}</span>'
+        f'<span class="pill" title="Days on Market — total days the listing has been live">Days on Market {d["dom"]} {d["dom_flag"]}</span>'
         f'{mt_rate_pill}{actual_pmt_pill}{bank_piti_pill}{rent_pill}{tax_ins_pill}{buyer_pill}{tz_pill}'
         f'</div>'
         # Banners that reflect the CURRENT STATE of the listing — loan vs asking,
@@ -1598,8 +1618,10 @@ def render_deal(d, t):
         f'</div>'
         # ② CREATIVE OUTCOME — what the deal looks like AFTER our restructure.
         # Just the creative_banner (CF + CoC + entry + terms) and buyer match.
+        # FF cards also get the 70% rule target offer banner (Richard's Cash Course).
         f'<div class="card-section">'
         f'<div class="section-label">② Creative Outcome (the pitch)</div>'
+        f'{target_70_banner}'
         f'{creative_banner}'
         f'{bl}'
         f'</div>'
