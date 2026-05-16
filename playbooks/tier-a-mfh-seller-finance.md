@@ -1,5 +1,43 @@
 # Call Playbook — Tier A: Multifamily Seller Finance
 
+## ⚠ Live-call refinements (2026-05-16)
+
+Validated against ~10hrs of Richard's actual live wholesale streams (4 captioned videos, ~30K caption lines). See [full validation report](live-call-validation.html). **Apply these refinements before calling — they reflect what Richard does on live calls, not just what the course teaches.**
+
+### ✎ The DSCR walkthrough is NOT the live pitch
+Course teaches DSCR-fails-at-7% as the lead. **In ~30K caption lines from real calls, Richard never opens with DSCR.** His actual openers are conversational:
+- *"Hi [name], my name is Richard Taylor. My acquisitions manager told me I should hop on a call with you about this one. See if we could figure something out."* [[CzUeF6SASGA @ 0:36:56](https://youtu.be/CzUeF6SASGA?t=2216)]
+- *"What can you tell me about this? We got a quadplex. Are we occupied? Looks renovated."* [[CzUeF6SASGA @ 0:37:06](https://youtu.be/CzUeF6SASGA?t=2226)]
+- *"I was told that you were open to some seller financing. Is that the case?"* [[c2hNH6u7D0k @ 1:08:27](https://youtu.be/c2hNH6u7D0k?t=4107)]
+
+**Refinement:** Lead with `"What can you tell me about this?"` → listen → drop the SF formula when the door opens. Keep DSCR as a fallback explanation when the agent asks "why are you proposing this?" — not the lead.
+
+### ✨ NEW — the 40%-of-rent rule (CRITICAL, missing from playbook)
+Richard's verbatim muscle-memory formula, said near-identically across 2 calls:
+> *"10% over list, 10% down, 40% of of rent in monthly payments."* [[c2hNH6u7D0k @ 2:27:52](https://youtu.be/c2hNH6u7D0k?t=8872)]
+> *"I'll give you 80,000 on seller finance terms. So 80,000, 10% down, 40% of whatever it rents out for in monthly payments, 7-year term."* [[c2hNH6u7D0k @ 1:11:34](https://youtu.be/c2hNH6u7D0k?t=4294)]
+
+**This is the heuristic he uses in his head.** Monthly payment = 40% of expected gross rent. Anchors to rent reality, pre-clears DSCR for the end-buyer (60% covers PITI + cash flow), skips amortization-table math in conversation. **Use this on every live call.**
+
+### ✨ NEW — the 3rd lever: extend amortization, not drop price
+Playbook treats the trade as binary (0%+premium OR rate+asking). Richard's actual move when seller wants a rate:
+> *"I'm trying to keep my down payment low... I'm going to extend my amortization rather than a normal 30-year. I probably do 35 40 years. So even though it's a 5% interest rate, most of my payment will just disappear to interest."* [[u-ov-X0Cc68 @ 0:19:56](https://youtu.be/u-ov-X0Cc68?t=1196)]
+
+Add as **option C** in counter-offer patterns: asking + 5% + 35-40yr amort. Keeps down payment low while giving seller the rate they want.
+
+### ✗ DE-EMPHASIZE — capital gains tax frame
+**Zero hits in ~30K caption lines.** Course material, not live practice. Drop from the voicemail. The actual live voicemail [[CzUeF6SASGA @ 0:19:15](https://youtu.be/CzUeF6SASGA?t=1155)] is ~30 sec, no CGT mention.
+
+### ✎ Voicemail — trim from 90s to ~30s
+Real Richard voicemail keeps: specific property name, social-proof ("a number of these around [region]"), empathy line if hardship noted, soft positioning ("structure something creative"), closer ("I'd love to hop on a phone call"). Drops: CGT, interest-rate paragraph, premium-over-asking math.
+
+### ⚑ NO live evidence for (untested in these 4 videos):
+- First-touch listing-agent cold calls on MFH 5+ unit (playbook's primary use case)
+- 5-year-vs-7-year balloon on MFH specifically (7 confirmed for SFH; MFH untested)
+- "DSCR wall" callout as a sales weapon to agents
+
+---
+
 ## Trigger / When to use this script
 
 - **Property type:** 5+ unit multifamily (MFH, plex, small commercial)

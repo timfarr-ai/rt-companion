@@ -1,5 +1,58 @@
 # Call Playbook — Mortgage Takeover (Subject-To / Trust Acquisition)
 
+## ⚠ Live-call refinements (2026-05-16)
+
+Validated against ~10hrs of Richard's actual live streams. See [validation report](live-call-validation.html). **MT has the most significant deltas from the original playbook.**
+
+### CRITICAL CONTEXT — these are HOMEOWNER calls, not agent calls
+Almost all MT material in live captions is Richard calling **the homeowner directly** (via low-equity Lightning Leads), not listing agents:
+> *"If any of you are renting right now, you need only go on to Lightning Leads and find low equity sellers who are either on or off market and pitch what I'm about to pitch right now."* [[CzUeF6SASGA @ 0:21:11](https://youtu.be/CzUeF6SASGA?t=1271)]
+
+**The playbook should split into two scripts:**
+1. **Homeowner direct (low-equity Lightning Leads)** — primary, validated below
+2. **Listing agent on a listed property** — secondary, untested in captions
+
+### ✨ NEW — the "off your DTI / off your books" frame (HIGHEST-CONVERTING transition in entire corpus)
+San Diego condo, ~$495K, owner has 58% DTI, can't keep it. Richard's pivot from "this is a tough property" to seller "yes that's exactly what I'm looking for":
+> *"You'd be able to get it off your books and off your DTI. So, I would pitch you this — I could probably have somebody move into this. But the downside for you is this a break even sale. You wouldn't be able to profit any money on this thing."* [[u-ov-X0Cc68 @ 0:34:32](https://youtu.be/u-ov-X0Cc68?t=2072)]
+> Seller response: *"Yeah. No, that's exactly what I'm looking for is like break even. And if I don't have to pay closing costs, yeah."* [[u-ov-X0Cc68 @ 0:35:06](https://youtu.be/u-ov-X0Cc68?t=2106)]
+
+**The break-even-but-DTI-relief frame is more powerful than "cash for equity" on low-equity sellers.** Lead with it.
+
+### ✨ NEW — average-ownership-period reframe (closes time-horizon objection)
+When seller worries about being on the mortgage forever:
+> *"The average time that people own houses in the United States is 7 to 10 years. So I wouldn't imagine that they're going to own it for 30 years."* [[CzUeF6SASGA @ 0:24:13](https://youtu.be/CzUeF6SASGA?t=1453)]
+
+Add to Objection #2 ("seller wants name off the loan"). The buyer probably sells/refis in 7-10 years, not 30 — closes the time horizon concern.
+
+### ✨ NEW — the "they miss payments" answer (brutal frankness works)
+Playbook softens this. Richard's live answer is specific and confident:
+> *"If you miss payments for two months at any period of time, whether it's eight years down the line, three years down the line, 10 years down the line, house is mine again, and you sign this document saying that you're okay with that. And that's kind of a scary thing for the buyer because I will steal all of their equity and I will be happy to do so."* [[CzUeF6SASGA @ 0:25:36](https://youtu.be/CzUeF6SASGA?t=1536)]
+
+The brutal frankness ("I will steal all of their equity and I will be happy to do so") is what makes it credible. **Use the softer version for the agent script, the direct version for homeowner calls** — it builds seller confidence that they're protected.
+
+### ✨ NEW — be honest about being a wholesaler
+Playbook: *"Don't mention 'subject-to' jargon."*
+Live reality: Richard transparently explains the whole back-end and it works:
+> *"I'm going to go live on my Instagram, go live on my TikTok, and I'm going to say, 'Guys, what do we think about Surprise Arizona?' People are going to be like, 'Oh my god, I like that area.'... we would see if they're qualified to purchase the property and if they can afford the monthly payment."* [[CzUeF6SASGA @ 0:23:42](https://youtu.be/CzUeF6SASGA?t=1422)]
+
+When asked directly: *"I am going to sell it to a retail buyer but the term is wholesale. So I'm going to wholesale it to a retail buyer."* [[CzUeF6SASGA @ 0:23:26](https://youtu.be/CzUeF6SASGA?t=1406)]
+
+**Honesty > clever.** Don't hide the mechanism — the transparency IS the close.
+
+### ✓ VERIFIED — "trust" / "take over the debt" terminology
+Richard consistently uses "take over the debt" and "trust acquisition" — never "subject-to" with sellers. [[CzUeF6SASGA @ 0:23:08](https://youtu.be/CzUeF6SASGA?t=1388)]
+
+### ✗ DE-EMPHASIZE — due-on-sale objection rehearsal
+Playbook prepares elaborate due-on-sale rebuttal. **Zero hits** in 30K caption lines. Sellers don't bring it up; agents don't bring it up. Keep the answer in playbook as "deep dive" reserve, but don't rehearse it as a top-5 objection.
+
+### ⚑ NO live evidence:
+- Off-market opener language for delisted properties
+- "Split the realtor commission" objection
+- The specific $5K/$10K cash-to-seller heuristic (Richard mentions a $13K offer for one MT but no general formula)
+
+---
+
 ## Trigger / When to use this script
 
 - **Property type:** Any residential (SFH, duplex, small MFH)

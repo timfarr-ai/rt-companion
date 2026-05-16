@@ -85,6 +85,7 @@ FILES = [
     ('tier-b-cheap-sfh-stale',   'Tier B Cheap SFH Stale',    '🏘️ Tier B — Cheap SFH SF',  'pill-b'),
     ('mortgage-takeover',         'Mortgage Takeover',         '🔑 Mortgage Takeover',       'pill-mt'),
     ('fix-and-flip-cash',         'Fix & Flip / Cash',          '🔨 Fix & Flip / Cash',       'pill-ff'),
+    ('_live-call-validation',     'Live-Call Validation Report', '🔬 Live-Call Validation (deltas)', 'pill-a'),
 ]
 
 def main():
@@ -101,7 +102,11 @@ def main():
         body_html = re.sub(r'\[ \]', '☐', body_html)
         body_html = re.sub(r'\[x\]', '☑', body_html)
         md.reset()
-        out = PLAYBOOKS / f'{slug}.html'
+        # Use slug-with-leading-underscore-stripped for the HTML output filename
+        out_slug = slug.lstrip('_').replace('_', '-')
+        if slug == '_live-call-validation':
+            out_slug = 'live-call-validation'
+        out = PLAYBOOKS / f'{out_slug}.html'
         out.write_text(TEMPLATE.format(
             TITLE=title,
             HEADER_TITLE=header_title.replace('🎯 ','').replace('🏘️ ','').replace('🔑 ','').replace('🔨 ','')[:34],
@@ -123,7 +128,8 @@ def main():
           <li style="margin-bottom:12px;"><a href="tier-b-cheap-sfh-stale.html" style="display:block;padding:12px 14px;background:var(--panel);border:1px solid var(--border);border-radius:10px;border-left:3px solid #d2a8ff;"><strong>🏘️ Tier B — Cheap SFH SF</strong><br><span style="color:var(--muted);font-size:14px;">Stale &lt;$150K SFH — 20% over-asking, 12-14% down.</span></a></li>
           <li style="margin-bottom:12px;"><a href="mortgage-takeover.html" style="display:block;padding:12px 14px;background:var(--panel);border:1px solid var(--border);border-radius:10px;border-left:3px solid #79c0ff;"><strong>🔑 Mortgage Takeover</strong><br><span style="color:var(--muted);font-size:14px;">"Get OUT not PAID" — assume the favorable existing loan.</span></a></li>
           <li style="margin-bottom:12px;"><a href="fix-and-flip-cash.html" style="display:block;padding:12px 14px;background:var(--panel);border:1px solid var(--border);border-radius:10px;border-left:3px solid #f0883e;"><strong>🔨 Fix &amp; Flip / Cash</strong><br><span style="color:var(--muted);font-size:14px;">70% rule. Fast cash, no negotiation, win on purchase price.</span></a></li>
-          <li style="margin-bottom:12px;margin-top:18px;"><a href="study-library.html" style="display:block;padding:12px 14px;background:var(--panel);border:1px solid var(--border);border-radius:10px;border-left:3px solid #e3b341;"><strong>📺 Study Library — Richard's calls ranked</strong><br><span style="color:var(--muted);font-size:14px;">3 YouTube courses + 20 curated MP3s/MP4s, priority-ranked. Listen in commutes/workouts.</span></a></li>
+          <li style="margin-bottom:12px;margin-top:18px;"><a href="study-library.html" style="display:block;padding:12px 14px;background:var(--panel);border:1px solid var(--border);border-radius:10px;border-left:3px solid #e3b341;"><strong>📺 Study Library — Richard's calls ranked</strong><br><span style="color:var(--muted);font-size:14px;">3 YouTube courses + 20 curated MP3s/MP4s + 14 livestreams (~200hrs).</span></a></li>
+          <li style="margin-bottom:12px;"><a href="live-call-validation.html" style="display:block;padding:12px 14px;background:var(--panel);border:1px solid var(--border);border-radius:10px;border-left:3px solid #f0883e;"><strong>🔬 Live-Call Validation Report</strong><br><span style="color:var(--muted);font-size:14px;">Playbook claims tested against 10hrs of Richard's actual live calls. Deltas + clickable YouTube timestamps.</span></a></li>
         </ul>
         ''',
     )

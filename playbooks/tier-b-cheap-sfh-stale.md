@@ -1,5 +1,45 @@
 # Call Playbook — Tier B: Cheap SFH, Stale Listing
 
+## ⚠ Live-call refinements (2026-05-16)
+
+Validated against ~10hrs of Richard's actual live streams. See [validation report](live-call-validation.html).
+
+### ✎ Live opener — *assume* openness, don't ask
+**Playbook:** *"Quick question: your seller — are they firm on cash, or would they be open to a creative structure?"*
+**Live actual:** *"I was told that you were open to some seller financing. Is that the case?"* [[c2hNH6u7D0k @ 1:08:27](https://youtu.be/c2hNH6u7D0k?t=4107)]
+
+Assumption lowers the agent's defenses — they don't feel screened. **Lead with the assumption, not the question.**
+
+### ✓ VERIFIED — "10% down + 7-year balloon" works (with caveat)
+Confirmed live on Detroit SFH SF: *"I'll give you 80,000 on seller finance terms. So 80,000, 10% down, 40% of whatever it rents out for in monthly payments, 7-year term."* [[c2hNH6u7D0k @ 1:11:34](https://youtu.be/c2hNH6u7D0k?t=4294)]
+
+**BUT:** the playbook says **+20% over asking** on cheap SFH. The Nard / Gallagher Street call shows only ~$5K over (~7%), not 20%. **The +20% number is aspirational — real live offers are "above-market-estimate + buffer," not strict +20%.** Note this when pricing.
+
+### ✨ NEW — the 40%-of-rent rule (same as Tier A)
+Richard's verbatim mental shortcut: monthly payment = **40% of expected gross rent**. Anchors to landlord economics, skips amortization math in conversation. Apply on every SF call.
+
+### ✨ NEW — partner / co-decisionmaker handler
+Common Tier B pattern is co-ownership. Richard's handler:
+> *"If you want to merge her into this phone call, we can knock it out right now."* [[c2hNH6u7D0k @ 1:09:05](https://youtu.be/c2hNH6u7D0k?t=4145)]
+
+Add to qualifying questions: "Is anyone else involved in the decision — partner, sibling, attorney? Can we get them on the line right now, or want me to send the structure for you to review together tonight?"
+
+### ✎ Section 8 angle — move from opener to trust-builder
+**Playbook:** Lists Section 8 as alternative cold-call opener.
+**Live reality:** Section 8 mentioned 8x across 4 streams, **never as a cold-call opener** — only after rapport, as a use-case justification (*"I have so many of those cheap Section 8 deals in closing. They're amazing."* [[c2hNH6u7D0k @ 0:48:06](https://youtu.be/c2hNH6u7D0k?t=2886)]).
+
+**Refinement:** Move Section 8 from "alternative opener" to "after-yes confirmation language." Door-opener it is not.
+
+### ✓ VERIFIED — Detroit / Cleveland markets are real Tier B
+Multiple live calls reference Detroit (Gallagher St, Fullerton, Tracy, Turner). Playbook's market list is grounded.
+
+### ⚑ NO live evidence:
+- "I negotiate backwards" line
+- "I'll triple my down payment" line
+- The specific 12% sweet-spot on down payment
+
+---
+
 ## Trigger / When to use this script
 
 - **Property type:** Single-family home (SFH)

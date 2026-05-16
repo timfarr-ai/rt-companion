@@ -1,5 +1,32 @@
 # Call Playbook — Fix & Flip / Cash Deal
 
+## ⚠ Live-call refinements (2026-05-16)
+
+Validated against ~10hrs of Richard's actual live streams. See [validation report](live-call-validation.html). **Honest gap: cash is thin in these 4 streams — most volume is creative finance. Caption batch only had partial cash-call evidence.**
+
+### ✨ NEW — 70% rule is the CEILING, not the target
+Richard discusses a real cash offer in coaching: *"$72, seeing if I can flip that. ARV is 200, rehab 45."* [[c2hNH6u7D0k @ 1:12:32](https://youtu.be/c2hNH6u7D0k?t=4352)]
+
+Reverse math check: ARV 200 × 0.70 = 140; 140 − 45 = 95 max offer. He offered **$72** — well below the 70% rule. He's leaving margin / hedging ARV uncertainty.
+
+**Implication:** 70% rule is the CEILING. Offer below it in practice. Target = 60-65% of ARV minus rehab on Detroit-style flips.
+
+### ✓ VERIFIED — the "no inspection / no contingency" finality
+Playbook: cash = no contingencies. Live confirms verbatim usage:
+> *"I don't need to inspect the property, so there's no chance of me going under contract with you and canceling the contract. We're just going to get it done."* [[c2hNH6u7D0k @ 0:21:13](https://youtu.be/c2hNH6u7D0k?t=1273)]
+
+**Use this exact finality language on cash offers.** Works.
+
+### ✓ VERIFIED — short cash voicemails
+Live cash-call voicemails are indeed short (~20-30s). Standard format (paraphrase, from [[CzUeF6SASGA @ 0:36:11](https://youtu.be/CzUeF6SASGA?t=2171)]): *"Hi [name]. I just gave you a call about the properties you have. Let me know if that's something you'd like to discuss. Thank you."*
+
+### ⚑ NO live evidence (cash calls under-represented):
+- The "your seller has equity / they shouldn't accept cash" objection
+- The "we'll close in 14 days" specific timeline (he says "we're just going to get it done" but no quoted day count)
+- Proof of funds delivery mechanics (mentions Today LLC as a POF vendor [[c2hNH6u7D0k @ 0:20:36](https://youtu.be/c2hNH6u7D0k?t=1236)] but no script around it)
+
+---
+
 ## Trigger / When to use this script
 
 - **Property type:** SFH, duplex (distressed condition acceptable, even preferred)
