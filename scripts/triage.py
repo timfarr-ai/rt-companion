@@ -529,10 +529,12 @@ def score(p):
     if dt == 'sellerFinance' and is_mfh:
         # Tier A: asking + 10%, 10% down, 0%, 30yr, 5-7yr balloon
         creative_cf, creative_offer, creative_down = _sf_cf(1.10, 0.10, 5)
+        sf_balloon_years = 5
         creative_terms = f"${creative_offer:,} @ 0%, 10% down (${creative_down:,}), 30yr / 5yr balloon"
     elif dt == 'sellerFinance':
         # Tier B: asking + 20%, 12% down, 0%, 30yr, 7yr balloon
         creative_cf, creative_offer, creative_down = _sf_cf(1.20, 0.12, 7)
+        sf_balloon_years = 7
         creative_terms = f"${creative_offer:,} @ 0%, 12% down (${creative_down:,}), 30yr / 7yr balloon"
     elif dt == 'mortgageTakeover':
         # MT: take over existing loan at existing terms. BBC's monthlyCashFlow
@@ -540,20 +542,44 @@ def score(p):
         creative_cf = round(cf)
         creative_offer = round(lp)
         creative_down = 10000
+        sf_balloon_years = 0  # N/A — assume existing terms
         creative_terms = f"Take over existing loan, ~${creative_down:,} to seller"
     elif dt == 'fixAndFlip':
         # Cash Course 70% rule. F&F is a flip play — monthly CF is not the metric.
         # We surface the offer math; rental CF is a sanity check from BBC's cf.
         creative_offer = round(lp * 0.70)
         creative_down = 0
+        sf_balloon_years = 0  # N/A
         creative_cf = round(cf)  # BBC's rental CF (post-flip-and-rent scenario)
         creative_terms = f"Cash offer ${creative_offer:,} (70% of list — Cash Course rule)"
     else:
         # Cash arb (Tier C): BBC's CF at cash-purchased terms is correct
         creative_offer = round(op or lp)
         creative_down = round(down)
+        sf_balloon_years = 0  # N/A
         creative_cf = round(cf)
         creative_terms = "Cash offer / standard"
+
+    # 40%-OF-RENT RULE — Richard's verbatim live-call formula for SF (Tier A & B).
+    # From caption validation: c2hNH6u7D0k @ 1:11:34 + 2:27:52. The monthly payment
+    # the SELLER receives is 40% of expected rent; remaining 60% covers end-buyer
+    # PITI (~20%) + reserves (~20%) + cash flow (~20%). The seller balloon at term
+    # end = creative_offer − creative_down − (monthly × 12 × balloon_years).
+    # Only computed for SF tiers; MT/FF/Cash get None.
+    richards_monthly_to_seller = None
+    richards_balloon_residual = None
+    richards_pitch_line = None
+    if dt == 'sellerFinance' and monthly_rent > 0:
+        richards_monthly_to_seller = round(monthly_rent * 0.40)
+        financed_amount = creative_offer - creative_down
+        total_paid_during_term = richards_monthly_to_seller * 12 * sf_balloon_years
+        richards_balloon_residual = max(0, financed_amount - total_paid_during_term)
+        down_pct = int(round(creative_down / creative_offer * 100)) if creative_offer else 0
+        richards_pitch_line = (
+            f"${creative_offer:,} · {down_pct}% down (${creative_down:,}) · "
+            f"${richards_monthly_to_seller:,}/mo to seller · "
+            f"{sf_balloon_years}yr balloon (${richards_balloon_residual:,} residual)"
+        )
 
     # BANK GAP — what a standard 7% bank mortgage would look like vs the creative
     # scenario above. Reuses the same rent + tax + ins + reserve numbers.
@@ -616,6 +642,10 @@ def score(p):
             'creative_offer': creative_offer,
             'creative_down': creative_down,
             'creative_terms': creative_terms,
+            'sf_balloon_years': sf_balloon_years,
+            'richards_monthly_to_seller': richards_monthly_to_seller,
+            'richards_balloon_residual': richards_balloon_residual,
+            'richards_pitch_line': richards_pitch_line,
             'beds': int(p.get('bed') or 0),
             'baths': int(float(p.get('bath') or 0)),
             'sqft': int(p.get('sqft') or 0),
@@ -708,7 +738,26 @@ def tier(s):
     if not is_mfh and s['price'] < 150_000 and s['dom'] >= 90 \
        and dt == 'sellerFinance' and cf_creative >= 100:
         return 'B'
-    # Tier MT — Mortgage Takeover (existing favorable loan, DOM 60+)
+    # Tier HY — HYBRID (MT + SF carry-back). Per validation 2026-05-16: when
+    # seller has BOTH a favorable existing mortgage AND significant equity, pure
+    # MT undersells (seller wants money, not just $10K to walk) and pure SF
+    # ignores the cheap existing loan. Hybrid = assume the loan + carry-back the
+    # equity gap at SF terms (5-7yr balloon, 40%-of-rent monthly minus existing
+    # PITI). Live recordings: Hybrid Pitch 1, Pitch 2, Restructuring SF→Hybrid.
+    # Criteria:
+    #   - BBC tagged as mortgageTakeover (so BBC has loan data)
+    #   - existing rate <= 5.5% (favorable enough to assume)
+    #   - existing balance >= $20K (loan is meaningful)
+    #   - seller equity (price - balance) >= $20K (worth doing hybrid vs pure MT)
+    #   - DOM >= 60, creative_cf >= 100 (same gates as MT)
+    existing_rate = s.get('interest_rate') or 0
+    loan_balance = s.get('loan_balance') or 0
+    seller_equity = max(0, (s['price'] or 0) - loan_balance)
+    if dt == 'mortgageTakeover' and s['dom'] >= 60 and cf_creative >= 100 \
+       and 0 < existing_rate <= 5.5 and loan_balance >= 20_000 \
+       and seller_equity >= 20_000:
+        return 'HY'
+    # Tier MT — Mortgage Takeover (existing favorable loan, DOM 60+, LOW equity)
     if dt == 'mortgageTakeover' and cf_creative >= 100 and s['dom'] >= 60:
         return 'MT'
     # Tier FF — Fix & Flip (Cash Course): cheap distressed listings, 70% rule
@@ -743,7 +792,7 @@ NON_RESIDENTIAL_TYPES = ('vacant', 'land', 'lot', 'acreage', 'commercial', 'indu
                                                      # land (no real estate to underwrite), depreciate,
                                                      # not lendable conventionally. Per Tim's 7717
                                                      # Arbor Ridge Ct example 2026-05-14.
-buckets = {'A':[], 'B':[], 'MT':[], 'FF':[], 'C':[], 'REJECT':[]}
+buckets = {'A':[], 'B':[], 'HY':[], 'MT':[], 'FF':[], 'C':[], 'REJECT':[]}
 land_skipped = 0
 tracked_skipped = 0
 new_construction_skipped = 0
@@ -792,10 +841,10 @@ for p in all_leads:
     s['tz'] = STATE_TZ.get(s['state'], 'America/New_York')
     s['agent'] = None  # set below if unlocked
     buckets[t].append(s)
-for t in ('A','B','MT','C'): buckets[t].sort(key=lambda x: (-x['creative_cf'], -x['dom']))
+for t in ('A','B','HY','MT','C'): buckets[t].sort(key=lambda x: (-x['creative_cf'], -x['dom']))
 # Fix & Flip: sort by DOM desc (motivation) since CF isn't the relevant metric
 buckets['FF'].sort(key=lambda x: -x['dom'])
-print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  MT={len(buckets["MT"])}  FF={len(buckets["FF"])}  C={len(buckets["C"])}  REJECT={len(buckets["REJECT"])}  Land-skipped={land_skipped}  NewConstruction-skipped={new_construction_skipped}  Tracked-skipped={tracked_skipped}', file=sys.stderr)
+print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  HY={len(buckets["HY"])}  MT={len(buckets["MT"])}  FF={len(buckets["FF"])}  C={len(buckets["C"])}  REJECT={len(buckets["REJECT"])}  Land-skipped={land_skipped}  NewConstruction-skipped={new_construction_skipped}  Tracked-skipped={tracked_skipped}', file=sys.stderr)
 
 # 5b. Surface agent info — cookie-free via BBC's contact-seller endpoint (the one
 # behind the Create Offer modal). Cost: $0/unlock. Run on ALL Tier A/B/C deals.
@@ -806,7 +855,7 @@ print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  MT={len(buckets["MT"])} 
 AUCTION_AGENT_KEYWORDS = ('auction', 'reo', 'foreclosure', 'bank ', 'asset management',
                           'williams &', 'altisource', 'bidsale', 'hubzu', 'xome',
                           'realty trust', 'asset disposition', 'servicelink')
-unlock_targets = buckets['A'] + buckets['B'] + buckets['MT'] + buckets['FF'] + buckets['C']
+unlock_targets = buckets['A'] + buckets['B'] + buckets['HY'] + buckets['MT'] + buckets['FF'] + buckets['C']
 unlocks_attempted = 0
 unlocks_succeeded = 0
 auction_rejected = 0
@@ -836,7 +885,7 @@ if unlock_targets:
     print(f'Agents captured: {unlocks_succeeded}/{unlocks_attempted} (auction-rejected: {auction_rejected})', file=sys.stderr)
 
 # Strip auction-rejected from their tier buckets (they shouldn't appear in briefing)
-for t in ('A','B','MT','FF','C'):
+for t in ('A','B','HY','MT','FF','C'):
     buckets[t] = [s for s in buckets[t] if not s.get('_auction_reject')]
 
 # 5b. Vision analysis — Claude looks at BBC's photos and flags REO/condition/distress
@@ -847,7 +896,7 @@ if ANTHROPIC_API_KEY:
     print(f'\nClaude vision analysis on qualified properties...', file=sys.stderr)
     # Build a lookup: PID → original BBC property dict (for photo URLs)
     p_by_pid = {p.get('pid'): p for p in all_leads if p.get('pid')}
-    for tier_name in ('A','B','MT','FF','C'):
+    for tier_name in ('A','B','HY','MT','FF','C'):
         for s in list(buckets[tier_name]):
             pid = s.get('pid')
             orig_p = p_by_pid.get(pid)
@@ -886,7 +935,7 @@ flip_detected = 0
 desc_rejected = 0
 desc_flip_demoted = 0
 print(f'\nProperty-history + description-keyword pass on Tier A/B/MT properties...', file=sys.stderr)
-for tier_name in ('A','B','MT'):
+for tier_name in ('A','B','HY','MT'):
     for s in list(buckets[tier_name]):
         zpid = s.get('zpid')
         if not zpid: continue
@@ -936,7 +985,7 @@ for tier_name in ('A','B','MT'):
 print(f'History+desc: {desc_rejected} rejected (terminal kw) · {flip_detected} demoted (sold-event flip) · {desc_flip_demoted} demoted (desc-flip ≥3 kw)', file=sys.stderr)
 
 # Re-sort buckets after vision-driven moves
-for t in ('A','B','MT','C'): buckets[t].sort(key=lambda x: (-x.get('creative_cf',0), -x.get('dom',0)))
+for t in ('A','B','HY','MT','C'): buckets[t].sort(key=lambda x: (-x.get('creative_cf',0), -x.get('dom',0)))
 buckets['FF'].sort(key=lambda x: -x.get('dom',0))
 
 # 5c. Persist captured agents to Airtable Known Agents (upsert by phone or by name+state)
@@ -1027,9 +1076,10 @@ print(f'Pushed {pushed} to watchlist', file=sys.stderr)
 date_iso = today
 date_human = datetime.now().strftime('%a %b %d, %Y')
 def render_deal(d, t):
-    cls = {'A':'tier-A','B':'tier-B','MT':'tier-MT','FF':'tier-FF','C':'tier-C'}[t]
+    cls = {'A':'tier-A','B':'tier-B','HY':'tier-HY','MT':'tier-MT','FF':'tier-FF','C':'tier-C'}[t]
     playbook = {'A':'/rt-companion/strategy/tier-a-multifamily-checkmate.html',
                 'B':'/rt-companion/strategy/tier-b-cheap-sfh-stale.html',
+                'HY':'/rt-companion/playbooks/hybrid-mt-sf-carryback.html',
                 'MT':'/rt-companion/strategy/mortgage-takeover.html',
                 'FF':'/rt-companion/strategy/fix-and-flip.html',
                 'C':'/rt-companion/strategy/tier-c-cash-buyer.html'}[t]
@@ -1083,7 +1133,7 @@ def render_deal(d, t):
         'FF': 'https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587',
         'C':  'https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587',
     }.get(t, '')
-    gt_label = 'Creative' if t in ('A','B','MT') else 'Cash'
+    gt_label = 'Creative' if t in ('A','B','HY','MT') else 'Cash'
     gt_link = f' <a class="zillow" href="{gt_url}" target="_blank" style="background:#2a1a44;color:#d2a8ff;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #2a1a44;">🤝 Submit to Grand In Taylor ({gt_label}) ↗</a>' if gt_url else ''
     # HMHW calculator deep-links — tier-routed to the right calculator. The previous
     # #prefill={JSON} hash was a speculative no-op: HMHW's Vite app has zero URL-prefill
@@ -1106,6 +1156,7 @@ def render_deal(d, t):
     hmhw_calcs = {
         'A':  [('Seller Finance', '/tools/seller-finance'), ('Offer Oven', '/tools/offer-oven')],
         'B':  [('Seller Finance', '/tools/seller-finance'), ('Offer Oven', '/tools/offer-oven')],
+        'HY': [('Mortgage Takeover', '/tools/mortgage-takeover'), ('Seller Finance', '/tools/seller-finance'), ('Offer Oven', '/tools/offer-oven')],
         'MT': [('Mortgage Takeover', '/tools/mortgage-takeover'), ('Offer Oven', '/tools/offer-oven')],
         'FF': [('Fix & Flip', '/tools/fix-and-flip'), ('Rehab Estimator', '/tools/rehab-estimator')],
         'C':  [('Cash Deal Checker', '/tools/cash-deal-checker')],
@@ -1117,7 +1168,7 @@ def render_deal(d, t):
     # Clipboard payload — plain-text values, one per line, ready for Tab-key paste.
     # Order matches the Offer Oven field sequence (Purchase Price, Down Payment, Rate,
     # Term, Loan Balance for sub-to, Rental Revenue, Assignment, Closing).
-    if t in ('A', 'B', 'MT'):
+    if t in ('A', 'B', 'HY', 'MT'):
         copy_payload = (
             f'Purchase Price: ${creative_offer_v:,}\\n'
             f'Down Payment: ${creative_down_v:,}\\n'
@@ -1298,6 +1349,90 @@ def render_deal(d, t):
     cc = d.get('creative_cf', 0)
     coc_v = d.get('coc', 0)
     entry_v = d.get('entry_fee', 0)
+    # HYBRID CARRY-BACK BANNER — for HY tier only. Shows the two payment streams:
+    # (1) end-buyer assumes the existing favorable loan, paying current PITI to bank,
+    # (2) end-buyer carries back the seller-equity gap at SF terms (40% rule minus
+    # what's going to the bank). Engineered so total monthly cost to end-buyer
+    # equals ~40% of rent (Richard's anchor), split between the two payees.
+    hybrid_banner = ''
+    if t == 'HY' and d.get('monthly_rent') and d.get('loan_balance') and d.get('interest_rate'):
+        rent_v = d['monthly_rent']
+        ex_balance = d['loan_balance']
+        ex_rate = d['interest_rate']
+        ex_piti = d.get('monthly_payment_actual') or 0
+        if ex_piti == 0 and d.get('price'):
+            # Fallback: estimate existing P&I from balance + rate at remaining ~25yr amort,
+            # plus 1.5% of price/yr for T+I
+            r = (ex_rate / 100) / 12
+            ex_pi = int(ex_balance * r / (1 - (1 + r) ** -300)) if r > 0 else int(ex_balance / 300)
+            ex_ti = int((d['price'] or 0) * 0.015 / 12)
+            ex_piti = ex_pi + ex_ti
+        cash_to_seller = 7500  # standard MT-style cash at close
+        seller_equity_gross = max(0, (d.get('price') or 0) - ex_balance)
+        carry_back_amount = max(0, seller_equity_gross - cash_to_seller)
+        target_total_monthly = int(rent_v * 0.40)
+        carry_back_monthly = max(0, target_total_monthly - ex_piti)
+        balloon_years = 7
+        total_paid_term = carry_back_monthly * 12 * balloon_years
+        carry_balloon = max(0, carry_back_amount - total_paid_term)
+        # Build pitch line
+        hybrid_pitch = (
+            f"<strong>${cash_to_seller:,}</strong> cash at close · "
+            f"assume <strong>${ex_balance:,}</strong> existing loan @ {ex_rate:.2f}% "
+            f"(~${ex_piti:,}/mo PITI to bank) · "
+            f"carry back <strong>${carry_back_amount:,}</strong> equity "
+            f"(${carry_back_monthly:,}/mo to seller · {balloon_years}yr balloon ${carry_balloon:,})"
+        )
+        hybrid_banner = (
+            f'<div style="margin:8px 0;padding:10px 12px;background:#1c1a2e;'
+            f'border:1px solid #d2a8ff;border-radius:6px;font-size:13.5px;line-height:1.45;">'
+            f'<div style="color:#d2a8ff;font-weight:700;margin-bottom:4px;">💬 Hybrid pitch (assume + carry-back)</div>'
+            f'<div style="color:#e6edf3;">{hybrid_pitch}</div>'
+            f'<div style="font-size:11px;color:#6e7681;margin-top:6px;">Rent ${rent_v:,}/mo · target total monthly = 40% of rent (${target_total_monthly:,}) · '
+            f'<a href="/rt-companion/playbooks/hybrid-mt-sf-carryback.html" target="_blank" style="color:#58a6ff;">Hybrid playbook ↗</a></div>'
+            f'</div>'
+        )
+    # 40%-OF-RENT RULE BANNER — Richard's verbatim live-call formula for SF tiers.
+    # Only renders for Tier A and B (SF deals). MT inherits existing payment; FF/Cash
+    # have no monthly payment. The rent_split visualization is a tiny bar chart that
+    # shows where rent goes: 40% to seller / 20% PITI / 20% reserves / 20% buyer CF.
+    richards_banner = ''
+    if t in ('A', 'B') and d.get('richards_pitch_line'):
+        rent_v = d.get('monthly_rent') or 0
+        to_seller = d.get('richards_monthly_to_seller') or 0
+        # End-buyer cash flow estimate: rent − payment to seller − PITI − reserves
+        # PITI for the end buyer here is just T+I (no P since they're paying seller, not bank)
+        # Use a simplified 1.5% of price/yr for T+I, plus 20% rent for reserves
+        tax_ins_mo = int((d.get('price') or 0) * 0.015 / 12)
+        reserves_mo = int(rent_v * 0.20)
+        buyer_cf_mo = max(0, rent_v - to_seller - tax_ins_mo - reserves_mo)
+        # Rent split percentages (visual bar)
+        def pct(x): return int(round(x / rent_v * 100)) if rent_v else 0
+        p_seller, p_ti, p_res, p_cf = pct(to_seller), pct(tax_ins_mo), pct(reserves_mo), pct(buyer_cf_mo)
+        # Mini stacked bar via inline divs
+        bar = (
+            f'<div style="display:flex;height:14px;border-radius:7px;overflow:hidden;margin:6px 0 4px;border:1px solid #30363d;">'
+            f'<div style="flex:{p_seller};background:#56d364;" title="To seller: ${to_seller:,}/mo ({p_seller}%)"></div>'
+            f'<div style="flex:{p_ti};background:#79c0ff;" title="End-buyer T+I: ~${tax_ins_mo:,}/mo ({p_ti}%)"></div>'
+            f'<div style="flex:{p_res};background:#d2a8ff;" title="Reserves: ${reserves_mo:,}/mo ({p_res}%)"></div>'
+            f'<div style="flex:{p_cf};background:#e3b341;" title="End-buyer cash flow: ${buyer_cf_mo:,}/mo ({p_cf}%)"></div>'
+            f'</div>'
+            f'<div style="font-size:11px;color:#8b949e;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">'
+            f'<span><span style="color:#56d364;">●</span> Seller ${to_seller:,}</span>'
+            f'<span><span style="color:#79c0ff;">●</span> T+I ${tax_ins_mo:,}</span>'
+            f'<span><span style="color:#d2a8ff;">●</span> Reserves ${reserves_mo:,}</span>'
+            f'<span><span style="color:#e3b341;">●</span> Buyer CF ${buyer_cf_mo:,}</span>'
+            f'</div>'
+        )
+        richards_banner = (
+            f'<div style="margin:8px 0;padding:10px 12px;background:#0d1f24;'
+            f'border:1px solid #1a4d2e;border-radius:6px;font-size:13.5px;line-height:1.4;">'
+            f'<div style="color:#e3b341;font-weight:700;margin-bottom:4px;">💬 Richard\'s pitch (40% of rent rule)</div>'
+            f'<div style="color:#e6edf3;">{d.get("richards_pitch_line","")}</div>'
+            f'{bar}'
+            f'<div style="font-size:11px;color:#6e7681;margin-top:2px;">Rent ${rent_v:,}/mo split. <a href="/rt-companion/playbooks/40-percent-rent-rule.html" target="_blank" style="color:#58a6ff;">Why 40%? ↗</a></div>'
+            f'</div>'
+        )
     # 70% rule target — surfaced prominently on FF cards (Cash Course L295-340).
     # Richard's rule: cash offer = list price × 0.70. Anything above is over-priced
     # for a flipper. This makes the target offer obvious without operator math.
@@ -1435,7 +1570,7 @@ def render_deal(d, t):
     # TRACK PROPERTY button — prefilled Airtable link. Tapping creates a Deal Flow
     # record so the property drops out of tomorrow's daily. Tim manages it through
     # the Airtable kanban from here. Uses Airtable's URL prefill (?prefill_Field=val).
-    tier_label = {'A':'A (MFH SF)','B':'B (Cheap SFH SF)','MT':'MT (Mortgage Takeover)','FF':'FF (Fix & Flip)','C':'C (Cash)'}.get(t, '')
+    tier_label = {'A':'A (MFH SF)','B':'B (Cheap SFH SF)','HY':'HY (Hybrid: MT + SF carry-back)','MT':'MT (Mortgage Takeover)','FF':'FF (Fix & Flip)','C':'C (Cash)'}.get(t, '')
     dt_label_at = {'sellerFinance':'Seller Finance','mortgageTakeover':'Mortgage Takeover','fixAndFlip':'Fix & Flip','cash':'Cash'}.get(d.get('deal_type',''), '')
     addr_parts = [p.strip() for p in d['address'].split(',') if p.strip()]
     city_at = addr_parts[1] if len(addr_parts) >= 2 else ''
@@ -1623,6 +1758,8 @@ def render_deal(d, t):
         f'<div class="section-label">② Creative Outcome (the pitch)</div>'
         f'{target_70_banner}'
         f'{creative_banner}'
+        f'{hybrid_banner}'
+        f'{richards_banner}'
         f'{bl}'
         f'</div>'
         # ③ RESEARCH BUTTONS
@@ -1645,7 +1782,8 @@ def render_deal(d, t):
 
 section_a = ('<h2>🎯 TIER A — Multifamily Seller Finance ($200K-$1.4M, 2+ units, DOM 90+; 2-4 units only if NOT retail-desirable)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
 section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale Seller Finance (&lt;$150K, SFH, DOM 90+)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
-section_mt = ('<h2>🔑 MORTGAGE TAKEOVER — Favorable existing loan (positive CF at assumed rate, DOM 60+)</h2>' + ''.join(render_deal(d,'MT') for d in buckets['MT'])) if buckets['MT'] else ''
+section_hy = ('<h2>🔀 HYBRID — Assume existing favorable loan + carry-back the seller equity gap (SF terms on the gap)</h2>' + ''.join(render_deal(d,'HY') for d in buckets['HY'])) if buckets['HY'] else ''
+section_mt = ('<h2>🔑 MORTGAGE TAKEOVER — Favorable existing loan, LOW equity (positive CF at assumed rate, DOM 60+)</h2>' + ''.join(render_deal(d,'MT') for d in buckets['MT'])) if buckets['MT'] else ''
 section_ff = ('<h2>🔨 FIX &amp; FLIP — Cheap distressed cash plays (Cash Course 70% rule, &lt;$250K, DOM 60+)</h2>' + ''.join(render_deal(d,'FF') for d in buckets['FF'])) if buckets['FF'] else ''
 section_c = ('<h2>💵 TIER C — Cash-Comparable SFH (cash arbitrage, NOT seller finance)</h2>' + ''.join(render_deal(d,'C') for d in buckets['C'])) if buckets['C'] else ''
 rej_section = ''
@@ -1654,7 +1792,7 @@ if buckets['REJECT']:
     rej_section = f'<h2>❌ REJECTED — {pushed} pushed to <a href="https://airtable.com/{AT_BASE}/{WL_TABLE}">Watchlist</a></h2>{rej_lines}'
 
 agent_indicator = f' · 🔓 {unlocks_succeeded} agents captured (free)' if unlocks_succeeded else ''
-summary = f'{len(all_leads)} leads · {len(buckets["A"])} Tier A · {len(buckets["B"])} Tier B · {len(buckets["MT"])} MT · {len(buckets["FF"])} FF · {len(buckets["C"])} Tier C · {pushed} → watchlist{agent_indicator}'
+summary = f'{len(all_leads)} leads · {len(buckets["A"])} Tier A · {len(buckets["B"])} Tier B · {len(buckets["HY"])} Hybrid · {len(buckets["MT"])} MT · {len(buckets["FF"])} FF · {len(buckets["C"])} Tier C · {pushed} → watchlist{agent_indicator}'
 CSS = '''
 body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:12px;font-size:15px;line-height:1.5;}
 h2{font-size:14px;color:#8b949e;text-transform:uppercase;letter-spacing:0.04em;margin:18px 0 8px;}
@@ -1677,7 +1815,7 @@ h2{font-size:14px;color:#8b949e;text-transform:uppercase;letter-spacing:0.04em;m
 a.zillow{display:inline-flex;align-items:center;gap:4px;padding:7px 12px;background:#1c2128;border:1px solid #30363d;border-radius:8px;font-size:12.5px;color:#58a6ff;text-decoration:none;line-height:1.2;min-height:34px;font-weight:500;}
 a.zillow:active{opacity:0.7;}
 .play-link{display:inline-flex;align-items:center;padding:9px 16px;background:#58a6ff;color:#0d1117;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-top:4px;min-height:36px;}
-.tier-A{border-left:3px solid #ff7b72;}.tier-B{border-left:3px solid #d2a8ff;}.tier-MT{border-left:3px solid #79c0ff;}.tier-FF{border-left:3px solid #f0883e;}.tier-C{border-left:3px solid #56d364;}
+.tier-A{border-left:3px solid #ff7b72;}.tier-B{border-left:3px solid #d2a8ff;}.tier-HY{border-left:3px solid #c971ff;}.tier-MT{border-left:3px solid #79c0ff;}.tier-FF{border-left:3px solid #f0883e;}.tier-C{border-left:3px solid #56d364;}
 .rejected{color:#8b949e;font-size:13px;padding:4px 0;}
 .date{color:#8b949e;font-size:13px;}
 .addr-copy{display:inline-block;margin-left:8px;padding:2px 9px;font-size:12px;background:#1c2128;border:1px solid #30363d;color:#58a6ff;border-radius:12px;cursor:pointer;font-family:inherit;}
@@ -1739,7 +1877,7 @@ function updateLocalTimes(){
 updateLocalTimes();
 setInterval(updateLocalTimes, 30000);
 </script>'''
-html = f'<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Triage {date_iso}</title><style>{CSS}</style></head><body><p class="date">📋 {date_human} · TN/TX/GA/OH/MI &nbsp;·&nbsp; <a href="https://www.buyboxcartel.com/vip/lightning-leads" target="_blank" style="color:#58a6ff;">Open BBC Lightning Leads ↗</a></p><div class="summary">{summary}</div>{section_a}{section_b}{section_mt}{section_ff}{section_c}{rej_section}' + PROXY_JS + CLOCK_JS + '</body></html>'
+html = f'<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Triage {date_iso}</title><style>{CSS}</style></head><body><p class="date">📋 {date_human} · TN/TX/GA/OH/MI &nbsp;·&nbsp; <a href="https://www.buyboxcartel.com/vip/lightning-leads" target="_blank" style="color:#58a6ff;">Open BBC Lightning Leads ↗</a></p><div class="summary">{summary}</div>{section_a}{section_b}{section_hy}{section_mt}{section_ff}{section_c}{rej_section}' + PROXY_JS + CLOCK_JS + '</body></html>'
 
 # 8. Publish
 b64 = base64.b64encode(html.encode()).decode()

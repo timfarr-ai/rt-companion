@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Hybrid: MT + SF Carry-back — RT Deal Desk</title>
+  <style>
+    :root {
+      --bg:#0d1117; --panel:#161b22; --panel-2:#1c2128; --border:#30363d;
+      --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#56d364;
+      --amber:#d29922; --red:#f85149; --gold:#e3b341;
+    }
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.55;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);-webkit-text-size-adjust:100%;}
+    a{color:var(--accent);text-decoration:none;}
+    a:active{opacity:0.7;}
+    header{position:sticky;top:0;background:rgba(13,17,23,0.95);backdrop-filter:saturate(180%) blur(10px);-webkit-backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid var(--border);padding:14px 16px;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+    header h1{margin:0;font-size:17px;font-weight:600;}
+    header .back{font-size:14px;color:var(--accent);}
+    main{padding:14px;max-width:760px;margin:0 auto;}
+    main h1{display:none;}
+    /* H2 = section header — boxed panel start */
+    main h2{margin:18px 0 10px;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border);padding-bottom:8px;}
+    main h3{margin:14px 0 6px;font-size:15px;font-weight:600;color:var(--text);}
+    main p{margin:8px 0;}
+    main ul,main ol{margin:8px 0;padding-left:22px;}
+    main li{margin-bottom:6px;}
+    main li input[type="checkbox"]{margin-right:6px;}
+    main strong{color:var(--text);font-weight:600;}
+    main em{color:var(--muted);font-style:normal;}
+    main hr{border:0;border-top:1px solid var(--border);margin:24px 0;}
+    main blockquote{margin:10px 0;padding:10px 14px;background:var(--panel-2);border-left:3px solid var(--accent);border-radius:6px;color:var(--text);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:14px;line-height:1.5;white-space:pre-wrap;}
+    main code{background:var(--panel-2);padding:1px 6px;border-radius:4px;font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13.5px;color:var(--accent);}
+    main pre{background:#0b0f15;border:1px solid var(--border);border-radius:8px;padding:12px;overflow-x:auto;font-size:13px;line-height:1.5;}
+    main pre code{background:transparent;padding:0;color:var(--text);}
+    main table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;}
+    main th,main td{border:1px solid var(--border);padding:6px 10px;text-align:left;}
+    main th{background:var(--panel-2);font-weight:600;}
+    /* Source-call refs styled */
+    .strategy-pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-bottom:8px;}
+    .pill-a{background:rgba(255,123,114,0.15);color:#ff7b72;}
+    .pill-b{background:rgba(210,168,255,0.15);color:#d2a8ff;}
+    .pill-mt{background:rgba(121,192,255,0.15);color:#79c0ff;}
+    .pill-ff{background:rgba(240,136,62,0.15);color:#f0883e;}
+    nav.bottom{padding:18px 0 24px;text-align:center;color:var(--muted);font-size:13px;}
+    nav.bottom a{color:var(--muted);margin:0 10px;}
+    @media (min-width:720px){body{font-size:17px;}main{padding:24px;max-width:860px;}}
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/rt-companion/" class="back">‹ Dashboard</a>
+    <h1>🔀 Hybrid (MT + carry-back)</h1>
+    <a href="/rt-companion/briefings/latest.html" class="back" style="text-align:right;">📋 Briefing</a>
+  </header>
+  <main>
+    <div class="strategy-pill pill-b">🔀 Hybrid (MT + carry-back)</div>
+    <h1>Call Playbook — Hybrid (Mortgage Takeover + SF Carry-back)</h1>
+<h2>Trigger / When to use this script</h2>
+<p>Hybrid is the play when the property has <strong>BOTH</strong> a favorable existing mortgage AND significant seller equity. Neither pure MT nor pure SF fits:</p>
+<ul>
+<li><strong>Pure MT fails</strong> → Seller has too much equity to just take $5-10K cash and walk</li>
+<li><strong>Pure SF fails</strong> → Why finance the whole price when there's already a 3% loan on it?</li>
+</ul>
+<p><strong>Hybrid = assume the existing loan + carry back the equity gap on SF terms.</strong></p>
+<h3>Triage criteria (auto-classified to HY tier)</h3>
+<ul>
+<li>BBC tagged as <code>mortgageTakeover</code> (so loan data is available)</li>
+<li>Existing rate <strong>≤ 5.5%</strong> (favorable enough to assume)</li>
+<li>Existing balance <strong>≥ $20K</strong> (loan is meaningful)</li>
+<li>Seller equity (price − balance) <strong>≥ $20K</strong> (worth doing hybrid vs pure MT)</li>
+<li>DOM <strong>≥ 60 days</strong>, Creative CF <strong>≥ $100/mo</strong></li>
+</ul>
+<h3>Live recordings</h3>
+<ul>
+<li><a href="https://bkmfdmlzkumnsytpztio.supabase.co/storage/v1/object/public/call-recordings/3d3cf27d-39be-4078-813b-1edb74d381da/1777608563442-3.mp3">Hybrid Pitch 1 - 1.85m Dollar AirBNB</a> (20:01)</li>
+<li><a href="https://bkmfdmlzkumnsytpztio.supabase.co/storage/v1/object/public/call-recordings/3d3cf27d-39be-4078-813b-1edb74d381da/1777608567085-4.mp3">Hybrid Pitch 2</a> (24:38)</li>
+<li><a href="https://bkmfdmlzkumnsytpztio.supabase.co/storage/v1/object/public/call-recordings/3d3cf27d-39be-4078-813b-1edb74d381da/1777608553277-0.mp3">Hybrid — Restructuring Seller Finance to Hybrid</a> (8:27)</li>
+</ul>
+<hr />
+<h2>Pre-call checklist (60 seconds)</h2>
+<ul>
+<li>☐ <strong>Briefing card open:</strong> Note the 4 key numbers from the Hybrid banner — existing balance, existing rate, equity gap (carry-back amount), target carry-back monthly.</li>
+<li>☐ <strong>Verify on Zillow:</strong> Confirm price, photos, agent name. PropStream optional for verifying existing loan if you have it.</li>
+<li>☐ <strong>Mental check:</strong> "This seller can't take pure cash (they'd lose to the realtor 6%) and pure MT (they want money). Hybrid splits the difference."</li>
+<li>☐ <strong>Down payment range:</strong> Plan $5-10K cash to seller at close (matches MT). Carry-back covers the rest of equity.</li>
+<li>☐ <strong>Rent estimate:</strong> Hybrid's payment math = 40% of rent MINUS existing PITI. You need the rent number to compute the carry-back monthly.</li>
+</ul>
+<hr />
+<h2>The opener — VOICEMAIL</h2>
+<p>Length target: ~30 sec. Don't lead with "hybrid" — lead with creative.</p>
+<pre><code>&quot;Hi [agent], my name's [you]. I'm calling about [address]. I work with 
+investors looking at creative deal structures — specifically I think 
+this one might be a great fit. I noticed your seller has an existing 
+loan they're probably paying down — I have a way to take this off their 
+plate, take over their loan, and pay them out the equity over time so 
+they're not eating realtor fees or capital-gains hits. I'd love to hop 
+on a quick call. Talk soon.&quot;
+</code></pre>
+<p>Key elements:
+- "Take over their loan" (MT side)
+- "Pay them out the equity over time" (SF carry-back side)
+- "Not eating realtor fees" (motivation hook for seller with equity)</p>
+<hr />
+<h2>The opener — LIVE call</h2>
+<p>First 20 seconds:</p>
+<pre><code>You:    &quot;Hi [agent], my name's [you]. I'm calling about [address]. I work 
+         with investors on creative deal structures. Looking at this one, 
+         I noticed your seller probably has an existing loan they're 
+         paying down — what can you tell me about their situation? 
+         Are they sitting on a low rate they got a few years back?&quot;
+</code></pre>
+<p>If agent confirms favorable existing loan → you're in. Move to qualifying.</p>
+<hr />
+<h2>Qualifying questions (in order)</h2>
+<ol>
+<li><strong>"Roughly what's the balance on their existing loan, and what rate are they paying?"</strong> — Confirms BBC's data. If rate &gt; 5.5% hybrid is less attractive; consider pivoting.</li>
+<li><strong>"What's the seller's situation — what's driving the sale?"</strong> — Listen for: relocation, DTI concerns, tired-landlord. These are hybrid-friendly motivators.</li>
+<li><strong>"Has the property been rented? What's the rent?"</strong> — Critical for the 40%-rule carry-back math.</li>
+<li><strong>"How much do they need to walk away with at close?"</strong> — Anchors the cash-to-seller portion. Aim for $5-10K.</li>
+<li><strong>"Is the seller open to a structured deal where they receive monthly payments after closing?"</strong> — Surfaces the carry-back concept softly.</li>
+</ol>
+<hr />
+<h2>The pitch (the math)</h2>
+<p>After qualifying, present the structure:</p>
+<pre><code>&quot;Here's what I'd propose. You guys are asking $[price]. Seller has about 
+$[balance] left on their loan at [rate]% — that's a great rate, way better 
+than anything I could get at the bank today. 
+
+So here's the deal: [cash_to_seller] cash to your seller at closing. 
+I assume the existing loan and keep making the payments — they're 
+completely off the mortgage. The remaining equity, about $[carry_back_amount], 
+I carry back to them on seller-finance terms: 
+[carry_back_monthly]/mo for 7 years, balloon at year 7.
+
+Total monthly cost to me ends up around 40% of what the property rents 
+for, so it cash flows for me — and your seller walks with cash now, 
+monthly income, and the full balloon payoff in 7 years. They get the 
+full asking price, just spread over time. No realtor commission gap, 
+no capital gains hit at once.&quot;
+</code></pre>
+<h3>Why the numbers work</h3>
+<pre><code>Rent (e.g. $1,500/mo)
+─ Existing PITI to bank:     $X    (set by their loan — favorable rate keeps this low)
+─ Carry-back monthly to seller: $Y    (40% of rent − X — what's left of the &quot;40% allocation&quot;)
+─ Reserves:                  20% of rent
+─ End-buyer CF:              remaining
+
+Total &quot;to seller side&quot; = X + Y = 40% of rent (Richard's standard split)
+</code></pre>
+<p>The end-buyer pays the same total monthly payment as pure SF (40% of rent), but it's split between bank and seller. Seller benefits because they get cash at close AND monthly carry-back AND a balloon payoff.</p>
+<hr />
+<h2>Top 5 objections + verbatim rebuttals</h2>
+<h3>1. <strong>"Due-on-sale clause — won't the bank call the loan?"</strong></h3>
+<ul>
+<li>This is the classic MT objection. In practice the bank rarely calls performing loans (they got their rate locked).</li>
+<li><strong>Rebuttal:</strong> <em>"Due-on-sale is a right the bank has, not an obligation. As long as the loan keeps performing — and I'll be paying it on time, that's the whole basis of my offer — they have no incentive to call it. I've never seen one called on a performing loan in my deals."</em></li>
+<li>Optional escalation: structure the closing through a land trust to avoid even triggering the lender's awareness.</li>
+</ul>
+<h3>2. <strong>"Why not just take cash?"</strong></h3>
+<ul>
+<li><strong>Rebuttal:</strong> <em>"Sure — let's compare. At [asking $X], your seller nets [asking − 6% realtor − closing − loan payoff] which is roughly [X − 0.06X − $balance]. That's [equity − 6%]. With my hybrid offer, they get [cash_to_seller] now, [monthly] every month for 7 years, and the [balloon] balloon at the end. Total over 7 years works out to the full asking, without the realtor cut. Plus they pay capital gains in installments instead of all at once."</em></li>
+</ul>
+<h3>3. <strong>"What if you stop paying the existing mortgage?"</strong></h3>
+<ul>
+<li>Same as the MT version. Frame the equity-protection clause:</li>
+<li><em>"If I miss payments for two months at any point, whether year one or year ten, the property reverts to your seller — they sign a document saying that's okay. They keep all my carry-back payments plus the property. I have zero incentive to default."</em></li>
+</ul>
+<h3>4. <strong>"My seller wants more cash at close."</strong></h3>
+<ul>
+<li>This is where hybrid is FLEXIBLE. Negotiate the cash-to-seller portion higher, offset by reducing the carry-back balloon:</li>
+<li><em>"What if I bump the cash at close to [higher amount] and trim the balloon to [lower amount]? Same total over the term."</em></li>
+</ul>
+<h3>5. <strong>"This is complicated. My seller won't understand it."</strong></h3>
+<ul>
+<li><strong>Rebuttal:</strong> <em>"It really comes down to three numbers: cash now, monthly income, balloon at year 7. Just like a rental — except they don't have to manage it, and the property is off their books. I can put it all in writing and send a summary they can show their attorney."</em></li>
+<li>Then offer: <em>"If you want, I'll send a one-page summary right now so you can walk them through it."</em></li>
+</ul>
+<hr />
+<h2>The close — verbal yes</h2>
+<p>What counts as a verbal yes that progresses to contract:</p>
+<ul>
+<li>Agent says some version of: <em>"Let me run this by my seller, but the structure makes sense."</em></li>
+<li>Or seller (if you get them on the line): <em>"That actually sounds workable — send me the numbers."</em></li>
+</ul>
+<p><strong>Then immediately:</strong> "Yeah is it cool if I text you the proposal right now? I'll send the breakdown — you can review with your seller tonight and call me back tomorrow." → Send the text within 60 seconds of ending the call.</p>
+<hr />
+<h2>Success metric</h2>
+<p>A "good call" for Hybrid:
+- Confirmed the existing loan terms verbally (rate + balance match what BBC said)
+- Confirmed seller has some equity motivation (not just walking away with $0)
+- Got permission to send the structured offer in writing
+- Scheduled a callback within 24-48 hours</p>
+<p>Time to verbal yes is typically longer than pure MT — seller takes a day to process the structure with their attorney. That's normal.</p>
+<hr />
+<h2>Common mistakes to avoid</h2>
+<ol>
+<li><strong>Calling it "subject-to" or "hybrid" out loud</strong> — Use "take over the loan + carry back the equity." Plain language beats jargon.</li>
+<li><strong>Pitching before qualifying the existing rate</strong> — If the loan is at 7%+, hybrid loses its edge. Always confirm rate first.</li>
+<li><strong>Quoting the carry-back balloon as a single big number</strong> — It feels scary. Break it down: "monthly income + final payoff."</li>
+<li><strong>Forgetting reserves</strong> — End-buyer's PITI + reserves + carry-back must equal 80% of rent max. If the math doesn't leave 20% CF, the deal won't sell to your end-buyer.</li>
+<li><strong>Ignoring partner/co-decisionmaker</strong> — Same as Tier B/SF: ask early. "Anyone else need to weigh in?"</li>
+</ol>
+<hr />
+<h2>Sources</h2>
+<ul>
+<li>Live recordings (linked above)</li>
+<li>Validation report: <a href="_live-call-validation.md">Hybrid mentioned as partial coverage in MT validation</a></li>
+<li>Tier classification logic: <code>triage.py</code> <code>tier()</code> function — HY tier (added 2026-05-16)</li>
+<li>Related: <a href="40-percent-rent-rule.md">40%-rent-rule explanation</a>, <a href="mortgage-takeover.html">Pure MT playbook</a>, <a href="tier-a-mfh-seller-finance.html">Pure SF Tier A</a></li>
+</ul>
+    <nav class="bottom">
+      <a href="/rt-companion/">Dashboard</a> ·
+      <a href="/rt-companion/briefings/latest.html">Today's Briefing</a> ·
+      <a href="/rt-companion/playbooks/">All Playbooks</a>
+    </nav>
+  </main>
+</body>
+</html>
