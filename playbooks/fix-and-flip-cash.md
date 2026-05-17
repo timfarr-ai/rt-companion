@@ -27,6 +27,9 @@ Live cash-call voicemails are indeed short (~20-30s). Standard format (paraphras
 
 ---
 
+> **Typical timeline:** First call → verbal yes same call to 3 days (cash is binary) · End-to-end **14-21 days** (fastest) · See [pipeline-timeline.html](pipeline-timeline.html).
+
+
 ## Trigger / When to use this script
 
 - **Property type:** SFH, duplex (distressed condition acceptable, even preferred)

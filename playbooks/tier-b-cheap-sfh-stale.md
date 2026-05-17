@@ -40,6 +40,9 @@ Multiple live calls reference Detroit (Gallagher St, Fullerton, Tracy, Turner). 
 
 ---
 
+> **Typical timeline:** First call → verbal yes 3-10 days · End-to-end **30-45 days** · See [pipeline-timeline.html](pipeline-timeline.html) for day-by-day.
+
+
 ## Trigger / When to use this script
 
 - **Property type:** Single-family home (SFH)

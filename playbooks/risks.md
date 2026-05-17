@@ -6,6 +6,9 @@ Each risk: **what goes wrong → consequence → how to prevent → source**.
 
 ---
 
+> **Timeline-aware:** Each risk below maps to a phase of the deal lifecycle. For phase-level timing, see [pipeline-timeline.html](pipeline-timeline.html).
+
+
 ## 🎯 Pre-call & qualification
 
 ### 1. Calling without knowing the price

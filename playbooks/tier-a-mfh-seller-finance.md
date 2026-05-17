@@ -38,6 +38,9 @@ Real Richard voicemail keeps: specific property name, social-proof ("a number of
 
 ---
 
+> **Typical timeline:** First call → verbal yes 5-14 days · End-to-end **30-50 days** · See [pipeline-timeline.html](pipeline-timeline.html) for day-by-day.
+
+
 ## Trigger / When to use this script
 
 - **Property type:** 5+ unit multifamily (MFH, plex, small commercial)

@@ -1,5 +1,8 @@
 # Call Playbook — Mortgage Takeover (Subject-To / Trust Acquisition)
 
+> **Typical timeline:** First call → verbal yes same call to 7 days (homeowner-direct fastest) · End-to-end **21-35 days** · See [pipeline-timeline.html](pipeline-timeline.html).
+
+
 ## ⚠ Live-call refinements (2026-05-16)
 
 Validated against ~10hrs of Richard's actual live streams. See [validation report](live-call-validation.html). **MT has the most significant deltas from the original playbook.**

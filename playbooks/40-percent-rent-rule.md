@@ -14,6 +14,9 @@ This is the single highest-value insight from validating the playbooks against 1
 
 ---
 
+> **Where this fits in the timeline:** You say this number on Day 0 (the first call). See [pipeline-timeline.html](pipeline-timeline.html) for what happens next.
+
+
 ## Who pays whom
 
 The 40% monthly payment is from the **END BUYER (the investor Tim assigns the contract to)** to the **SELLER**. Tim never makes those payments — he assigns the contract at closing and walks with the assignment fee.

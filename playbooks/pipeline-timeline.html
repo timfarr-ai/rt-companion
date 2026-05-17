@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Pipeline Timeline — RT Deal Desk</title>
+  <style>
+    :root {
+      --bg:#0d1117; --panel:#161b22; --panel-2:#1c2128; --border:#30363d;
+      --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#56d364;
+      --amber:#d29922; --red:#f85149; --gold:#e3b341;
+    }
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.55;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);-webkit-text-size-adjust:100%;}
+    a{color:var(--accent);text-decoration:none;}
+    a:active{opacity:0.7;}
+    header{position:sticky;top:0;background:rgba(13,17,23,0.95);backdrop-filter:saturate(180%) blur(10px);-webkit-backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid var(--border);padding:14px 16px;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+    header h1{margin:0;font-size:17px;font-weight:600;}
+    header .back{font-size:14px;color:var(--accent);}
+    main{padding:14px;max-width:760px;margin:0 auto;}
+    main h1{display:none;}
+    /* H2 = section header — boxed panel start */
+    main h2{margin:18px 0 10px;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border);padding-bottom:8px;}
+    main h3{margin:14px 0 6px;font-size:15px;font-weight:600;color:var(--text);}
+    main p{margin:8px 0;}
+    main ul,main ol{margin:8px 0;padding-left:22px;}
+    main li{margin-bottom:6px;}
+    main li input[type="checkbox"]{margin-right:6px;}
+    main strong{color:var(--text);font-weight:600;}
+    main em{color:var(--muted);font-style:normal;}
+    main hr{border:0;border-top:1px solid var(--border);margin:24px 0;}
+    main blockquote{margin:10px 0;padding:10px 14px;background:var(--panel-2);border-left:3px solid var(--accent);border-radius:6px;color:var(--text);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:14px;line-height:1.5;white-space:pre-wrap;}
+    main code{background:var(--panel-2);padding:1px 6px;border-radius:4px;font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13.5px;color:var(--accent);}
+    main pre{background:#0b0f15;border:1px solid var(--border);border-radius:8px;padding:12px;overflow-x:auto;font-size:13px;line-height:1.5;}
+    main pre code{background:transparent;padding:0;color:var(--text);}
+    main table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;}
+    main th,main td{border:1px solid var(--border);padding:6px 10px;text-align:left;}
+    main th{background:var(--panel-2);font-weight:600;}
+    /* Source-call refs styled */
+    .strategy-pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-bottom:8px;}
+    .pill-a{background:rgba(255,123,114,0.15);color:#ff7b72;}
+    .pill-b{background:rgba(210,168,255,0.15);color:#d2a8ff;}
+    .pill-mt{background:rgba(121,192,255,0.15);color:#79c0ff;}
+    .pill-ff{background:rgba(240,136,62,0.15);color:#f0883e;}
+    nav.bottom{padding:18px 0 24px;text-align:center;color:var(--muted);font-size:13px;}
+    nav.bottom a{color:var(--muted);margin:0 10px;}
+    @media (min-width:720px){body{font-size:17px;}main{padding:24px;max-width:860px;}}
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/rt-companion/" class="back">‹ Dashboard</a>
+    <h1>📅 Pipeline Timeline (day-by-day)</h1>
+    <a href="/rt-companion/briefings/latest.html" class="back" style="text-align:right;">📋 Briefing</a>
+  </header>
+  <main>
+    <div class="strategy-pill pill-mt">📅 Pipeline Timeline (day-by-day)</div>
+    <h1>Pipeline Timeline — How Long Each Step Takes</h1>
+<p>The full deal lifecycle from briefing-card-on-screen to title-company-handshake, with <strong>realistic day-by-day timelines per strategy</strong>. Sourced from Richard's live coaching, course content, and the buyer-sourcing.md playbook.</p>
+<p>Use this as a planning reference — set buyer-side expectations, manage Airtable Deal Flow "Status" transitions, and know when to re-engage a quiet seller.</p>
+<hr />
+<h2>TL;DR — typical end-to-end</h2>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>First call → Verbal yes</th>
+<th>Verbal yes → Under contract</th>
+<th>Inspection window</th>
+<th>Under contract → Close</th>
+<th><strong>End-to-end</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cash / FF</strong></td>
+<td>Same call → 2 days</td>
+<td>1-3 days</td>
+<td>6 days (or skip)</td>
+<td>7-14 days</td>
+<td><strong>14-21 days</strong></td>
+</tr>
+<tr>
+<td><strong>MT (homeowner direct)</strong></td>
+<td>Same call → 3 days</td>
+<td>2-5 days</td>
+<td>7 days</td>
+<td>14-21 days</td>
+<td><strong>21-35 days</strong></td>
+</tr>
+<tr>
+<td><strong>MT (agent listing)</strong></td>
+<td>3-10 days</td>
+<td>3-7 days</td>
+<td>7 days</td>
+<td>14-21 days</td>
+<td><strong>30-45 days</strong></td>
+</tr>
+<tr>
+<td><strong>SF (Tier A/B)</strong></td>
+<td>3-14 days</td>
+<td>5-10 days</td>
+<td>6 days</td>
+<td>14-21 days</td>
+<td><strong>30-50 days</strong></td>
+</tr>
+<tr>
+<td><strong>Hybrid (MT+SF)</strong></td>
+<td>5-14 days</td>
+<td>7-14 days</td>
+<td>7 days</td>
+<td>14-30 days</td>
+<td><strong>45-60 days</strong></td>
+</tr>
+</tbody>
+</table>
+<p>These are <strong>realistic medians</strong>, not best-case or worst-case. The fast path is half these numbers; the objection-heavy path is double.</p>
+<hr />
+<h2>Day-by-day (standard SF / Hybrid path)</h2>
+<h3>Phase 1 — Briefing → first call</h3>
+<table>
+<thead>
+<tr>
+<th>When</th>
+<th>What</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Day -1, 6am AEST</td>
+<td>Cloud routine pulls BBC, scores, publishes briefing</td>
+<td>morning-triage SOP</td>
+</tr>
+<tr>
+<td>Day 0, AM</td>
+<td>Review dashboard, scan 4-section cards, pick 5-10 priorities</td>
+<td>morning-triage SOP</td>
+</tr>
+<tr>
+<td>Day 0, AM</td>
+<td>Verify Zillow + Street View (5 sec/property — non-negotiable)</td>
+<td>risks #3</td>
+</tr>
+<tr>
+<td>Day 0, midday</td>
+<td>Call block (target 20+ dials per session, not 3)</td>
+<td>risks #31, <a href="https://youtu.be/u-ov-X0Cc68?t=1077">u-ov-X0Cc68 @ 0:17:57</a></td>
+</tr>
+</tbody>
+</table>
+<h3>Phase 2 — First call → verbal yes</h3>
+<table>
+<thead>
+<tr>
+<th>When</th>
+<th>What</th>
+<th>Time-budget</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Day 0, +0 sec</td>
+<td>Conversational opener: <em>"What can you tell me about this?"</em></td>
+<td>30 sec</td>
+</tr>
+<tr>
+<td>Day 0, +30 sec</td>
+<td>Qualify: rent, owner motivation, existing-loan terms for MT/HY</td>
+<td>2-5 min</td>
+</tr>
+<tr>
+<td>Day 0, +3 min</td>
+<td>Drop the SF formula (40%-of-rent rule) OR Hybrid pitch</td>
+<td>1-2 min</td>
+</tr>
+<tr>
+<td>Day 0, +5 min</td>
+<td>Get permission to send written offer</td>
+<td>30 sec</td>
+</tr>
+<tr>
+<td><strong>Day 0, +5 min and 60 sec</strong></td>
+<td><strong>Text the structured offer (≤ 60 sec after hanging up)</strong></td>
+<td>non-negotiable</td>
+</tr>
+<tr>
+<td>Day 1-2</td>
+<td>Seller reviews internally + with attorney/partner</td>
+<td>passive</td>
+</tr>
+<tr>
+<td>Day 2-3</td>
+<td>Follow-up call to address questions / refine numbers</td>
+<td>5-15 min</td>
+</tr>
+<tr>
+<td>Day 3-7</td>
+<td>Verbal yes to specific structure</td>
+<td>passive wait</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Critical rule:</strong> Send the text within 60 seconds of ending the call. Richard verbatim: <em>"Yeah, is it cool if I text you? I'll text you that offer right now and we'll go from there."</em> [<a href="https://youtu.be/c2hNH6u7D0k?t=4311">c2hNH6u7D0k @ 1:11:51</a>]</p>
+<p>If you get a <em>"let me think about it"</em> with no scheduled callback, schedule one yourself: <em>"Sounds good — how about I check back this time next week?"</em> [<a href="https://youtu.be/CzUeF6SASGA?t=2680">CzUeF6SASGA @ 0:44:40</a>]. The momentum shift is the <strong>scheduled callback</strong>, not pushing the math harder.</p>
+<h3>Phase 3 — Verbal yes → under contract</h3>
+<table>
+<thead>
+<tr>
+<th>Day after verbal yes</th>
+<th>What</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>+0 to +1 day</td>
+<td>Generate contract (Gold Key TC for SF, trust paperwork for MT/HY)</td>
+<td>contract-close strategy</td>
+</tr>
+<tr>
+<td>+1 to +3 days</td>
+<td>Seller signs (DocuSign or in-person)</td>
+<td></td>
+</tr>
+<tr>
+<td>+1 to +3 days</td>
+<td>EMD wired — <strong>$2K non-refundable post-inspection</strong></td>
+<td>risks #25</td>
+</tr>
+<tr>
+<td>+3 to +7 days</td>
+<td>Title company opens file</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>By Day 7-10 after verbal yes you should be <strong>under contract</strong>. If it's stretching to Day 14+, something's wrong — seller cooling, attorney objecting, or counter-offer brewing.</p>
+<h3>Phase 4 — Inspection period (6 days standard)</h3>
+<table>
+<thead>
+<tr>
+<th>Day in inspection</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Day 1</td>
+<td>Schedule walk-through within 48hr</td>
+</tr>
+<tr>
+<td>Day 2-3</td>
+<td>Inspector visits, condition report</td>
+</tr>
+<tr>
+<td>Day 3-4</td>
+<td>Verify ARV via pulled comps, re-cross-check rent estimate</td>
+</tr>
+<tr>
+<td>Day 4-5</td>
+<td>If issues found: re-trade negotiation OR proceed</td>
+</tr>
+<tr>
+<td>Day 5-6</td>
+<td>Sign off, EMD becomes non-refundable, <strong>assignment-ready</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Rules:</strong> 6-day inspection is Richard's standard (NOT 14 days — too long lets the deal cool). [<a href="https://youtu.be/CzUeF6SASGA?t=570">CzUeF6SASGA @ 0:09:30</a>] · risks #26.</p>
+<h3>Phase 5 — Dispo (runs in parallel with inspection + remaining time)</h3>
+<table>
+<thead>
+<tr>
+<th>When (from under contract)</th>
+<th>Channel</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Day 0 (same day as contract)</td>
+<td><strong>BBC Marketplace</strong></td>
+<td>Post via <code>/vip/marketplace</code> — auto-notifies buyers in your state×strategy</td>
+</tr>
+<tr>
+<td>Day 0</td>
+<td><strong>Grand In Taylor JV</strong></td>
+<td>Submit via Salesmate form (Creative or Cash)</td>
+</tr>
+<tr>
+<td>Day 0-1</td>
+<td><strong>BBC Buyers List</strong></td>
+<td>Filter by state + strategy, DM matching buyers directly</td>
+</tr>
+<tr>
+<td>Day 0-1</td>
+<td><strong>Personal buyer list (Airtable)</strong></td>
+<td>Email blast w/ buyer one-pager (when built)</td>
+</tr>
+<tr>
+<td>Day 1-3</td>
+<td><strong>Facebook groups</strong></td>
+<td>Post highlights → DM-only for full sheet</td>
+</tr>
+<tr>
+<td>Day 2-3</td>
+<td><strong>Instagram / TikTok</strong></td>
+<td>Visual deal post</td>
+</tr>
+<tr>
+<td>Day 3+</td>
+<td><strong>HMHW Discord</strong></td>
+<td>If still no buyer — community deal channel</td>
+</tr>
+<tr>
+<td>Day 14</td>
+<td><strong>Reassess</strong></td>
+<td>If no buyer: drop assignment fee or adjust terms</td>
+</tr>
+</tbody>
+</table>
+<p>Source: <a href="../../.claude/skills/richard-taylor-underwrite/references/buyer-sourcing.md">buyer-sourcing.md</a></p>
+<p><strong>Target:</strong> End-buyer identified within 7 days. <strong>Hard ceiling: Day 14 of 30-day close window.</strong> If you're past Day 14 with no buyer, you have ~16 days to find one or drop terms.</p>
+<h3>Phase 6 — End-buyer assignment</h3>
+<table>
+<thead>
+<tr>
+<th>Day after buyer commits</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>+0</td>
+<td>Verbal commit + assignment fee agreed</td>
+</tr>
+<tr>
+<td>+0-1</td>
+<td>End-buyer EMD wired to title</td>
+</tr>
+<tr>
+<td>+1-3</td>
+<td>Assignment paperwork</td>
+</tr>
+<tr>
+<td>+3-7</td>
+<td>End-buyer's own due diligence (if any contingencies)</td>
+</tr>
+</tbody>
+</table>
+<h3>Phase 7 — Closing / settlement</h3>
+<table>
+<thead>
+<tr>
+<th>Day in 30-day close window</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Day 25-28</td>
+<td>Title company final docs</td>
+</tr>
+<tr>
+<td>Day 28-30</td>
+<td>Closing — all parties at title company</td>
+</tr>
+<tr>
+<td>Day 30</td>
+<td>Recording, deed transfer, <strong>assignment fee wired to you</strong>, EMD released to seller</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Per-strategy specifics</h2>
+<h3>🎯 Tier A — Multifamily SF</h3>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Duration</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First call → verbal yes</td>
+<td>5-14 days</td>
+<td>DSCR-failure agents take time to validate with owner</td>
+</tr>
+<tr>
+<td>Verbal yes → contract</td>
+<td>7-10 days</td>
+<td>Larger deals have more attorney review</td>
+</tr>
+<tr>
+<td>Inspection</td>
+<td>6 days</td>
+<td></td>
+</tr>
+<tr>
+<td>Under contract → close</td>
+<td>14-21 days</td>
+<td>More buyer due diligence on big-ticket</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>30-50 days</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Key risk on timeline: Tier A sellers often have institutional/family ownership = slower internal decisions. Schedule 14-day callbacks, not 3-day.</p>
+<h3>🏘️ Tier B — Cheap SFH SF</h3>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Duration</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First call → verbal yes</td>
+<td>3-10 days</td>
+<td>Cheap SFH = fewer stakeholders, faster decisions</td>
+</tr>
+<tr>
+<td>Verbal yes → contract</td>
+<td>3-7 days</td>
+<td>Simpler paperwork</td>
+</tr>
+<tr>
+<td>Inspection</td>
+<td>6 days</td>
+<td></td>
+</tr>
+<tr>
+<td>Under contract → close</td>
+<td>14-21 days</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>30-45 days</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Key risk: end-buyer pool is smaller for cheap SFH SF (Section-8-savvy investors). Start dispo on Day 0 of contract.</p>
+<h3>🔀 Hybrid (MT + SF carry-back)</h3>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Duration</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First call → verbal yes</td>
+<td>5-14 days</td>
+<td>Two-headed structure needs more explanation</td>
+</tr>
+<tr>
+<td>Verbal yes → contract</td>
+<td>7-14 days</td>
+<td>Trust acquisition paperwork + carry-back terms</td>
+</tr>
+<tr>
+<td>Inspection</td>
+<td>7 days</td>
+<td></td>
+</tr>
+<tr>
+<td>Under contract → close</td>
+<td>14-30 days</td>
+<td>Longest because of title's existing-loan verification</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>45-60 days</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Key risk: title company unfamiliarity with "trust acquisition + carry-back" hybrid. Use a TC that knows the structure (Richard's network) or plan for delays.</p>
+<h3>🔑 Pure MT (low equity, motivated)</h3>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Duration</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First call → verbal yes</td>
+<td>Same call to 7 days</td>
+<td>Low-equity sellers move fast — "off your DTI" frame closes quickly</td>
+</tr>
+<tr>
+<td>Verbal yes → contract</td>
+<td>2-5 days</td>
+<td></td>
+</tr>
+<tr>
+<td>Inspection</td>
+<td>7 days</td>
+<td></td>
+</tr>
+<tr>
+<td>Under contract → close</td>
+<td>14-21 days</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>21-35 days</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Fast-path verified: San Diego condo went from inbound to end-buyer-closed in <strong>one hour live on stream</strong> [<a href="https://youtu.be/u-ov-X0Cc68?t=3000">u-ov-X0Cc68 @ 0:50:00</a>].</p>
+<h3>🔨 Fix &amp; Flip / Cash</h3>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Duration</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First call → verbal yes</td>
+<td>Same call to 3 days</td>
+<td>Cash is binary — yes/no quickly</td>
+</tr>
+<tr>
+<td>Verbal yes → contract</td>
+<td>1-3 days</td>
+<td>Simple cash contract</td>
+</tr>
+<tr>
+<td>Inspection</td>
+<td>6 days OR waived</td>
+<td>Richard often waives for finality leverage</td>
+</tr>
+<tr>
+<td>Under contract → close</td>
+<td>7-14 days</td>
+<td>Cash closes fast</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>14-21 days</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Fast-path verified: Detroit duplex student deal — locked under contract → sold to buyer Joseph live → $8K assignment in one stream session [<a href="https://youtu.be/CzUeF6SASGA?t=180">CzUeF6SASGA @ 0:03:00</a>].</p>
+<hr />
+<h2>Follow-up cadence (the cold-touch passive game)</h2>
+<p>When you don't get a yes on the first call, Richard's cadence is <strong>passive but persistent</strong>:</p>
+<blockquote>
+<p><em>"I kind of wait for them to follow up with me, but I'll loosely follow up if I think something's there."</em> [<a href="https://youtu.be/CzUeF6SASGA?t=4842">CzUeF6SASGA @ 1:20:42</a>]</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Day after first call</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Day 0 +60 sec</td>
+<td>Send written offer summary by text</td>
+</tr>
+<tr>
+<td>Day 2-3</td>
+<td>Light follow-up text: "Any questions on the structure?"</td>
+</tr>
+<tr>
+<td>Day 7</td>
+<td>Phone call: "Wanted to check where you landed"</td>
+</tr>
+<tr>
+<td>Day 14</td>
+<td>Pull listing → if still on market, call again</td>
+</tr>
+<tr>
+<td>Day 30</td>
+<td>Re-engage with revised structure (e.g. higher down)</td>
+</tr>
+<tr>
+<td>Day 60+</td>
+<td>Property in long-stale watchlist — periodic check</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Don't burn the relationship</strong> with aggressive Day-1/Day-3 follow-ups. The scheduled callback (Day 7-14) is the right cadence for most agent calls.</p>
+<hr />
+<h2>Where you can lose time (and how to recover)</h2>
+<table>
+<thead>
+<tr>
+<th>Loss</th>
+<th>Days lost</th>
+<th>Recovery</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sending offer 24hr later (not 60 sec)</td>
+<td>+3-7 days</td>
+<td>Always text within 60 sec of hanging up</td>
+</tr>
+<tr>
+<td>Partner not on first call → reschedule</td>
+<td>+1-2 days</td>
+<td>Offer merge-call on first call (risks #16)</td>
+</tr>
+<tr>
+<td>Title company unfamiliar w/ MT/Hybrid</td>
+<td>+7-14 days</td>
+<td>Use a TC in Richard's network (Gold Key)</td>
+</tr>
+<tr>
+<td>End-buyer flakes Day 20 of 30-day window</td>
+<td>+7-14 days</td>
+<td>Always have 2+ buyers in parallel pipeline</td>
+</tr>
+<tr>
+<td>Lawyer review of carry-back paperwork</td>
+<td>+5-10 days</td>
+<td>Pre-empt: send template with text for seller's attorney</td>
+</tr>
+<tr>
+<td>Inspector finds issues → re-trade</td>
+<td>+5-7 days</td>
+<td>Build $5-10K buffer in initial offer to absorb</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Status transitions in Airtable Deal Flow</h2>
+<p>Map these to the Airtable Deal Flow <code>Status</code> field as your pipeline tracker:</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Phase</th>
+<th>Typical days in this status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Triage</code></td>
+<td>Briefing card → first call</td>
+<td>0-2 days</td>
+</tr>
+<tr>
+<td><code>Voicemail Left</code></td>
+<td>Phone tag</td>
+<td>1-3 days</td>
+</tr>
+<tr>
+<td><code>Contact Made</code></td>
+<td>First conversation done, awaiting follow-up</td>
+<td>2-7 days</td>
+</tr>
+<tr>
+<td><code>Negotiating (Pre-Offer)</code></td>
+<td>Active discussion, no formal offer yet</td>
+<td>3-7 days</td>
+</tr>
+<tr>
+<td><code>Offer Sent / Pipeline</code></td>
+<td>Written offer in seller's hands</td>
+<td>3-14 days</td>
+</tr>
+<tr>
+<td><code>Negotiating (Counter)</code></td>
+<td>Counter-offer dance</td>
+<td>3-21 days</td>
+</tr>
+<tr>
+<td><code>Offer Accepted</code></td>
+<td>Verbal yes, contract being prepared</td>
+<td>1-7 days</td>
+</tr>
+<tr>
+<td><code>Inspection Period</code></td>
+<td>Under contract, 6-day window</td>
+<td>6-7 days</td>
+</tr>
+<tr>
+<td><code>Dispo</code></td>
+<td>Inspection done, finding end-buyer</td>
+<td>7-14 days</td>
+</tr>
+<tr>
+<td><code>Settled</code></td>
+<td>Closing scheduled or done</td>
+<td>14-30 days</td>
+</tr>
+<tr>
+<td><code>Awaiting Payment</code></td>
+<td>Closed, fee not yet wired</td>
+<td>1-7 days</td>
+</tr>
+<tr>
+<td><code>Paid</code></td>
+<td>Done</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Lost</code></td>
+<td>Dropped (with Lost Reason)</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Move properties through these states as you go.</strong> The dashboard's morning briefing reads tracked PIDs and excludes them from tomorrow's daily, so you won't re-see deals you're actively working.</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="../sop/deal-lifecycle.html">Deal Lifecycle SOP</a> — the original SOP this enriches with timing data</li>
+<li><a href="../sop/verbal-yes-to-dispo.html">Verbal Yes to Dispo SOP</a> — Phase 4-7 specifics</li>
+<li><a href="../../.claude/skills/richard-taylor-underwrite/references/buyer-sourcing.md">Buyer Sourcing</a> — full dispo channel guide</li>
+<li><a href="risks.html">Risks &amp; Newbie Mistakes</a> — failure modes per phase</li>
+<li><a href="index.html">Per-tier playbooks</a> — strategy-specific call execution</li>
+</ul>
+    <nav class="bottom">
+      <a href="/rt-companion/">Dashboard</a> ·
+      <a href="/rt-companion/briefings/latest.html">Today's Briefing</a> ·
+      <a href="/rt-companion/playbooks/">All Playbooks</a>
+    </nav>
+  </main>
+</body>
+</html>

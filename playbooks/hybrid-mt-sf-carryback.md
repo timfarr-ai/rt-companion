@@ -23,6 +23,9 @@ Hybrid is the play when the property has **BOTH** a favorable existing mortgage 
 
 ---
 
+> **Typical timeline:** First call → verbal yes 5-14 days · End-to-end **45-60 days** (longest — title needs to handle assume + carry-back) · See [pipeline-timeline.html](pipeline-timeline.html).
+
+
 ## Pre-call checklist (60 seconds)
 
 - [ ] **Briefing card open:** Note the 4 key numbers from the Hybrid banner — existing balance, existing rate, equity gap (carry-back amount), target carry-back monthly.
