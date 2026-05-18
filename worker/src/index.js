@@ -114,8 +114,13 @@ async function getOpenPhoneCustomFieldKeys(env) {
   const keys = {};
   for (const f of fields) {
     const n = (f.name || '').toLowerCase();
-    if (n === 'property address') keys.propertyAddress = f.key;
-    else if (n === 'tier') keys.tier = f.key;
+    // Property-address matching: accept Tim's actual field name "Listed Properties"
+    // plus other reasonable variants. Verified 2026-05-18: Tim's field is
+    // "Listed Properties" type=address key=6a0a9a23c3b59be3b9b27d3c.
+    if (n === 'property address' || n === 'listed properties' || n === 'listed property' ||
+        n === 'address' || n === 'properties')
+      keys.propertyAddress = f.key;
+    else if (n === 'tier' || n === 'rt tier') keys.tier = f.key;
     else if (n === 'dom' || n.startsWith('dom ')) keys.dom = f.key;
     else if (n === 'bbc pid' || n === 'pid') keys.pid = f.key;
     else if (n === 'first seen' || n.startsWith('first seen')) keys.firstSeen = f.key;
