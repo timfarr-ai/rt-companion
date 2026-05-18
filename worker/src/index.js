@@ -188,35 +188,77 @@ async function createOpenPhoneContact(env, payload) {
     if (payload.dom)     companyParts.push(`DOM ${payload.dom}`);
     company = 'RT · ' + companyParts.join(' · ');
   }
-  const body = {
-    defaultFields: {
-      firstName,
-      lastName,
-      company,
-      ...(payload.phone ? { phoneNumbers: [{ name: 'Mobile', value: payload.phone }] } : {}),
-      ...(payload.email && payload.email !== 'Not Available'
-          ? { emails: [{ name: 'Work', value: payload.email }] }
-          : {}),
-    },
-    ...(customFields.length ? { customFields } : {}),
-    externalId: payload.pid || `rt-${payload.phone}`,
-    source: 'rt-companion',
-    ...(payload.briefing_url ? { sourceUrl: payload.briefing_url } : {}),
+  // De-dupe by phone — one agent (one phone) = one OpenPhone contact, regardless
+  // of how many properties they list. Subsequent clicks update Listed Properties
+  // (custom field) + company to reflect the most recent property Tim called about.
+  const dedupKey = `rt-${payload.phone || payload.pid || 'unknown'}`;
+  const baseFields = {
+    firstName,
+    lastName,
+    company,
+    ...(payload.phone ? { phoneNumbers: [{ name: 'Mobile', value: payload.phone }] } : {}),
+    ...(payload.email && payload.email !== 'Not Available'
+        ? { emails: [{ name: 'Work', value: payload.email }] }
+        : {}),
   };
-  const resp = await fetch('https://api.openphone.com/v1/contacts', {
-    method: 'POST',
-    headers: {
-      'Authorization': env.OPENPHONE_API_KEY,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
+
+  // 1. Lookup existing contact by externalId
+  const lookupResp = await fetch(`https://api.openphone.com/v1/contacts?externalIds=${encodeURIComponent(dedupKey)}&maxResults=1`, {
+    headers: { 'Authorization': env.OPENPHONE_API_KEY },
   });
+  let existingId = null;
+  if (lookupResp.ok) {
+    const lookupData = await lookupResp.json();
+    if (lookupData.data && lookupData.data.length > 0) existingId = lookupData.data[0].id;
+  }
+
+  let resp;
+  let action;
+  if (existingId) {
+    // PATCH the existing contact — keeps history of prior properties only via
+    // updatedAt; current state shows the latest property. (Future: append to a
+    // 'properties_history' custom field if Tim wants the chain visible.)
+    action = 'updated';
+    resp = await fetch(`https://api.openphone.com/v1/contacts/${existingId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': env.OPENPHONE_API_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        defaultFields: baseFields,
+        ...(customFields.length ? { customFields } : {}),
+        ...(payload.briefing_url ? { sourceUrl: payload.briefing_url } : {}),
+      }),
+    });
+  } else {
+    // First contact for this phone — create
+    action = 'created';
+    resp = await fetch('https://api.openphone.com/v1/contacts', {
+      method: 'POST',
+      headers: {
+        'Authorization': env.OPENPHONE_API_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        defaultFields: baseFields,
+        ...(customFields.length ? { customFields } : {}),
+        externalId: dedupKey,
+        source: 'rt-companion',
+        ...(payload.briefing_url ? { sourceUrl: payload.briefing_url } : {}),
+      }),
+    });
+  }
+
   const respBody = await resp.text();
-  // 200/201 = created; 409/422 = duplicate (soft success); else = error
-  const ok = resp.status === 200 || resp.status === 201 || resp.status === 409 || resp.status === 422;
+  // 200/201/204 = success (200 for PATCH, 201 for POST); 409/422 = duplicate fallback
+  const ok = resp.status === 200 || resp.status === 201 || resp.status === 204 || resp.status === 409 || resp.status === 422;
   return {
     status: resp.status,
     ok,
+    action,
+    contact_id: existingId,
+    dedup_key: dedupKey,
     custom_fields_filled: customFields.map(c => c.key),
     custom_fields_available: Object.keys(fieldKeys),
     body: respBody,

@@ -1403,9 +1403,23 @@ def render_deal(d, t):
                          f'font-weight:500;text-decoration:none;font-size:12.5px;border:1px solid #30363d;'
                          f'min-height:38px;display:inline-flex;align-items:center;gap:5px;">'
                          f'✉ {a["email"]}</a>')
+        # Brokerage line — surfaces the listing office below the agent name so Tim
+        # knows which company the agent represents before dialing. Falls back to
+        # MLS-attribution agent name if BBC's contact-seller name disagrees with MLS.
+        brokerage_line = ''
+        if d.get('brokerage'):
+            mls_agent = d.get('mls_agent_name', '')
+            mls_disagree = (mls_agent and a['name'] and mls_agent.lower() != a['name'].lower())
+            mls_note = f' <span style="color:#6e7681;">· MLS attribution: {mls_agent}</span>' if mls_disagree else ''
+            brokerage_line = (
+                f'<div style="color:#8b949e;font-size:12px;margin-bottom:8px;">'
+                f'🏢 <span style="color:#79c0ff;">{d["brokerage"]}</span>{mls_note}'
+                f'</div>'
+            )
         agent_block = (
             f'<div style="margin-top:10px;padding:10px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;">'
-            f'<div style="color:#e6edf3;font-weight:600;margin-bottom:8px;font-size:14px;">🔓 {a["name"]}</div>'
+            f'<div style="color:#e6edf3;font-weight:600;margin-bottom:4px;font-size:14px;">🔓 {a["name"]}</div>'
+            f'{brokerage_line}'
             f'<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">{call_btns}{email_btn}</div>'
             f'</div>'
         )
