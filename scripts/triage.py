@@ -1305,16 +1305,65 @@ def render_deal(d, t):
     ins_pill = f' <span class="pill" title="BBC reported monthly homeowners insurance">🛡 Insurance ${ins_v:,}/mo</span>' if 0 < ins_v < 2000 else ''
     hoa_pill = f' <span class="pill" title="BBC reported monthly HOA fee">🏘 HOA ${hoa_v:,}/mo</span>' if 0 < hoa_v < 2000 else ''
     tax_ins_pill = tax_pill + ins_pill + hoa_pill
-    # Agent block — only if unlocked
+    # Agent block — call-action buttons. Three click-targets:
+    #   1. Primary green "📞 OpenPhone" — `openphone://call?number=+...` URL scheme.
+    #      Registers on Mac (OpenPhone desktop app) + iOS (OpenPhone iOS app).
+    #      If app not installed, falls back gracefully (nothing happens — user clicks
+    #      next button). Verified scheme per OpenPhone docs 2026-05-18.
+    #   2. Secondary "📱 Phone app" — `tel:+...` URL scheme. Works EVERYWHERE:
+    #      iPhone Safari → iOS picker (Phone, FaceTime, OpenPhone if installed)
+    #      Mac Safari → FaceTime call dialog
+    #      Effectively the universal fallback.
+    #   3. Tertiary "📋 Copy" — clipboard copy of formatted phone number for
+    #      cases where neither URL scheme works (e.g., other browsers/devices).
     agent_block = ''
     if d.get('agent'):
         a = d['agent']
         phone_clean = ''.join(c for c in a['phone'] if c.isdigit() or c == '+')
         if phone_clean and not phone_clean.startswith('+'): phone_clean = '+1' + phone_clean.lstrip('1')
-        tel_link = f'<a href="tel:{phone_clean}" style="color:#79c0ff;">📞 {a["phone"]}</a>' if phone_clean else f'<span>📞 {a["phone"]}</span>'
-        op_link = f' &nbsp; <a href="openphone://call?number={phone_clean}" style="color:#79c0ff;">via OpenPhone</a>' if phone_clean else ''
-        email_link = f' &nbsp; <a href="mailto:{a["email"]}" style="color:#8b949e;">✉ {a["email"]}</a>' if a.get('email') and a['email'] != 'Not Available' else ''
-        agent_block = f'<div style="margin-top:8px;padding:8px 10px;background:#161b22;border:1px solid #30363d;border-radius:6px;font-size:13px;"><div style="color:#e6edf3;font-weight:600;margin-bottom:2px;">🔓 {a["name"]}</div><div>{tel_link}{op_link}{email_link}</div></div>'
+        phone_display = (a.get('phone') or '').replace("'", "\\'")
+        if phone_clean:
+            # OpenPhone primary button
+            op_btn = (f'<a href="openphone://call?number={phone_clean}" class="btn btn-call-primary" '
+                      f'style="background:#1a4d2e;color:#56d364;padding:8px 14px;border-radius:8px;'
+                      f'font-weight:600;text-decoration:none;font-size:13.5px;border:1px solid #1a4d2e;'
+                      f'min-height:38px;display:inline-flex;align-items:center;gap:6px;">'
+                      f'📞 OpenPhone</a>')
+            # tel: secondary (universal fallback)
+            tel_btn = (f' <a href="tel:{phone_clean}" class="btn btn-call-secondary" '
+                       f'style="background:#1e2c44;color:#79c0ff;padding:8px 14px;border-radius:8px;'
+                       f'font-weight:600;text-decoration:none;font-size:13.5px;border:1px solid #1e2c44;'
+                       f'min-height:38px;display:inline-flex;align-items:center;gap:6px;">'
+                       f'📱 Phone app</a>')
+            # Copy-to-clipboard tertiary
+            copy_phone_handler = (
+                f"navigator.clipboard.writeText('{phone_display}');"
+                f"this.style.background='#1a4d2e';this.style.color='#56d364';"
+                f"this.dataset.orig=this.textContent;this.textContent='✓ Copied';"
+                f"setTimeout(()=>{{this.style.background='';this.style.color='';this.textContent=this.dataset.orig;}},1500);"
+            )
+            copy_btn = (f' <button type="button" onclick="{copy_phone_handler}" '
+                        f'style="background:#1c2128;color:#8b949e;padding:8px 12px;border-radius:8px;'
+                        f'font-weight:500;font-size:12.5px;border:1px solid #30363d;cursor:pointer;'
+                        f'min-height:38px;display:inline-flex;align-items:center;gap:5px;font-family:inherit;">'
+                        f'📋 Copy {a["phone"]}</button>')
+            call_btns = op_btn + tel_btn + copy_btn
+        else:
+            call_btns = f'<span style="color:#8b949e;">📞 {a["phone"]}</span>'
+        # Email button if available
+        email_btn = ''
+        if a.get('email') and a['email'] != 'Not Available':
+            email_btn = (f' <a href="mailto:{a["email"]}" '
+                         f'style="background:#1c2128;color:#8b949e;padding:8px 12px;border-radius:8px;'
+                         f'font-weight:500;text-decoration:none;font-size:12.5px;border:1px solid #30363d;'
+                         f'min-height:38px;display:inline-flex;align-items:center;gap:5px;">'
+                         f'✉ {a["email"]}</a>')
+        agent_block = (
+            f'<div style="margin-top:10px;padding:10px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;">'
+            f'<div style="color:#e6edf3;font-weight:600;margin-bottom:8px;font-size:14px;">🔓 {a["name"]}</div>'
+            f'<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">{call_btns}{email_btn}</div>'
+            f'</div>'
+        )
     # PHOTO STRIP — horizontal scroll of all BBC photos (up to 8). Mirrors Richard's
     # livestream eye-check: condition + neighborhood read happens here, inline,
     # before the operator commits to dialing. Lazy-loaded so briefing HTML stays light.
