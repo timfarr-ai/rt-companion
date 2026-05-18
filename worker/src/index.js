@@ -86,16 +86,59 @@ async function saveToPipeline(env, pipelineData) {
 }
 
 /**
+ * Look up the OpenPhone custom-field keys we care about, cached in KV for 1 hour.
+ * The API only exposes GET (no POST) for custom-fields — Tim defines them in
+ * the OpenPhone UI, then this code discovers them by name and uses their keys.
+ *
+ * Fields we look for (by name, case-insensitive):
+ *   "Property Address"  (preferred type: address)
+ *   "Tier"              (string or multi-select)
+ *   "DOM"               (number) — matches "DOM", "DOM at Lead", "DOM at first contact"
+ *   "BBC PID"           (string)
+ *   "First Seen"        (date) — matches "First Seen", "First Seen Date"
+ *
+ * Returns { propertyAddress?: key, tier?: key, dom?: key, pid?: key, firstSeen?: key }
+ * Any field Tim hasn't created yet is simply absent — the contact-create code
+ * falls back gracefully (puts unfilled context into `company`).
+ */
+async function getOpenPhoneCustomFieldKeys(env) {
+  // KV cache: 1 hour TTL
+  const cached = await env.BBC_SESSION.get('op_custom_fields', { type: 'json' });
+  if (cached && cached.expiresAt > Date.now()) return cached.keys;
+  const resp = await fetch('https://api.openphone.com/v1/contact-custom-fields', {
+    headers: { 'Authorization': env.OPENPHONE_API_KEY },
+  });
+  if (!resp.ok) return {};
+  const data = await resp.json();
+  const fields = data.data || [];
+  const keys = {};
+  for (const f of fields) {
+    const n = (f.name || '').toLowerCase();
+    if (n === 'property address') keys.propertyAddress = f.key;
+    else if (n === 'tier') keys.tier = f.key;
+    else if (n === 'dom' || n.startsWith('dom ')) keys.dom = f.key;
+    else if (n === 'bbc pid' || n === 'pid') keys.pid = f.key;
+    else if (n === 'first seen' || n.startsWith('first seen')) keys.firstSeen = f.key;
+  }
+  await env.BBC_SESSION.put('op_custom_fields',
+    JSON.stringify({ keys, expiresAt: Date.now() + 60*60*1000 }),
+    { expirationTtl: 3700 });
+  return keys;
+}
+
+/**
  * Create-or-update an OpenPhone contact for a property-call workflow.
  *
- * The OpenPhone API doesn't have a generic "notes" field. We stuff the
- * property context into `company` so it's prominently visible on the
- * contact view inside the OpenPhone app/desktop. Format:
- *   "RT · 123 Main St, City, ST · Tier B SF · DOM 156"
+ * Two-tier filling strategy:
+ *  1. If Tim has defined custom fields in OpenPhone (Property Address, Tier,
+ *     DOM, BBC PID, First Seen) — we fill them properly via customFields[].
+ *     This is the clean view.
+ *  2. As a SAFETY NET, we ALSO stuff a compact summary into `company` so the
+ *     property context is visible even before custom fields are defined.
+ *     Format: "RT · 123 Main St · Tier B · DOM 156"
  *
- * Uses externalId for cross-system de-dup (BBC PID). If a contact already
- * exists with the same externalId, OpenPhone may return 409/422 — we treat
- * that as a soft success (call still proceeds).
+ * Uses externalId (BBC PID) for cross-system de-dup. Re-clicks update the
+ * contact rather than duplicate.
  *
  * @param {Object} env  Worker env (needs OPENPHONE_API_KEY)
  * @param {Object} payload  { phone, name, email, address, tier, dom, pid, briefing_url }
@@ -107,6 +150,21 @@ async function createOpenPhoneContact(env, payload) {
   const nameParts = (payload.name || 'Unknown Agent').trim().split(/\s+/);
   const firstName = nameParts[0] || 'Unknown';
   const lastName = nameParts.slice(1).join(' ') || '';
+  // Look up custom-field keys by name (Tim defines them in OpenPhone UI;
+  // this discovers them and starts filling automatically once they exist).
+  const fieldKeys = await getOpenPhoneCustomFieldKeys(env);
+  const customFields = [];
+  if (fieldKeys.propertyAddress && payload.address)
+    customFields.push({ key: fieldKeys.propertyAddress, value: payload.address });
+  if (fieldKeys.tier && payload.tier)
+    customFields.push({ key: fieldKeys.tier, value: payload.tier });
+  if (fieldKeys.dom && payload.dom)
+    customFields.push({ key: fieldKeys.dom, value: Number(payload.dom) });
+  if (fieldKeys.pid && payload.pid)
+    customFields.push({ key: fieldKeys.pid, value: payload.pid });
+  if (fieldKeys.firstSeen)
+    customFields.push({ key: fieldKeys.firstSeen, value: new Date().toISOString().slice(0, 10) });
+  // Safety-net company field — shown prominently even without custom fields
   const companyParts = [];
   if (payload.address) companyParts.push(payload.address);
   if (payload.tier)    companyParts.push(`Tier ${payload.tier}`);
@@ -122,6 +180,7 @@ async function createOpenPhoneContact(env, payload) {
           ? { emails: [{ name: 'Work', value: payload.email }] }
           : {}),
     },
+    ...(customFields.length ? { customFields } : {}),
     externalId: payload.pid || `rt-${payload.phone}`,
     source: 'rt-companion',
     ...(payload.briefing_url ? { sourceUrl: payload.briefing_url } : {}),
@@ -137,7 +196,13 @@ async function createOpenPhoneContact(env, payload) {
   const respBody = await resp.text();
   // 200/201 = created; 409/422 = duplicate (soft success); else = error
   const ok = resp.status === 200 || resp.status === 201 || resp.status === 409 || resp.status === 422;
-  return { status: resp.status, ok, body: respBody };
+  return {
+    status: resp.status,
+    ok,
+    custom_fields_filled: customFields.map(c => c.key),
+    custom_fields_available: Object.keys(fieldKeys),
+    body: respBody,
+  };
 }
 
 function corsHeaders(env) {
