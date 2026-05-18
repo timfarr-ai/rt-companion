@@ -31,12 +31,15 @@ STATES = ['Tennessee', 'Texas', 'Georgia', 'Ohio', 'Michigan',
 cj = http.cookiejar.CookieJar()
 opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
 
+BROWSER_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+
 def http_req(url, method='GET', headers=None, json_body=None, use_opener=False):
     data = None
     if json_body is not None:
         data = json.dumps(json_body).encode()
         headers = (headers or {}) | {'Content-Type': 'application/json'}
-    req = urllib.request.Request(url, data=data, method=method, headers=headers or {})
+    headers = (headers or {}) | {'User-Agent': BROWSER_UA}
+    req = urllib.request.Request(url, data=data, method=method, headers=headers)
     try:
         with (opener.open if use_opener else urllib.request.urlopen)(req, timeout=60) as r:
             return r.status, r.read()
