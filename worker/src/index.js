@@ -35,6 +35,7 @@
  */
 
 const BBC = 'https://www.buyboxcartel.com';
+const BROWSER_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
 
 async function hmacVerify(body, signature, secretStr) {
   const encoder = new TextEncoder();
@@ -54,12 +55,15 @@ async function loginBBC(env) {
   // Fresh login
   const resp = await fetch(`${BBC}/api/auth/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'User-Agent': BROWSER_UA },
     body: JSON.stringify({ email: env.BBC_EMAIL, password: env.BBC_PASS })
   });
-  if (!resp.ok) throw new Error(`BBC login failed: ${resp.status}`);
+  if (!resp.ok) {
+    const errBody = await resp.text();
+    throw new Error(`BBC login failed: ${resp.status} ${errBody.slice(0,120)}`);
+  }
   const data = await resp.json();
-  const token = data.token || (data.user && data.user.token);
+  const token = data.accessToken || data.token || (data.user && data.user.token);
   const cookies = resp.headers.get('set-cookie') || '';
   const session = {
     token,
@@ -76,6 +80,7 @@ async function saveToPipeline(env, pipelineData) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'User-Agent': BROWSER_UA,
       'Authorization': `Bearer ${session.token}`,
       'Cookie': session.cookieHeader,
       'Accept': 'application/json'
