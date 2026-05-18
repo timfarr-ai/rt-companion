@@ -1957,7 +1957,12 @@ async function rtOpenPhoneCall(btn, payloadJson, phone) {
   const body = JSON.stringify(JSON.parse(payloadJson));
   const origText = btn.textContent;
   btn.textContent = '⏳ Saving contact…';
-  const dialUrl = 'openphone://call?number=' + encodeURIComponent(phone);
+  // Use tel: URL — Quo (formerly OpenPhone) registers tel: scheme and accepts
+  // numbers via this standard format. The openphone://call?number= format
+  // launches Quo but Quo's renderer doesn't parse the query param (verified
+  // 2026-05-18 with Tim). tel: works on iPhone too (iOS routes to Quo if
+  // installed, otherwise iOS phone picker).
+  const dialUrl = 'tel:' + phone;
   // Fire-and-forget the contact create; don't block the dial on its outcome.
   // Use a 2-second timeout so user isn't stuck waiting if Worker is slow.
   try {
@@ -1982,8 +1987,16 @@ async function rtOpenPhoneCall(btn, payloadJson, phone) {
   } catch (e) {
     btn.textContent = '☏ Dialing';
   }
-  // Fire the call URL immediately — don't wait for contact-create.
-  window.location.href = dialUrl;
+  // Fire the call URL via an anchor click — this is treated as user-gesture
+  // navigation by macOS Chrome/Safari and reliably triggers the OpenPhone Mac
+  // app. `window.location.href = ...` for custom protocols is silently dropped
+  // on desktop browsers in many cases.
+  const a = document.createElement('a');
+  a.href = dialUrl;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => a.remove(), 100);
   // Reset the button text after 4 seconds so it can be tapped again
   setTimeout(() => { btn.textContent = origText; btn.style.background = ''; btn.style.color = ''; }, 4000);
 }
