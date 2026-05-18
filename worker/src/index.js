@@ -1,15 +1,20 @@
 /**
  * rt-companion BBC Proxy Worker
  *
- * Proxies "Save to Pipeline" calls from the rt-companion briefing dashboard to
- * BBC's /api/lightning-leads/pipeline/add endpoint. Solves the iPhone problem:
- * the BBC autosearch userscript doesn't run on iOS Safari, so Tim couldn't
- * one-tap Save-to-Pipeline from his phone. This Worker handles the auth +
- * HTTP plumbing server-side; the briefing card just POSTs a property payload.
+ * Proxies privileged calls from the rt-companion briefing dashboard to:
+ *  - BBC's /api/lightning-leads/pipeline/add endpoint (Save to Pipeline)
+ *  - OpenPhone's /v1/contacts endpoint (Create-contact-on-call)
+ *
+ * Solves the iPhone problem: the BBC autosearch userscript doesn't run on iOS
+ * Safari. This Worker handles the auth + HTTP plumbing server-side; the
+ * briefing card just POSTs a signed payload.
  *
  * Endpoints:
- *   GET  /           → health check
- *   POST /pipeline   → save property to BBC Pipeline
+ *   GET  /                health check
+ *   POST /pipeline        save property to BBC Pipeline
+ *   POST /openphone-call  create-or-update OpenPhone contact with property as
+ *                          company field, then return so browser can fire
+ *                          openphone://call?number=... URL scheme
  *
  * Security: requests must include an HMAC-SHA256 signature in `X-Signature`
  * computed from the body using the shared secret. The same secret is baked into
@@ -25,6 +30,7 @@
  *   wrangler secret put BBC_EMAIL
  *   wrangler secret put BBC_PASS
  *   wrangler secret put SHARED_SECRET
+ *   wrangler secret put OPENPHONE_API_KEY  ← optional, only for /openphone-call
  *   wrangler deploy
  */
 
@@ -79,6 +85,61 @@ async function saveToPipeline(env, pipelineData) {
   return { status: resp.status, body: await resp.text() };
 }
 
+/**
+ * Create-or-update an OpenPhone contact for a property-call workflow.
+ *
+ * The OpenPhone API doesn't have a generic "notes" field. We stuff the
+ * property context into `company` so it's prominently visible on the
+ * contact view inside the OpenPhone app/desktop. Format:
+ *   "RT · 123 Main St, City, ST · Tier B SF · DOM 156"
+ *
+ * Uses externalId for cross-system de-dup (BBC PID). If a contact already
+ * exists with the same externalId, OpenPhone may return 409/422 — we treat
+ * that as a soft success (call still proceeds).
+ *
+ * @param {Object} env  Worker env (needs OPENPHONE_API_KEY)
+ * @param {Object} payload  { phone, name, email, address, tier, dom, pid, briefing_url }
+ */
+async function createOpenPhoneContact(env, payload) {
+  if (!env.OPENPHONE_API_KEY) {
+    return { status: 0, skipped: 'OPENPHONE_API_KEY not configured' };
+  }
+  const nameParts = (payload.name || 'Unknown Agent').trim().split(/\s+/);
+  const firstName = nameParts[0] || 'Unknown';
+  const lastName = nameParts.slice(1).join(' ') || '';
+  const companyParts = [];
+  if (payload.address) companyParts.push(payload.address);
+  if (payload.tier)    companyParts.push(`Tier ${payload.tier}`);
+  if (payload.dom)     companyParts.push(`DOM ${payload.dom}`);
+  const company = 'RT · ' + companyParts.join(' · ');
+  const body = {
+    defaultFields: {
+      firstName,
+      lastName,
+      company,
+      ...(payload.phone ? { phoneNumbers: [{ name: 'Mobile', value: payload.phone }] } : {}),
+      ...(payload.email && payload.email !== 'Not Available'
+          ? { emails: [{ name: 'Work', value: payload.email }] }
+          : {}),
+    },
+    externalId: payload.pid || `rt-${payload.phone}`,
+    source: 'rt-companion',
+    ...(payload.briefing_url ? { sourceUrl: payload.briefing_url } : {}),
+  };
+  const resp = await fetch('https://api.openphone.com/v1/contacts', {
+    method: 'POST',
+    headers: {
+      'Authorization': env.OPENPHONE_API_KEY,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+  const respBody = await resp.text();
+  // 200/201 = created; 409/422 = duplicate (soft success); else = error
+  const ok = resp.status === 200 || resp.status === 201 || resp.status === 409 || resp.status === 422;
+  return { status: resp.status, ok, body: respBody };
+}
+
 function corsHeaders(env) {
   return {
     'Access-Control-Allow-Origin': env.ALLOWED_ORIGIN || '*',
@@ -119,6 +180,29 @@ export default {
         const result = await saveToPipeline(env, payload);
         return new Response(JSON.stringify(result),
           { status: result.status === 201 ? 200 : 502,
+            headers: { ...corsHeaders(env), 'Content-Type': 'application/json' } });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: e.message }),
+          { status: 500, headers: { ...corsHeaders(env), 'Content-Type': 'application/json' } });
+      }
+    }
+
+    if (url.pathname === '/openphone-call' && request.method === 'POST') {
+      const body = await request.text();
+      const sig = request.headers.get('X-Signature') || '';
+      const verified = await hmacVerify(body, sig, env.SHARED_SECRET).catch(() => false);
+      if (!verified) {
+        return new Response(JSON.stringify({ error: 'invalid signature' }),
+          { status: 401, headers: { ...corsHeaders(env), 'Content-Type': 'application/json' } });
+      }
+      let payload;
+      try { payload = JSON.parse(body); }
+      catch { return new Response(JSON.stringify({ error: 'invalid json' }),
+        { status: 400, headers: { ...corsHeaders(env), 'Content-Type': 'application/json' } }); }
+      try {
+        const result = await createOpenPhoneContact(env, payload);
+        return new Response(JSON.stringify(result),
+          { status: result.ok || result.skipped ? 200 : 502,
             headers: { ...corsHeaders(env), 'Content-Type': 'application/json' } });
       } catch (e) {
         return new Response(JSON.stringify({ error: e.message }),

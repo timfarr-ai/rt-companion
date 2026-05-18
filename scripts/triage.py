@@ -1323,12 +1323,43 @@ def render_deal(d, t):
         if phone_clean and not phone_clean.startswith('+'): phone_clean = '+1' + phone_clean.lstrip('1')
         phone_display = (a.get('phone') or '').replace("'", "\\'")
         if phone_clean:
-            # OpenPhone primary button
-            op_btn = (f'<a href="openphone://call?number={phone_clean}" class="btn btn-call-primary" '
-                      f'style="background:#1a4d2e;color:#56d364;padding:8px 14px;border-radius:8px;'
-                      f'font-weight:600;text-decoration:none;font-size:13.5px;border:1px solid #1a4d2e;'
-                      f'min-height:38px;display:inline-flex;align-items:center;gap:6px;">'
-                      f'📞 OpenPhone</a>')
+            # OpenPhone primary button — two modes:
+            #   - If Worker configured (BBC_PROXY_URL): JS-driven button that POSTs
+            #     contact-create payload to Worker FIRST (creates OpenPhone contact
+            #     with property address in `company` field), THEN fires the
+            #     openphone://call URL to dial. Contact-create is fire-and-forget
+            #     with 2s timeout so the call never blocks on Worker latency.
+            #   - If Worker NOT configured: plain <a href="openphone://"> link as
+            #     before. No contact create — just dial.
+            if BBC_PROXY_URL and BBC_PROXY_SECRET:
+                # Worker-routed: JS handler creates contact, then dials.
+                import html as _html_mod_op
+                op_payload = {
+                    'phone': phone_clean,
+                    'name': a.get('name', ''),
+                    'email': a.get('email', '') if a.get('email') != 'Not Available' else '',
+                    'address': d.get('address', ''),
+                    'tier': t,
+                    'dom': d.get('dom', 0),
+                    'pid': d.get('pid', ''),
+                    'briefing_url': f'https://timfarr-ai.github.io/rt-companion/briefings/{date_iso}.html',
+                }
+                op_json_attr = _html_mod_op.escape(json.dumps(op_payload), quote=True)
+                op_btn = (f'<button type="button" '
+                          f'onclick="rtOpenPhoneCall(this, this.dataset.payload, \'{phone_clean}\')" '
+                          f'data-payload="{op_json_attr}" '
+                          f'class="btn btn-call-primary" '
+                          f'style="background:#1a4d2e;color:#56d364;padding:8px 14px;border-radius:8px;'
+                          f'font-weight:600;font-family:inherit;font-size:13.5px;border:1px solid #1a4d2e;'
+                          f'cursor:pointer;min-height:38px;display:inline-flex;align-items:center;gap:6px;">'
+                          f'📞 OpenPhone + save contact</button>')
+            else:
+                # No Worker: plain dial-only link
+                op_btn = (f'<a href="openphone://call?number={phone_clean}" class="btn btn-call-primary" '
+                          f'style="background:#1a4d2e;color:#56d364;padding:8px 14px;border-radius:8px;'
+                          f'font-weight:600;text-decoration:none;font-size:13.5px;border:1px solid #1a4d2e;'
+                          f'min-height:38px;display:inline-flex;align-items:center;gap:6px;">'
+                          f'📞 OpenPhone</a>')
             # tel: secondary (universal fallback)
             tel_btn = (f' <a href="tel:{phone_clean}" class="btn btn-call-secondary" '
                        f'style="background:#1e2c44;color:#79c0ff;padding:8px 14px;border-radius:8px;'
@@ -1908,6 +1939,50 @@ async function bbcSavePipeline(btn, payloadJson) {
     btn.style.background = '#3a1e1e'; btn.style.color = '#ff7b72';
     btn.textContent = '✗ Error: ' + e.message.slice(0, 40);
   }
+}
+
+/* Click-to-call via OpenPhone:
+ *   1. POST contact-create payload to Worker /openphone-call (with HMAC).
+ *      Worker calls OpenPhone API to upsert contact with property in `company`.
+ *      Idempotent via externalId (BBC PID).
+ *   2. Regardless of contact-create success/failure, fire openphone://call URL
+ *      to initiate the actual call. Contact-create is best-effort; the call
+ *      always proceeds so a Worker outage / missing API key doesn't block dialing.
+ *   3. Brief visual confirmation on the button: ⏳ → ✓ Contact + dialing.
+ */
+async function rtOpenPhoneCall(btn, payloadJson, phone) {
+  const body = JSON.stringify(JSON.parse(payloadJson));
+  const origText = btn.textContent;
+  btn.textContent = '⏳ Saving contact…';
+  const dialUrl = 'openphone://call?number=' + encodeURIComponent(phone);
+  // Fire-and-forget the contact create; don't block the dial on its outcome.
+  // Use a 2-second timeout so user isn't stuck waiting if Worker is slow.
+  try {
+    const sig = await hmacHex(body, BBC_PROXY_SECRET);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    fetch(BBC_PROXY_URL + '/openphone-call', {
+      method: 'POST', body,
+      headers: {'Content-Type':'application/json', 'X-Signature':sig},
+      signal: controller.signal,
+    }).then(r => r.json()).then(result => {
+      clearTimeout(timeoutId);
+      if (result && result.ok) {
+        btn.style.background = '#1a4d2e'; btn.style.color = '#56d364';
+        btn.textContent = '✓ Contact saved · dialing';
+      } else if (result && result.skipped) {
+        btn.textContent = '☏ Dialing (OpenPhone API not configured)';
+      } else {
+        btn.textContent = '☏ Dialing (contact-save: ' + (result.status || '?') + ')';
+      }
+    }).catch(() => { btn.textContent = '☏ Dialing'; });
+  } catch (e) {
+    btn.textContent = '☏ Dialing';
+  }
+  // Fire the call URL immediately — don't wait for contact-create.
+  window.location.href = dialUrl;
+  // Reset the button text after 4 seconds so it can be tapped again
+  setTimeout(() => { btn.textContent = origText; btn.style.background = ''; btn.style.color = ''; }, 4000);
 }
 </script>'''
 
