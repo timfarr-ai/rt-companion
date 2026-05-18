@@ -1,19 +1,19 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "rt-companion-bbc-proxy",
-  "main": "src/index.js",
-  "compatibility_date": "2026-05-14",
-  "kv_namespaces": [
-    {
-      "binding": "BBC_SESSION",
-      "id": "REPLACE_WITH_KV_ID"
-    }
-  ],
-  "vars": {
-    "ALLOWED_ORIGIN": "https://timfarr-ai.github.io"
-  }
-  // Secrets configured via `wrangler secret put`:
-  //   BBC_EMAIL
-  //   BBC_PASS
-  //   SHARED_SECRET   (HMAC-signing key, also baked into briefing JS)
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "rt-companion-bbc-proxy",
+	"main": "src/index.js",
+	"compatibility_date": "2026-05-14",
+	"kv_namespaces": [
+		{
+			"binding": "BBC_SESSION",
+			"id": "fcd79cd6a9ef44139c93b66a0aa89693"
+		}
+	],
+	"vars": {
+		"ALLOWED_ORIGIN": "https://timfarr-ai.github.io"
+	}
+	// Secrets configured via `wrangler secret put`:
+	//   BBC_EMAIL
+	//   BBC_PASS
+	//   SHARED_SECRET   (HMAC-signing key, also baked into briefing JS)
 }
