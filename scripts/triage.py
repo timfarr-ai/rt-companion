@@ -349,9 +349,16 @@ def fetch_property_history(zpid):
         pass
     markup = (current_price - last_sold_price) / last_sold_price if last_sold_price > 0 else None
     is_flip = bool(markup and markup >= 0.35 and months_since is not None and months_since <= 24)
+    # Brokerage + official listing-agent attribution (used by OpenPhone contact
+    # save → contact.company shows the brokerage Tim's calling).
+    attrib = data.get('attributionInfo') or {}
     return {'last_sold_price': int(last_sold_price), 'last_sold_date': last_sold_date,
             'months_since_sale': months_since, 'flip_markup_pct': markup, 'is_recent_flip': is_flip,
-            'description': data.get('description') or ''}
+            'description': data.get('description') or '',
+            'brokerage': (data.get('brokerageName') or attrib.get('brokerName') or '').strip(),
+            'mls_name': (attrib.get('mlsName') or '').strip(),
+            'mls_agent_name': (attrib.get('agentName') or '').strip(),
+            'mls_agent_email': (attrib.get('agentEmail') or '').strip()}
 
 # Description-keyword filters — terminal disqualifiers + flip-vocab signals
 # discovered 2026-05-15 from 9904 Aetna Rd Cleveland OH listing that had
@@ -948,6 +955,9 @@ for tier_name in ('A','B','HY','MT'):
         s['last_sold_price'] = history.get('last_sold_price')
         s['last_sold_date'] = history.get('last_sold_date')
         s['months_since_sale'] = history.get('months_since_sale')
+        s['brokerage'] = history.get('brokerage') or ''
+        s['mls_agent_name'] = history.get('mls_agent_name') or ''
+        s['mls_agent_email'] = history.get('mls_agent_email') or ''
         description = history.get('description') or ''
         s['description'] = description[:500]  # truncate for storage
         # 1. TERMINAL description keywords — auto-reject. "No assignment" etc.
@@ -1340,11 +1350,12 @@ def render_deal(d, t):
                 op_payload = {
                     'phone': phone_clean,
                     'name': a.get('name', ''),
-                    'email': a.get('email', '') if a.get('email') != 'Not Available' else '',
+                    'email': a.get('email', '') if a.get('email') != 'Not Available' else (d.get('mls_agent_email') or ''),
                     'address': d.get('address', ''),
                     'tier': t,
                     'dom': d.get('dom', 0),
                     'pid': d.get('pid', ''),
+                    'brokerage': d.get('brokerage', ''),
                     'briefing_url': f'https://timfarr-ai.github.io/rt-companion/briefings/{date_iso}.html',
                 }
                 op_json_attr = _html_mod_op.escape(json.dumps(op_payload), quote=True)

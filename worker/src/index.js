@@ -174,12 +174,20 @@ async function createOpenPhoneContact(env, payload) {
     customFields.push({ key: fieldKeys.pid, value: payload.pid });
   if (fieldKeys.firstSeen)
     customFields.push({ key: fieldKeys.firstSeen, value: new Date().toISOString().slice(0, 10) });
-  // Safety-net company field — shown prominently even without custom fields
-  const companyParts = [];
-  if (payload.address) companyParts.push(payload.address);
-  if (payload.tier)    companyParts.push(`Tier ${payload.tier}`);
-  if (payload.dom)     companyParts.push(`DOM ${payload.dom}`);
-  const company = 'RT · ' + companyParts.join(' · ');
+  // Company field shows the brokerage when known — matches OpenPhone's intent
+  // for "company" (the business this contact represents). Falls back to address
+  // routing string if brokerage wasn't resolved (e.g. property not in BBC's
+  // searchProperty cache yet).
+  let company = '';
+  if (payload.brokerage) {
+    company = `Listed By: ${payload.brokerage}`;
+  } else {
+    const companyParts = [];
+    if (payload.address) companyParts.push(payload.address);
+    if (payload.tier)    companyParts.push(`Tier ${payload.tier}`);
+    if (payload.dom)     companyParts.push(`DOM ${payload.dom}`);
+    company = 'RT · ' + companyParts.join(' · ');
+  }
   const body = {
     defaultFields: {
       firstName,
