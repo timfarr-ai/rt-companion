@@ -48,6 +48,44 @@ def http_req(url, method='GET', headers=None, json_body=None, use_opener=False):
     except Exception as e:
         return 0, str(e).encode()
 
+# BBC relay: when BBC_PROXY_URL is set and BBC blocks direct access (e.g. Anthropic
+# cloud sandbox IPs), route BBC API calls through the Cloudflare Worker which has
+# allowed IPs.  The relay endpoint /bbc-relay accepts HMAC-signed requests and
+# proxies them to BBC using the Worker's own cached BBC session.
+if BBC_PROXY_URL and BBC_PROXY_SECRET:
+    import hmac as _hmac_mod, hashlib as _hash_mod
+    _BBC_BASE = 'https://www.buyboxcartel.com'
+    _RELAY_URL = BBC_PROXY_URL.rstrip('/') + '/bbc-relay'
+    _http_req_orig = http_req
+    def http_req(url, method='GET', headers=None, json_body=None, use_opener=False):
+        if url.startswith(_BBC_BASE + '/api/'):
+            path = url[len(_BBC_BASE):]
+            relay_payload = {'path': path, 'method': method}
+            if json_body is not None:
+                relay_payload['body'] = json_body
+            if headers:
+                passthrough = {k: v for k, v in headers.items()
+                               if k.lower() == 'accept'}
+                if passthrough:
+                    relay_payload['headers'] = passthrough
+            body_bytes = json.dumps(relay_payload).encode()
+            sig = _hmac_mod.new(BBC_PROXY_SECRET.encode(), body_bytes,
+                                _hash_mod.sha256).hexdigest()
+            req = urllib.request.Request(
+                _RELAY_URL, data=body_bytes, method='POST',
+                headers={'Content-Type': 'application/json',
+                         'X-Signature': sig,
+                         'User-Agent': BROWSER_UA})
+            try:
+                with urllib.request.urlopen(req, timeout=120) as r:
+                    return r.status, r.read()
+            except urllib.error.HTTPError as e:
+                return e.code, e.read()
+            except Exception as e:
+                return 0, str(e).encode()
+        return _http_req_orig(url, method=method, headers=headers,
+                              json_body=json_body, use_opener=use_opener)
+
 # 1. BBC auth (use opener so cookies persist)
 code, body = http_req('https://www.buyboxcartel.com/api/auth/login', method='POST',
                       json_body={'email': BBC_EMAIL, 'password': BBC_PASS}, use_opener=True)
