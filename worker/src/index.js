@@ -4,6 +4,8 @@
  * Proxies privileged calls from the rt-companion briefing dashboard to:
  *  - BBC's /api/lightning-leads/pipeline/add endpoint (Save to Pipeline)
  *  - OpenPhone's /v1/contacts endpoint (Create-contact-on-call)
+ *  - BBC's general API (relay for triage.py when running in cloud environments
+ *    where BBC blocks direct access due to IP restrictions)
  *
  * Solves the iPhone problem: the BBC autosearch userscript doesn't run on iOS
  * Safari. This Worker handles the auth + HTTP plumbing server-side; the
@@ -15,6 +17,8 @@
  *   POST /openphone-call  create-or-update OpenPhone contact with property as
  *                          company field, then return so browser can fire
  *                          openphone://call?number=... URL scheme
+ *   POST /bbc-relay       relay arbitrary BBC API calls (for triage.py in
+ *                          cloud envs where BBC's IP allowlist blocks direct access)
  *
  * Security: requests must include an HMAC-SHA256 signature in `X-Signature`
  * computed from the body using the shared secret. The same secret is baked into
@@ -331,6 +335,82 @@ export default {
             headers: { ...corsHeaders(env), 'Content-Type': 'application/json' } });
       } catch (e) {
         return new Response(JSON.stringify({ error: e.message }),
+          { status: 500, headers: { ...corsHeaders(env), 'Content-Type': 'application/json' } });
+      }
+    }
+
+    // /bbc-relay — proxies arbitrary BBC API calls for triage.py running in cloud
+    // environments where BBC's IP allowlist blocks direct access (e.g. Anthropic sandbox).
+    // The Worker's IPs are on BBC's allowlist; the relay bridges the gap.
+    if (url.pathname === '/bbc-relay' && request.method === 'POST') {
+      const body = await request.text();
+      const sig = request.headers.get('X-Signature') || '';
+      const verified = await hmacVerify(body, sig, env.SHARED_SECRET).catch(() => false);
+      if (!verified) {
+        return new Response(JSON.stringify({ error: 'invalid signature' }),
+          { status: 401, headers: { ...corsHeaders(env), 'Content-Type': 'application/json' } });
+      }
+      let payload;
+      try { payload = JSON.parse(body); }
+      catch { return new Response(JSON.stringify({ error: 'invalid json' }),
+        { status: 400, headers: { ...corsHeaders(env), 'Content-Type': 'application/json' } }); }
+
+      const bbcPath = payload.path || '';
+      const bbcMethod = payload.method || 'GET';
+      const bbcBodyStr = payload.body != null ? JSON.stringify(payload.body) : null;
+      const extraHeaders = payload.headers || {};
+
+      try {
+        // Login endpoint: call BBC directly with the provided credentials so the
+        // caller gets back the real accessToken + cookieBalance. Also update the
+        // Worker's KV session cache so subsequent relay calls skip re-login.
+        if (bbcPath === '/api/auth/login') {
+          const loginResp = await fetch(`${BBC}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'User-Agent': BROWSER_UA },
+            body: bbcBodyStr,
+          });
+          const loginText = await loginResp.text();
+          if (loginResp.ok) {
+            try {
+              const loginData = JSON.parse(loginText);
+              const token = loginData.accessToken || loginData.token;
+              const setCookie = loginResp.headers.get('set-cookie') || '';
+              const cookieHeader = setCookie.split(',').map(c => c.split(';')[0]).join('; ');
+              const session = { token, cookieHeader, expiresAt: Date.now() + 25 * 60 * 1000 };
+              await env.BBC_SESSION.put('session', JSON.stringify(session), { expirationTtl: 1800 });
+            } catch (_) {}
+          }
+          return new Response(loginText, {
+            status: loginResp.status,
+            headers: { ...corsHeaders(env), 'Content-Type': 'application/json' },
+          });
+        }
+
+        // All other BBC API paths: use the Worker's cached session.
+        const session = await loginBBC(env);
+        const reqHeaders = {
+          'Content-Type': 'application/json',
+          'User-Agent': BROWSER_UA,
+          'Authorization': `Bearer ${session.token}`,
+          'Cookie': session.cookieHeader,
+          'Accept': extraHeaders['Accept'] || extraHeaders['accept'] || 'application/json',
+        };
+
+        const bbcResp = await fetch(`${BBC}${bbcPath}`, {
+          method: bbcMethod,
+          headers: reqHeaders,
+          ...(bbcBodyStr ? { body: bbcBodyStr } : {}),
+        });
+
+        const respBuf = await bbcResp.arrayBuffer();
+        const contentType = bbcResp.headers.get('Content-Type') || 'application/octet-stream';
+        return new Response(respBuf, {
+          status: bbcResp.status,
+          headers: { ...corsHeaders(env), 'Content-Type': contentType },
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: String(e.message) }),
           { status: 500, headers: { ...corsHeaders(env), 'Content-Type': 'application/json' } });
       }
     }
