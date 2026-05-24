@@ -261,30 +261,55 @@
     @media (min-width: 1440px) {
       main { max-width: 1240px; }
     }
+
+    /* ===== App-shell: briefing = full-height column (LEFT, the focus),
+       navigation buttons = scrollable column (RIGHT). ===== */
+    .app-shell { display: flex; height: 100vh; align-items: stretch; }
+    .briefing-col {
+      flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column;
+      border-right: 1px solid var(--border);
+    }
+    .briefing-bar {
+      flex: 0 0 auto; display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+      background: var(--panel); flex-wrap: wrap;
+    }
+    .briefing-col .briefing-wrap { flex: 1 1 auto; min-height: 0; }
+    .briefing-col .briefing-wrap iframe {
+      width: 100%; height: 100%; border: 0; background: var(--panel-2);
+    }
+    .nav-col {
+      flex: 0 0 360px; height: 100vh; overflow-y: auto;
+      padding: 16px 18px 28px; background: var(--bg);
+    }
+    .nav-col .nav-title { font-size: 18px; margin: 2px 0 14px; }
+    .nav-col main { padding: 0; max-width: none; margin: 0; }
+    /* Stack on phones — briefing first (it's the focus), nav below */
+    @media (max-width: 900px) {
+      .app-shell { flex-direction: column; height: auto; }
+      .briefing-col { border-right: none; border-bottom: 1px solid var(--border); }
+      .briefing-col .briefing-wrap { height: 78vh; }
+      .briefing-col .briefing-wrap iframe { height: 78vh; }
+      .nav-col { flex: none; width: auto; height: auto; overflow: visible; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <span style="width:40px"></span>
-    <h1>RT Deal Desk</h1>
-    <a href="/" class="back" style="text-align:right;">🏠</a>
-  </header>
-  <main>
-    
-
-<div class="section">
-  <h2>📋 Today's Briefing</h2>
-  <div style="margin-bottom:10px;">
-    <a class="briefing-open-btn" href="/rt-companion/briefings/latest.html" target="_blank" rel="noopener">📋 Open full briefing ↗</a>
-    <a class="briefing-open-btn" href="/rt-companion/briefings/" style="background:#1c2128;color:#58a6ff;border:1px solid #30363d;">Past briefings →</a>
-  </div>
-  <div class="briefing-wrap">
-    <iframe src="/rt-companion/briefings/latest.html" loading="lazy" id="briefing-iframe"></iframe>
-  </div>
-  <p style="margin-top:8px; font-size:13px; color:var(--muted);">
-    Briefing publishes weekday 6am AEST. For full screen, tap "Open full briefing" above.
-  </p>
-</div>
+  <div class="app-shell">
+  <!-- LEFT: the briefing, full viewport height — the focus -->
+  <section class="briefing-col">
+    <div class="briefing-bar">
+      <strong style="font-size:15px;">📋 Today's Briefing</strong>
+      <a class="briefing-open-btn" href="/rt-companion/briefings/latest.html" target="_blank" rel="noopener">Open full ↗</a>
+      <a class="briefing-open-btn" href="/rt-companion/briefings/" style="background:#1c2128;color:#58a6ff;border:1px solid #30363d;">Past →</a>
+    </div>
+    <div class="briefing-wrap">
+      <iframe src="/rt-companion/briefings/latest.html" loading="lazy" id="briefing-iframe"></iframe>
+    </div>
+  </section>
+  <!-- RIGHT: navigation buttons, scrollable -->
+  <aside class="nav-col">
+  <h1 class="nav-title">🏠 RT Deal Desk</h1>
 <script>
   // Cache-bust the iframe on every page load so the latest briefing is shown,
   // bypassing GitHub Pages CDN + browser caching for the embedded HTML.
@@ -516,7 +541,6 @@
 </div>
 
 
-  </main>
   <nav class="bottom">
     <a href="/rt-companion/">Home</a> ·
     <a href="/rt-companion/strategy/tier-a-multifamily-checkmate.html">Tier A</a> ·
@@ -525,6 +549,8 @@
     <a href="/rt-companion/strategy/objections.html">Objections</a> ·
     <a href="/rt-companion/strategy/contract-close.html">Contract</a>
   </nav>
+  </aside><!-- /nav-col -->
+  </div><!-- /app-shell -->
   <script>
     // Command-box copy buttons (find sibling textarea/input)
     document.querySelectorAll('.cmd-copy').forEach(btn => {
