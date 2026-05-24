@@ -1216,6 +1216,29 @@ def render_deal(d, t):
         f' <a class="zillow" href="https://www.hmhw.group{path}" target="_blank">🧮 {name} ↗</a>'
         for name, path in hmhw_calcs
     )
+    # OUR hosted Offer Oven calculator — mirrors Richard's Google Sheet, auto-fills
+    # from the card via URL params. Separate from the legacy hmhw.group web-calc
+    # links above (those are left in place). FF tier opens the 70%-rule mode.
+    import urllib.parse as _up
+    _otype = 'Subto' if t == 'MT' else ('Hybrid' if t == 'HY' else 'Seller Finance')
+    _calc_params = {
+        'price': creative_offer_v or d.get('price', 0),
+        'list': d.get('price', 0),
+        'down': creative_down_v,
+        'rate': d.get('interest_rate', 0) if t in ('MT', 'HY') else 0,
+        'rent': d.get('monthly_rent', 0) or 0,
+        'balloon': 7,
+        'otype': _otype,
+    }
+    if t in ('MT', 'HY'):
+        _calc_params['subbal'] = d.get('loan_balance', 0) or 0
+        _calc_params['subpay'] = d.get('monthly_payment_actual', 0) or 0
+    if t == 'FF':
+        _calc_params = {'mode': 'ff', 'arv': d.get('price', 0), 'ffassign': 5000}
+    _calc_qs = _up.urlencode({k: v for k, v in _calc_params.items() if v not in (None, '')})
+    our_calc_link = (f' <a class="zillow" href="/rt-companion/playbooks/offer-oven-calculator.html?{_calc_qs}" '
+                     f'target="_blank" style="background:#1a2b4a;color:#79c0ff;padding:3px 8px;border-radius:6px;'
+                     f'font-weight:600;border:1px solid #1a2b4a;">🧮 Calculator (auto-filled) ↗</a>')
     # Clipboard payload — plain-text values, one per line, ready for Tab-key paste.
     # Order matches the Offer Oven field sequence (Purchase Price, Down Payment, Rate,
     # Term, Loan Balance for sub-to, Rental Revenue, Assignment, Closing).
@@ -1318,6 +1341,20 @@ def render_deal(d, t):
         addr_q = urllib.parse.quote(d.get('address',''))
         street_view_url = f'https://www.google.com/maps?q={addr_q}&layer=c'
     street_view_link = f' <a class="zillow" href="{street_view_url}" target="_blank">📍 Street View ↗</a>'
+    # PROPWIRE COMPS — community's #1 free comp + owner/equity tool. Propwire has NO
+    # per-property deep link (verified 2026-05-23: property view is SPA state, URL
+    # stays on /search), so this opens Propwire search AND copies the address to the
+    # clipboard for a one-paste lookup (address autocompletes instantly when pasted).
+    # Use: confirm ARV before cash/FF offers; check owner equity/lien before MT/HY.
+    pw_addr = (d.get('address','') or '').replace("'", "\\'")
+    propwire_copy = (
+        f"navigator.clipboard.writeText('{pw_addr}');"
+        f"this.dataset.o=this.textContent;this.textContent='📋 Address copied — paste in Propwire';"
+        f"setTimeout(()=>{{this.textContent=this.dataset.o;}},1800);"
+    )
+    propwire_link = (f' <a class="zillow" href="https://propwire.com/search" target="_blank" '
+                     f'onclick="{propwire_copy}" title="Opens Propwire + copies the address. Paste it in the search box for comps + owner/equity.">'
+                     f'📊 Comps (Propwire) ↗</a>')
     rent_link = ''  # Zillow Rent Zestimate on the property page (already linked) covers this
     # Local time pill — updated live by JS (data-tz = IANA timezone)
     tz_pill = f' <span class="pill local-time" data-tz="{d["tz"]}">--:-- local</span>'
@@ -1911,7 +1948,7 @@ def render_deal(d, t):
         # ③ RESEARCH BUTTONS
         f'<div class="card-section">'
         f'<div class="section-label">③ Research (verify before dialing)</div>'
-        f'<div class="btn-row">{street_view_link}{z}{sold_link}{oven_link}{bbc_link}{bbc_mobile_link}</div>'
+        f'<div class="btn-row">{street_view_link}{z}{sold_link}{propwire_link}{our_calc_link}{oven_link}{bbc_link}{bbc_mobile_link}</div>'
         f'</div>'
         # ④ ACTION SEQUENCE — SOP-ordered
         f'<div class="card-section">'

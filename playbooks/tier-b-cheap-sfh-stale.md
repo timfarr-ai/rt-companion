@@ -30,6 +30,17 @@ Add to qualifying questions: "Is anyone else involved in the decision — partne
 
 **Refinement:** Move Section 8 from "alternative opener" to "after-yes confirmation language." Door-opener it is not.
 
+### ✨ NEW — Section 8 is the community's #1 UNDERWRITING filter (not just a script note)
+
+Mining the HMHW Discord (63,238 messages), **"Section 8" is the single most-cited concept in the `Deal Check` channel — 41 mentions, ahead of every financing term** (10% down, balloon, ARV). Leaders vet Tier B/cash deals by asking *"does this pencil as a Section 8 rental?"* — it's a **deal-qualification lens, not just closing language.**
+
+Apply as an underwriting filter before pitching:
+- **Market a Section 8 hotspot?** Detroit, Cleveland, Flint, Memphis, parts of TX/AL/MS → deep end-buyer pool, stronger dispo.
+- **Rent clears local Section 8 FMR?** If gross rent ≥ Fair Market Rent for the bed count, it works for a guaranteed-rent S8 landlord even at a thinner margin → widens who you can assign to.
+- **Condition gate:** S8 requires passing HQS inspection. A condition-1/2 wreck fails S8 → it's a flip, not an S8 rental (triage vision-grade already flags this).
+
+Net: use Section 8 to *qualify the deal and size the buyer pool* up front; use it as *trust-building language* only after the seller says yes.
+
 ### ✓ VERIFIED — Detroit / Cleveland markets are real Tier B
 Multiple live calls reference Detroit (Gallagher St, Fullerton, Tracy, Turner). Playbook's market list is grounded.
 

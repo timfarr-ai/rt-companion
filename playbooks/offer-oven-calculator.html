@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Offer Oven Calculator — RT Deal Desk</title>
+  <style>
+    :root{
+      --bg:#0d1117;--panel:#161b22;--panel-2:#1c2128;--border:#30363d;
+      --text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#56d364;
+      --amber:#d29922;--red:#f85149;--gold:#e3b341;--input:#0b0f14;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      line-height:1.5;padding:16px;max-width:920px;margin:0 auto;}
+    h1{font-size:21px;margin:4px 0 2px}
+    .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+    .modes{display:flex;gap:8px;margin-bottom:16px}
+    .mode-btn{flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);
+      background:var(--panel);color:var(--muted);font-weight:600;cursor:pointer;font-size:14px;}
+    .mode-btn.active{background:#1a2b4a;color:var(--accent);border-color:var(--accent);}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    @media(max-width:680px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+    .card h2{font-size:14px;margin:0 0 10px;color:var(--accent);text-transform:uppercase;letter-spacing:.04em;}
+    label{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:7px 0;font-size:14px;}
+    label span{color:var(--muted)}
+    input,select{background:var(--input);border:1px solid var(--border);color:var(--text);
+      border-radius:6px;padding:7px 9px;font-size:14px;width:130px;text-align:right;font-family:inherit;}
+    select{text-align:left;width:150px;}
+    input:focus,select:focus{outline:none;border-color:var(--accent)}
+    .out{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;}
+    .out:last-child{border-bottom:none}
+    .out .v{font-weight:700;font-variant-numeric:tabular-nums}
+    .big{font-size:17px}
+    .pos{color:var(--green)} .neg{color:var(--red)} .amb{color:var(--amber)}
+    .pitch{background:#0f2417;border:1px solid #1f5132;border-radius:8px;padding:12px;margin-top:14px;font-size:14px;}
+    .pitch code{background:#1c2128;padding:1px 5px;border-radius:4px;}
+    .note{color:var(--muted);font-size:12px;margin-top:10px}
+    .ff{display:none}
+    a{color:var(--accent)}
+    .src{margin-top:18px;font-size:12.5px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <h1>🧮 Offer Oven Calculator</h1>
+  <div class="sub">Hosted mirror of Richard's Creative Offer Oven sheet. Auto-fills from the briefing card; tweak any input live. <span id="prefillNote"></span></div>
+
+  <div class="modes">
+    <button class="mode-btn active" id="mCF" onclick="setMode('cf')">Creative Finance</button>
+    <button class="mode-btn" id="mFF" onclick="setMode('ff')">Fix &amp; Flip (70%)</button>
+  </div>
+
+  <!-- ============ CREATIVE FINANCE ============ -->
+  <div id="cf">
+  <div class="grid">
+    <div class="card">
+      <h2>Offer structure</h2>
+      <label><span>Purchase price</span><input id="price" type="number" value="120000"></label>
+      <label><span>Listed price</span><input id="list" type="number" value="100000"></label>
+      <label><span>Offer type</span>
+        <select id="otype"><option>Seller Finance</option><option>Subto</option><option>Hybrid</option></select></label>
+      <label><span>Down payment $</span><input id="down" type="number" value="6500"></label>
+      <label><span>Interest rate %</span><input id="rate" type="number" step="0.1" value="0"></label>
+      <label><span>Amortization (yrs)</span><input id="amort" type="number" value="30"></label>
+      <label><span>Interest only?</span><select id="io"><option>No</option><option>Yes</option></select></label>
+      <label><span>Balloon (yrs)</span><input id="balloon" type="number" value="7"></label>
+      <label><span>Rehab $</span><input id="rehab" type="number" value="1000"></label>
+      <label><span>Assignment fee $</span><input id="assign" type="number" value="0"></label>
+      <label id="subtoRow" style="display:none"><span>Existing loan balance $</span><input id="subbal" type="number" value="0"></label>
+      <label id="subtoPayRow" style="display:none"><span>Existing loan pmt $/mo</span><input id="subpay" type="number" value="0"></label>
+    </div>
+    <div class="card">
+      <h2>Rent &amp; expenses (monthly)</h2>
+      <label><span>Rent</span><input id="rent" type="number" value="1600"></label>
+      <label><span>Insurance</span><input id="ins" type="number" value="100"></label>
+      <label><span>Property tax</span><input id="tax" type="number" value="100"></label>
+      <label><span>HOA</span><input id="hoa" type="number" value="0"></label>
+      <label><span>Other</span><input id="other" type="number" value="0"></label>
+      <label><span>CapEx % of rent</span><input id="capex" type="number" step="1" value="10"></label>
+      <label><span>Management % of rent</span><input id="mgmt" type="number" step="1" value="10"></label>
+      <label><span>Vacancy % of rent</span><input id="vac" type="number" step="1" value="0"></label>
+      <label><span>Appreciation %/yr</span><input id="appr" type="number" step="0.1" value="4.5"></label>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top:18px">
+    <div class="card">
+      <h2>Deal output</h2>
+      <div class="out"><span>% over list</span><span class="v" id="oOverList">—</span></div>
+      <div class="out"><span>Down payment %</span><span class="v" id="oDownPct">—</span></div>
+      <div class="out"><span>Loan amount</span><span class="v" id="oLoan">—</span></div>
+      <div class="out"><span>Monthly payment (P&amp;I)</span><span class="v" id="oPmt">—</span></div>
+      <div class="out big"><span>Monthly cash flow</span><span class="v" id="oCF">—</span></div>
+      <div class="out"><span>Annual cash flow</span><span class="v" id="oCFy">—</span></div>
+      <div class="out"><span>Buyer entry fee</span><span class="v" id="oEntry">—</span></div>
+      <div class="out big"><span>Cash-on-cash return</span><span class="v" id="oCoC">—</span></div>
+    </div>
+    <div class="card">
+      <h2>Exit / balloon</h2>
+      <div class="out"><span>Balloon balance @ <span id="balYrLbl">7</span>yr</span><span class="v" id="oBalloon">—</span></div>
+      <div class="out"><span>Principal paid by balloon</span><span class="v" id="oPrin">—</span></div>
+      <div class="out"><span>Projected value @ <span id="apprYrLbl">10</span>yr</span><span class="v" id="oAppr">—</span></div>
+      <div class="out"><span>40%-of-rent check</span><span class="v" id="o40">—</span></div>
+      <div class="note">40%-of-rent is Richard's on-call sanity anchor, not the core math — compare it to the P&amp;I above. <a href="40-percent-rent-rule.html" target="_blank">Why ↗</a></div>
+    </div>
+  </div>
+
+  <div class="pitch" id="pitchBox">—</div>
+  </div>
+
+  <!-- ============ FIX & FLIP ============ -->
+  <div id="ff" class="ff">
+  <div class="grid">
+    <div class="card">
+      <h2>ARV inputs</h2>
+      <label><span>ARV (after-repair value)</span><input id="ffArv" type="number" value="180000"></label>
+      <label><span>Rehab $</span><input id="ffRehab" type="number" value="80000"></label>
+      <label><span>Assignment fee $</span><input id="ffAssign" type="number" value="10000"></label>
+      <label><span>70% rule factor</span><input id="ffPct" type="number" step="1" value="70"></label>
+      <div class="note">ARV from comps: avg comp $/sqft × subject sqft. Pull comps in <a href="https://propwire.com/search" target="_blank">Propwire</a> (free) or Zillow. The 70% factor is the CEILING — Richard often offers below it (60–65%) to hedge ARV.</div>
+    </div>
+    <div class="card">
+      <h2>Offer output</h2>
+      <div class="out"><span>ARV × {{pct}}%</span><span class="v" id="ffArvPct">—</span></div>
+      <div class="out"><span>− Closing (1.5% of 70% ARV)</span><span class="v" id="ffClose">—</span></div>
+      <div class="out"><span>− Rehab</span><span class="v" id="ffRehabOut">—</span></div>
+      <div class="out big"><span>Max Allowable Offer (MAO)</span><span class="v" id="ffMAO">—</span></div>
+      <div class="out big"><span>Your offer (MAO − assignment)</span><span class="v" id="ffOffer">—</span></div>
+    </div>
+  </div>
+  </div>
+
+  <div class="src">
+    Formulas mirror the <strong>Creative Offer Oven</strong> Google Sheet (Calculator + Fix &amp; Flip Calc tabs). When Richard iterates the sheet, update the <code>OVEN</code> formula block in this file to match — inputs and outputs are mapped to the original cell refs in code comments.
+    Source sheet: <em>File → Make a Copy</em> from Richard's master.
+  </div>
+
+<script>
+/* ============================================================
+   OFFER OVEN formula spec — mirrors the Google Sheet cells.
+   Calculator tab cell map (for maintainability when sheet iterates):
+     B3 price · B4 list · D6 offer type · C7 down · C8 rate · C9 amort
+     D10 interest-only · B21/C25 balloon yrs · G5 rehab · G6 assignment
+     H17 rent · H21 ins · H22 tax · H23 hoa · H24 other
+     I25 capex% · (mgmt) · I27 vacancy% · K16 appr% · K17 appr yrs
+   Outputs:
+     C4 %over=(B3-B4)/B4 · C6 loan · D7 down% · C11 PMT · G3 entry=SUM(G4:G7)
+     G11 CF=G17-G18 · G12 CoC=G11/G3 · balloon bal via amortization · K18 appr
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const N = id => parseFloat($(id).value) || 0;
+const money = n => (n<0?'-':'')+'$'+Math.abs(Math.round(n)).toLocaleString();
+const pct = n => (n*100).toFixed(1)+'%';
+
+function pmt(rateMo, nMo, pv){ // PMT(rate, nper, -pv): payment on loan pv
+  if(rateMo===0) return pv/nMo;
+  return pv*rateMo/(1-Math.pow(1+rateMo,-nMo));
+}
+function balanceAfter(pv, rateMo, nMo, paidMo){ // remaining balance after paidMo payments
+  if(rateMo===0) return Math.max(0, pv - pmt(rateMo,nMo,pv)*paidMo);
+  const p = pmt(rateMo,nMo,pv);
+  return Math.max(0, pv*Math.pow(1+rateMo,paidMo) - p*((Math.pow(1+rateMo,paidMo)-1)/rateMo));
+}
+
+function calcCF(){
+  const price=N('price'), list=N('list'), otype=$('otype').value, down=N('down');
+  const rate=N('rate')/100, amort=N('amort'), io=$('io').value, balloonYr=N('balloon');
+  const rehab=N('rehab'), assign=N('assign'), subbal=N('subbal'), subpay=N('subpay');
+  const rent=N('rent'), ins=N('ins'), tax=N('tax'), hoa=N('hoa'), other=N('other');
+  const capex=N('capex')/100, mgmt=N('mgmt')/100, vac=N('vac')/100, appr=N('appr')/100;
+
+  // C6 loan amount by offer type
+  let loan;
+  if(otype==='Seller Finance') loan = price - down;
+  else if(otype==='Hybrid') loan = price - down - subbal;
+  else loan = 0; // Subto: take over existing loan
+  loan = Math.max(0, loan);
+
+  const rateMo = rate/12, nMo = amort*12;
+  // C11 monthly P&I
+  let monthlyPI;
+  if(otype==='Subto') monthlyPI = subpay;                 // take over existing payment
+  else if(io==='Yes') monthlyPI = loan*rate/12;           // interest-only
+  else monthlyPI = pmt(rateMo, nMo, loan);
+  const annualPI = monthlyPI*12;
+
+  // G3 buyer entry fee = down + rehab + 0.6*assignment + closing(2% price)
+  const closing = price*0.02;
+  const entry = down + rehab + assign*0.6 + closing;
+
+  // Operating expenses (annual) — G18
+  const exp = annualPI + ins*12 + tax*12 + hoa*12 + other*12
+            + (rent*12*capex) + (rent*12*mgmt) + (rent*12*vac);
+  const revenue = rent*12;            // G17
+  const cfYear = revenue - exp;       // G11
+  const cfMonth = cfYear/12;          // H11
+  const coc = entry>0 ? cfYear/entry : 0; // G12
+
+  // Balloon balance
+  const balloonBal = balanceAfter(loan, rateMo, nMo, balloonYr*12);
+  const prinPaid = loan - balloonBal;
+  const apprVal = list*Math.pow(1+appr, N('appr')>0?10:0) ; // K18 uses K17 yrs; default 10
+  const apprYears = 10;
+  const apprValFixed = list*Math.pow(1+appr, apprYears);
+
+  // 40%-of-rent anchor
+  const fortyPct = rent*0.4;
+
+  $('oOverList').textContent = list>0?pct((price-list)/list):'—';
+  $('oDownPct').textContent = price>0?pct(down/price):'—';
+  $('oLoan').textContent = money(loan);
+  $('oPmt').textContent = money(monthlyPI)+'/mo';
+  const cfEl=$('oCF'); cfEl.textContent=money(cfMonth)+'/mo';
+  cfEl.className='v big '+(cfMonth>0?'pos':'neg');
+  $('oCFy').textContent = money(cfYear)+'/yr';
+  $('oEntry').textContent = money(entry);
+  const cocEl=$('oCoC'); cocEl.textContent=pct(coc);
+  cocEl.className='v big '+(coc>=0.2?'pos':coc>0?'amb':'neg');
+  $('oBalloon').textContent = money(balloonBal);
+  $('oPrin').textContent = money(prinPaid);
+  $('oAppr').textContent = money(apprValFixed);
+  $('balYrLbl').textContent = balloonYr;
+  $('apprYrLbl').textContent = apprYears;
+  const f40=$('o40');
+  f40.textContent = money(fortyPct)+'/mo';
+  f40.className = 'v '+(Math.abs(fortyPct-monthlyPI) > monthlyPI*0.5 ? 'amb':'');
+
+  // Pitch line
+  $('pitchBox').innerHTML = `💬 <strong>Offer:</strong> <code>${money(price)}</code> at <code>${(rate*100).toFixed(1)}%</code>, `+
+    `<code>${pct(price>0?down/price:0)}</code> down (<code>${money(down)}</code>), `+
+    `<code>${amort}yr</code> amortization, <code>${balloonYr}yr</code> balloon. `+
+    `Seller payment ≈ <code>${money(monthlyPI)}/mo</code>. `+
+    `End-buyer cash flow <strong class="${cfMonth>0?'pos':'neg'}">${money(cfMonth)}/mo</strong>, `+
+    `CoC <strong class="${coc>=0.2?'pos':'amb'}">${pct(coc)}</strong>.`;
+}
+
+function calcFF(){
+  const arv=N('ffArv'), rehab=N('ffRehab'), assign=N('ffAssign'), pctF=N('ffPct')/100;
+  const arvPct = arv*pctF;
+  const close = arvPct*0.015;                // D12: (A12*B12)*0.015
+  const mao = arvPct - rehab - close;        // D12
+  const offer = mao - assign;                // B15
+  $('ffArvPct').textContent = money(arvPct);
+  $('ffClose').textContent = '-'+money(close);
+  $('ffRehabOut').textContent = '-'+money(rehab);
+  $('ffMAO').textContent = money(mao);
+  const oe=$('ffOffer'); oe.textContent=money(offer); oe.className='v big '+(offer>0?'pos':'neg');
+  document.querySelectorAll('#ff .out span').forEach(s=>{ if(s.textContent.includes('{{pct}}')) s.textContent=s.textContent.replace('{{pct}}',N('ffPct')); });
+  $('ffArvPctLbl') && ($('ffArvPctLbl').textContent=N('ffPct'));
+}
+
+function recalc(){
+  const subto = $('otype').value!=='Seller Finance';
+  $('subtoRow').style.display = subto?'flex':'none';
+  $('subtoPayRow').style.display = ($('otype').value==='Subto')?'flex':'none';
+  calcCF(); calcFF();
+}
+
+function setMode(m){
+  $('cf').style.display = m==='cf'?'block':'none';
+  $('ff').style.display = m==='ff'?'block':'none';
+  $('mCF').classList.toggle('active', m==='cf');
+  $('mFF').classList.toggle('active', m==='ff');
+}
+
+// Prefill from URL params (set by the briefing card's 🧮 Calculator button)
+function prefill(){
+  const q = new URLSearchParams(location.search);
+  const map = {price:'price',list:'list',down:'down',rate:'rate',amort:'amort',
+    balloon:'balloon',rehab:'rehab',assign:'assign',rent:'rent',ins:'ins',tax:'tax',
+    hoa:'hoa',otype:'otype',io:'io',subbal:'subbal',subpay:'subpay',
+    arv:'ffArv',ffrehab:'ffRehab',ffassign:'ffAssign'};
+  let any=false;
+  for(const [k,id] of Object.entries(map)){
+    if(q.has(k)){ const el=$(id); if(el){ el.value=q.get(k); any=true; } }
+  }
+  if(q.get('mode')==='ff') setMode('ff');
+  if(any) $('prefillNote').innerHTML = '<span style="color:var(--green)">✓ Pre-filled from briefing card</span>';
+}
+
+document.addEventListener('input', recalc);
+prefill(); recalc();
+</script>
+</body>
+</html>

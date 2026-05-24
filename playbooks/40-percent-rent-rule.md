@@ -2,7 +2,9 @@
 
 ## TL;DR
 
-For every Seller Finance deal (Tier A + Tier B), the monthly payment to the seller = **40% of expected gross rent**. This is the verbatim formula Richard uses on live calls — it skips amortization-table math and anchors the conversation to rent reality.
+The monthly payment to the seller ≈ **40% of expected gross rent**. A verbatim shorthand Richard uses on some live calls to skip amortization math and anchor to rent reality.
+
+> ⚠ **Evidence re-grade (2026-05-23):** This is **Richard's verbal shortcut, not a load-bearing rule.** Mining the HMHW Discord (63,238 messages) found the 40%-of-rent phrase only **4 times total** and **zero times in the `Deal Check` channel** where leaders actually vet deals. The community underwrites with standard mechanics (10% down, 0%, 7-yr balloon, 70%-of-ARV, PITI). Treat 40%-of-rent as a fast on-call sanity anchor — not the core math. The amortization-derived `creative_terms` is the real number.
 
 ## Verbatim source (live calls)
 
@@ -10,7 +12,7 @@ For every Seller Finance deal (Tier A + Tier B), the monthly payment to the sell
 
 > *"I'll give you 80,000 on seller finance terms. So 80,000, 10% down, 40% of whatever it rents out for in monthly payments, 7-year term."* — [[c2hNH6u7D0k @ 1:11:34](https://youtu.be/c2hNH6u7D0k?t=4294)]
 
-This is the single highest-value insight from validating the playbooks against 10 hours of Richard's actual live calls. Missing from every source document until 2026-05-16.
+Surfaced from validating the playbooks against 10 hours of Richard's live calls (2026-05-16). Useful as a conversational anchor — but per the re-grade above, community deal-vetting doesn't lean on it, so it isn't the underwriting core.
 
 ---
 
