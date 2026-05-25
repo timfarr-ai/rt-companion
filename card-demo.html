@@ -1,0 +1,100 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Card layout demo</title><style>
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#1c2128;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--dim:#6e7681;--green:#56d364;--greenbg:#0d2818;--amber:#ffa657;--amberbg:#3a2418;--blue:#79c0ff;}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;margin:0;padding:18px;font-size:15px;}
+.wrap{max-width:760px;margin:0 auto;}
+h3{color:var(--blue);font-size:13px;text-transform:uppercase;letter-spacing:.08em;margin:30px 0 10px;border-bottom:1px solid var(--border);padding-bottom:6px;}
+.note{color:var(--muted);font-size:13px;margin:0 0 18px;}
+.deal{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:8px;}
+.addr{font-size:17px;font-weight:700;}
+.meta{color:var(--muted);font-size:13px;margin-top:2px;}
+.section-label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin:14px 0 8px;}
+.photos{display:flex;gap:5px;overflow-x:auto;margin-top:12px;}
+.photos img{height:96px;width:128px;object-fit:cover;border-radius:7px;flex:0 0 auto;}
+/* pills (current) */
+.pill{display:inline-block;background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:3px 10px;font-size:12px;color:var(--muted);margin:0 4px 5px 0;}
+.pill.blue{background:#1e2c44;color:var(--blue);border-color:#1e2c44;}
+.pill.amber{background:var(--amberbg);color:var(--amber);border-color:var(--amberbg);font-weight:600;}
+.pill.green{background:var(--greenbg);color:var(--green);border-color:#1a4d2e;font-weight:600;}
+/* A hero */
+.heroRow{display:flex;gap:10px;margin:10px 0 12px;}
+.hero{flex:1;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.hero .v{font-size:23px;font-weight:800;line-height:1.1;}
+.hero .l{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.07em;margin-top:3px;font-weight:600;}
+.hero.good .v{color:var(--green);}
+.specline{color:var(--muted);font-size:13px;line-height:1.7;}
+.specline b{color:var(--text);font-weight:600;}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:10px;margin-right:6px;background:#1e2c44;color:var(--blue);}
+.statusgood{color:var(--green);font-size:13px;font-weight:600;margin-top:8px;}
+/* B headline */
+.headline{font-size:20px;font-weight:800;margin:10px 0 4px;}
+.headline .cf{color:var(--green);}
+.headline .sep{color:var(--dim);font-weight:400;}
+/* C two-tier */
+.bigpill{display:inline-block;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:8px 14px;margin:0 6px 8px 0;}
+.bigpill .v{font-size:18px;font-weight:800;}
+.bigpill .l{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;}
+.bigpill.good .v{color:var(--green);}
+.minipill{display:inline-block;border:1px solid var(--border);border-radius:10px;padding:1px 8px;font-size:11px;color:var(--muted);margin:0 3px 4px 0;}
+</style></head><body><div class="wrap">
+<div class="note">Live demo — Current State numbers now sit <b>above</b> the photos so the decision data hits first. Same Cleveland deal in 3 styles.</div>
+
+<h3>Current (what you have now)</h3>
+<div class="deal">
+<div class="addr">3849 E Antisdale Rd, Cleveland OH 44118</div>
+<div class="meta">1 units · Single Family · 3bd/1ba/1,320sqft · built 1939 · lot 4,830sqft</div>
+<div class="photos">
+<img src="https://imagesp.reicoreapi.com/5/1/fp/8033ac9effc0db5fae17fd16488a81a5-cc_ft_960.jpg"><img src="https://imagesp.reicoreapi.com/5/1/fp/4fa3519cc6edbd778333cb8d270a4cf0-cc_ft_960.jpg"><img src="https://imagesp.reicoreapi.com/5/1/fp/104039cae970d9d172beab7372970522-cc_ft_960.jpg"><img src="https://imagesp.reicoreapi.com/5/1/fp/a801365afe2c76ac31f7dc3b6c8c70ad-cc_ft_960.jpg"><img src="https://imagesp.reicoreapi.com/5/1/fp/aa5fa3fe281f0d251c43864c2c92068e-cc_ft_960.jpg">
+</div>
+<div class="section-label">① Current State</div>
+<div>
+<span class="pill">✓ Active</span><span class="pill blue">Seller Finance</span><span class="pill">Single Family</span><span class="pill">Asking $80,000</span><span class="pill">Cash Flow $242/mo</span><span class="pill amber">🏦 Bank gap −$192/mo</span><span class="pill">Days on Market 707 🔥🔥</span><span class="pill">💳 Bank PITI $1,316/mo</span><span class="pill">🏠 Rent $1,947/mo</span><span class="pill">💰 Tax $407/mo</span><span class="pill">🛡 Insurance $31/mo</span><span class="pill green">🛒 Creative buyers + Sec8 active</span><span class="pill">🌑 9:27 AM local</span>
+</div>
+</div>
+
+<h3>Option A — Hero stats (numbers above photos)</h3>
+<div class="deal">
+<div class="addr">3849 E Antisdale Rd, Cleveland OH 44118</div>
+<div class="meta">3bd/1ba · 1,320 sqft · built 1939 · lot 4,830 sqft</div>
+<div class="heroRow">
+  <div class="hero"><div class="v">$80,000</div><div class="l">Asking</div></div>
+  <div class="hero good"><div class="v">+$242<span style="font-size:13px">/mo</span></div><div class="l">Creative CF</div></div>
+  <div class="hero"><div class="v">707 🔥</div><div class="l">Days on Market</div></div>
+</div>
+<div class="specline"><span class="tag">Seller Finance</span> Single Family &nbsp;·&nbsp; <b>Rent</b> $1,947 &nbsp;·&nbsp; <b>Bank PITI</b> $1,316 &nbsp;·&nbsp; <b>Tax</b> $407 &nbsp;·&nbsp; <b>Ins</b> $31 &nbsp;·&nbsp; <b>Bank gap</b> −$192/mo</div>
+<div class="statusgood">● Creative buyers + Sec8 active</div>
+<div class="photos">
+<img src="https://imagesp.reicoreapi.com/5/1/fp/8033ac9effc0db5fae17fd16488a81a5-cc_ft_960.jpg"><img src="https://imagesp.reicoreapi.com/5/1/fp/4fa3519cc6edbd778333cb8d270a4cf0-cc_ft_960.jpg"><img src="https://imagesp.reicoreapi.com/5/1/fp/104039cae970d9d172beab7372970522-cc_ft_960.jpg"><img src="https://imagesp.reicoreapi.com/5/1/fp/a801365afe2c76ac31f7dc3b6c8c70ad-cc_ft_960.jpg"><img src="https://imagesp.reicoreapi.com/5/1/fp/aa5fa3fe281f0d251c43864c2c92068e-cc_ft_960.jpg">
+</div>
+</div>
+
+<h3>Option B — Bold headline (numbers above photos)</h3>
+<div class="deal">
+<div class="addr">3849 E Antisdale Rd, Cleveland OH 44118</div>
+<div class="meta">3bd/1ba · 1,320 sqft · built 1939 · lot 4,830 sqft</div>
+<div class="headline">$80,000 ask <span class="sep">·</span> <span class="cf">+$242/mo CF</span> <span class="sep">·</span> 707 DOM 🔥</div>
+<div class="specline"><span class="tag">Seller Finance</span> SFH &nbsp;·&nbsp; <b>Rent</b> $1,947 &nbsp;·&nbsp; <b>PITI</b> $1,316 &nbsp;·&nbsp; <b>Tax</b> $407 &nbsp;·&nbsp; <b>Ins</b> $31 &nbsp;·&nbsp; <b>gap</b> −$192</div>
+<div class="statusgood">● Creative buyers + Sec8 active</div>
+<div class="photos">
+<img src="https://imagesp.reicoreapi.com/5/1/fp/8033ac9effc0db5fae17fd16488a81a5-cc_ft_960.jpg"><img src="https://imagesp.reicoreapi.com/5/1/fp/4fa3519cc6edbd778333cb8d270a4cf0-cc_ft_960.jpg"><img src="https://imagesp.reicoreapi.com/5/1/fp/104039cae970d9d172beab7372970522-cc_ft_960.jpg"><img src="https://imagesp.reicoreapi.com/5/1/fp/a801365afe2c76ac31f7dc3b6c8c70ad-cc_ft_960.jpg"><img src="https://imagesp.reicoreapi.com/5/1/fp/aa5fa3fe281f0d251c43864c2c92068e-cc_ft_960.jpg">
+</div>
+</div>
+
+<h3>Option C — Two-tier pills (numbers above photos)</h3>
+<div class="deal">
+<div class="addr">3849 E Antisdale Rd, Cleveland OH 44118</div>
+<div class="meta">3bd/1ba · 1,320 sqft · built 1939 · lot 4,830 sqft</div>
+<div style="margin:10px 0 8px;">
+  <span class="bigpill"><span class="v">$80,000</span> <span class="l">asking</span></span>
+  <span class="bigpill good"><span class="v">+$242/mo</span> <span class="l">cash flow</span></span>
+  <span class="bigpill"><span class="v">707</span> <span class="l">DOM 🔥</span></span>
+</div>
+<div>
+  <span class="minipill">Seller Finance</span><span class="minipill">SFH</span><span class="minipill">Rent $1,947</span><span class="minipill">PITI $1,316</span><span class="minipill">Tax $407</span><span class="minipill">Ins $31</span><span class="minipill">Bank gap −$192</span><span class="minipill" style="border-color:#1a4d2e;color:var(--green)">● Creative buyers active</span>
+</div>
+<div class="photos">
+<img src="https://imagesp.reicoreapi.com/5/1/fp/8033ac9effc0db5fae17fd16488a81a5-cc_ft_960.jpg"><img src="https://imagesp.reicoreapi.com/5/1/fp/4fa3519cc6edbd778333cb8d270a4cf0-cc_ft_960.jpg"><img src="https://imagesp.reicoreapi.com/5/1/fp/104039cae970d9d172beab7372970522-cc_ft_960.jpg"><img src="https://imagesp.reicoreapi.com/5/1/fp/a801365afe2c76ac31f7dc3b6c8c70ad-cc_ft_960.jpg"><img src="https://imagesp.reicoreapi.com/5/1/fp/aa5fa3fe281f0d251c43864c2c92068e-cc_ft_960.jpg">
+</div>
+</div>
+
+</div></body></html>
