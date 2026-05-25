@@ -748,7 +748,10 @@ def condition_risk_flags(s):
 
     # 100% equity + very stale + cheap urban (Detroit, Highland Park MI, Memphis) = REO or distress
     if dom > 500 and price > 0 and price < 100_000 and (s.get('cf') or 0) == 0:
-        flags.append('⚠️ Stale + cheap + null cash flow — possibly REO/auction; verify listing status')
+        flags.append('⚠️ Stale + cheap + null cash flow — check listing status on Zillow. '
+                     'If owned by the bank / Auction.com → REJECT. But if an individual still '
+                     'owns it with a foreclosure/auction date NOT yet passed → top-priority '
+                     'Mortgage-Takeover lead (built-in deadline); pursue, don\'t reject.')
 
     return flags
 
