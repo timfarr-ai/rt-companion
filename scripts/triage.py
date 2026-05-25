@@ -276,21 +276,25 @@ STATE_TZ = {
 
 # Claude vision — analyze BBC property photos for REO/condition/distress signals
 # that BBC's API doesn't expose. Closes the detection gap that scraping Zillow
-# can't (PerimeterX blocks). Cost: Haiku 4.5 at ~$0.005/property × ~100 quals/day
-# = ~$0.50/day. Only runs on qualified properties (post-tier, post-agent-unlock).
+# can't (PerimeterX blocks). Cost: Haiku 4.5, ~$0.02/property (all photos) × ~100
+# quals/day = ~$2/day. Only runs on qualified properties (post-tier, post-agent-unlock).
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 VISION_MODEL = 'claude-haiku-4-5-20251001'
-VISION_PROMPT = '''You are evaluating a residential listing for a creative-finance wholesaler (Richard Taylor's HMHW method). The method works on STANDARD residential listings with individual sellers — NOT REO/auction/bank-owned, not heavily distressed properties needing gut rehab, not commercial buildings.
+VISION_PROMPT = '''You are evaluating a residential listing for a creative-finance wholesaler (Richard Taylor's HMHW method). This is a SELLER-FINANCE / BUY-AND-HOLD method: the property will be rented to a tenant, NOT flipped. So the ONE question that matters is: can this house be rented to a tenant roughly as-is, or does it need real rehab BEFORE a tenant could move in?
+
+A dated, cosmetically tired, or freshly-renovated house is FINE — tenants live in dated houses every day. Only properties that genuinely need rehab before they are habitable should leave the seller-finance lane.
+
+CRITICAL: Judge ONLY what the photos actually show. If you can see only the exterior, do NOT assume or invent interior condition — base your score on visible evidence and lean toward "qualify" when the interior is not shown. Never describe interior wear you cannot see.
 
 Given these property photos, return ONLY a single JSON object with these fields:
-- condition (int 1-5): 5=move-in ready, 4=light cosmetic only, 3=cosmetic renovation, 2=significant rehab (kitchen/bath/floors), 1=heavy gut / structural / water damage
+- condition (int 1-5): 5=move-in / rent-ready; 4=minor cosmetic (paint, landscaping) but rentable as-is; 3=dated or needs a cosmetic refresh but still rentable to a tenant without major work; 2=needs real rehab before a tenant could move in (kitchen/bath/floors/systems gutted or missing); 1=heavy gut / structural / fire / water damage / uninhabitable
 - reo_or_auction (bool): visible REO sign, auction sign, bank-owned marketing, lockbox-only, completely empty/staged-for-auction look
 - commercial_or_unusual (bool): commercial use, warehouse/industrial, vacant lot photos labelled as a house, mobile home on leased lot
 - recommended_action (string): "qualify" | "demote_to_ff" | "reject"
-  - "qualify" = clean residential, Richard's method applies
-  - "demote_to_ff" = condition is 2-3, route to Fix & Flip instead of Seller Finance
-  - "reject" = condition 1 OR reo_or_auction OR commercial_or_unusual
-- notes (string, max 100 chars): brief reasoning visible to operator
+  - "qualify" = rentable as-is or with only cosmetic work (condition 3-5) — Richard's seller-finance method applies
+  - "demote_to_ff" = needs real rehab before it can be rented (condition 2) — route to Fix & Flip
+  - "reject" = condition 1, OR reo_or_auction, OR commercial_or_unusual
+- notes (string, max 100 chars): brief reasoning visible to operator; state what you actually saw
 
 Output ONLY the JSON. No prose, no markdown fences.'''
 
@@ -298,18 +302,24 @@ vision_cache = {}  # PID → analysis dict
 vision_calls = 0
 vision_skipped = 0
 
+MAX_VISION_PHOTOS = 20  # safety cap so a 50-photo listing can't blow up latency/cost
+
 def analyze_property_vision(p):
-    """Send up to 2 BBC photos to Claude vision; return analysis dict or None on
+    """Send the listing's photos to Claude vision; return analysis dict or None on
     failure. Caches per-PID for the run. Skips if ANTHROPIC_API_KEY missing or
-    no images on the listing."""
+    no images on the listing.
+
+    Sends ALL available photos (capped at MAX_VISION_PHOTOS), not just the first 2 —
+    the first 2 are usually exteriors, which led vision to hallucinate interior
+    condition and over-demote rentable houses (see false-demote audit 2026-05-25).
+    Interior photos are what actually determine 'rentable as-is vs needs rehab'."""
     global vision_calls
     pid = p.get('pid')
     if not pid or not ANTHROPIC_API_KEY: return None
     if pid in vision_cache: return vision_cache[pid]
     images = p.get('images') or []
     if not images: return None
-    # Use top 2 photos — usually exterior + interior — enough for condition + REO assessment
-    photo_urls = [img if isinstance(img, str) else img.get('url') for img in images[:2]]
+    photo_urls = [img if isinstance(img, str) else img.get('url') for img in images[:MAX_VISION_PHOTOS]]
     photo_urls = [u for u in photo_urls if u]
     if not photo_urls: return None
     content = []
@@ -960,7 +970,11 @@ if ANTHROPIC_API_KEY:
                 vision_rejected += 1
                 buckets[tier_name].remove(s)
                 print(f"  ✗ {s['address'][:50]}: VISION-REJECTED — {analysis.get('notes','')[:80]}", file=sys.stderr)
-            elif action == 'demote_to_ff' and tier_name != 'FF':
+            elif action == 'demote_to_ff' and tier_name != 'FF' and (analysis.get('condition') or 3) <= 2:
+                # Hard floor: only condition 1-2 (needs rehab before a tenant) demotes to FF.
+                # Condition 3 (dated/cosmetic but rentable) STAYS in its seller-finance lane —
+                # the vision notes still surface on the card for the operator's Zillow check.
+                # Reverses the 2026-05-25 over-demote (32/75 cards demoted, ~all false on a sample).
                 vision_demoted += 1
                 buckets[tier_name].remove(s)
                 # Reroute to FF — change deal_type label and creative_terms
@@ -970,7 +984,7 @@ if ANTHROPIC_API_KEY:
                 s['creative_terms'] = f"Cash offer ${s['creative_offer']:,} (vision-demoted — condition {analysis.get('condition','?')}/5)"
                 buckets['FF'].append(s)
                 print(f"  → {s['address'][:50]}: VISION-DEMOTED {tier_name}→FF (condition {analysis.get('condition','?')}/5): {analysis.get('notes','')[:60]}", file=sys.stderr)
-    print(f'Vision: {vision_calls} API calls (~${vision_calls * 0.005:.2f}) · {vision_rejected} rejected · {vision_demoted} demoted to FF', file=sys.stderr)
+    print(f'Vision: {vision_calls} API calls (~${vision_calls * 0.02:.2f}, all-photo) · {vision_rejected} rejected · {vision_demoted} demoted to FF', file=sys.stderr)
 else:
     print(f'\nClaude vision SKIPPED — ANTHROPIC_API_KEY not set. To enable: export ANTHROPIC_API_KEY=sk-...', file=sys.stderr)
 
