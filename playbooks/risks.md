@@ -167,6 +167,7 @@ Richard's method requires standard residential. Mobile homes on leased land or e
 
 - **Consequence:** Wasted call. These listings only accept cash at auction terms.
 - **Prevent:** Triage rejects ~12 auction-agent keywords. If one slips through, **the agent name is the tell.**
+- **⚠️ Don't over-reject — timing is everything:** The *institutional* auction (bank already owns it, sold via Auction.com / Williams & Williams / Hubzu / Xome) is the reject. But a property heading to auction that the **individual owner still holds** — i.e. *pre-foreclosure with an auction date set but not yet passed* — is the opposite: a top-priority Mortgage-Takeover / subject-to lead. Built-in deadline, maximum motivation. Richard-community rule of thumb: **"Go for auction properties before the bank grabs them"** — viable *up to* the auction date, dead *after* it (then it's REO). See the pre-auction play in [Morning Triage SOP](../sop/morning-triage.html). BBC's API never tags these, so they arrive looking like ordinary stale listings — catch them on the Zillow check (a foreclosure/auction *date* + still an individual seller = pursue hard, don't reject).
 
 ---
 
