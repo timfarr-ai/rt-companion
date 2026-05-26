@@ -1186,7 +1186,7 @@ def render_deal(d, t):
     # only if BBC didn't include a zpid (rare — most Lightning Leads have one).
     bbc_property_link = ''
     if d.get('zpid'):
-        bbc_property_link = f' <a class="zillow" href="https://www.buyboxcartel.com/vip/property/{d["zpid"]}" target="_blank" style="background:#1a4d2e;color:#56d364;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1a4d2e;">🏦 Create Offer in BBC ↗</a>'
+        bbc_property_link = f' <a class="btn" href="https://www.buyboxcartel.com/vip/property/{d["zpid"]}" target="_blank">🏦 Create Offer in BBC ↗</a>'
     # Grand In Taylor JV submission — Richard Taylor's own wholesale company. Phase-1
     # dispo channel: instead of self-listing on BBC Marketplace, Tim submits the deal
     # here, Richard's team places it with their buyer network, JV split applies. Two
@@ -1202,7 +1202,7 @@ def render_deal(d, t):
         'C':  'https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587',
     }.get(t, '')
     gt_label = 'Creative' if t in ('A','B','HY','MT') else 'Cash'
-    gt_link = f' <a class="zillow" href="{gt_url}" target="_blank" style="background:#2a1a44;color:#d2a8ff;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #2a1a44;">🤝 Submit to Grand In Taylor ({gt_label}) ↗</a>' if gt_url else ''
+    gt_link = f' <a class="btn" href="{gt_url}" target="_blank">🤝 Submit to Grand In Taylor ({gt_label}) ↗</a>' if gt_url else ''
     # HMHW calculator deep-links — tier-routed to the right calculator. The previous
     # #prefill={JSON} hash was a speculative no-op: HMHW's Vite app has zero URL-prefill
     # mechanism (verified 2026-05-14 — no useSearchParams, no hashParams, no localStorage
@@ -1254,8 +1254,7 @@ def render_deal(d, t):
         _calc_params = {'mode': 'ff', 'arv': d.get('price', 0), 'ffassign': 5000}
     _calc_qs = _up.urlencode({k: v for k, v in _calc_params.items() if v not in (None, '')})
     our_calc_link = (f' <a class="zillow" href="/rt-companion/playbooks/offer-oven-calculator.html?{_calc_qs}" '
-                     f'target="_blank" style="background:#1a2b4a;color:#79c0ff;padding:3px 8px;border-radius:6px;'
-                     f'font-weight:600;border:1px solid #1a2b4a;">🧮 Calculator (auto-filled) ↗</a>')
+                     f'target="_blank">🧮 Calculator (auto-filled) ↗</a>')
     # Clipboard payload — plain-text values, one per line, ready for Tab-key paste.
     # Order matches the Offer Oven field sequence (Purchase Price, Down Payment, Rate,
     # Term, Loan Balance for sub-to, Rental Revenue, Assignment, Closing).
@@ -1276,7 +1275,7 @@ def render_deal(d, t):
             f"this.dataset.orig=this.textContent;this.textContent='✓ Copied — paste into HMHW';"
             f"setTimeout(()=>{{this.style.background='';this.style.color='';this.textContent=this.dataset.orig;}},2000);"
         )
-        copy_btn = f' <button class="zillow" type="button" onclick="{copy_handler}" style="background:#1c2128;color:#58a6ff;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #30363d;cursor:pointer;font-family:inherit;font-size:12px;">📋 Copy values</button>'
+        copy_btn = f' <button class="btn" type="button" onclick="{copy_handler}">📋 Copy values</button>'
     else:
         copy_btn = ''
     oven_link = calc_links_html + copy_btn
@@ -1530,7 +1529,7 @@ def render_deal(d, t):
     # count or contacts — just "is BBC's network demanding this strategy in this state?"
     # Tier mapping: A/B/MT → creative; FF/C → fixflip. Tier B also peeks section8 as bonus.
     state_name_lc = STATE_CODE_TO_NAME.get((d.get('state') or '').upper(), '')
-    buyer_pill = ''
+    status_line = ''  # BBC buyer-demand signal, rendered as a quiet colored status line
     if state_name_lc:
         bucket = {'A':'creative','B':'creative','MT':'creative','FF':'fixflip','C':'fixflip'}.get(t)
         if bucket:
@@ -1541,9 +1540,9 @@ def render_deal(d, t):
                 s8_bonus = ''
                 if t == 'B' and buyer_signals.get('section8', {}).get(state_name_lc):
                     s8_bonus = ' + Sec8'
-                buyer_pill = f' <span class="pill" style="background:#0d2818;color:#56d364;border-color:#1a4d2e;font-weight:600;" title="BBC BuyBoxes: this state is currently active for this strategy">🎯 {bucket_label}{s8_bonus} active</span>'
+                status_line = f'<div class="status good" title="BBC BuyBoxes: this state is currently active for this strategy">● {bucket_label}{s8_bonus} active</div>'
             elif is_active is False:
-                buyer_pill = f' <span class="pill" style="background:#3a2418;color:#ffa657;border-color:#3a2418;" title="BBC BuyBoxes: low buyer activity for this strategy in this state — dispo will be harder">⚠️ Low {bucket_label.lower().replace("&amp;","&")} activity</span>'
+                status_line = f'<div class="status warn" title="BBC BuyBoxes: low buyer activity for this strategy in this state — dispo will be harder">⚠ Low {bucket_label.lower().replace("&amp;","&")} activity</div>'
     # CREATIVE CF BANNER — the call hook. Reads: "After restructuring, this deal
     # cash-flows $X/mo. Pitch to seller: $OFFER at 0%, $DOWN down, 30yr."
     cc = d.get('creative_cf', 0)
@@ -1652,18 +1651,18 @@ def render_deal(d, t):
     # operating numbers. Solo dispo fee — JV through Grand In Taylor splits ~50/50.
     potential_fee = potential_assignment_fee(t, d.get('creative_offer'), d.get('price'))
     d['potential_fee'] = potential_fee  # capture for Airtable
-    fee_part = f'<span style="color:#e3b341;font-weight:700;font-size:15px;">💰 Potential fee: ${potential_fee:,}</span> <span style="color:#8b949e;font-size:11px;">(solo — JV splits ~50/50)</span><br>'
-    coc_part = f'<span style="color:#8b949e;"> &nbsp;·&nbsp; </span><span style="color:#56d364;font-weight:600;" title="Cash-on-Cash return: annual cash flow divided by total cash invested">Cash-on-Cash {coc_v}%</span>' if coc_v else ''
-    entry_part = f'<span style="color:#8b949e;"> &nbsp;·&nbsp; </span><span style="color:#e6edf3;" title="Total cash to close: down payment + closing costs + assignment fee">Entry Fee ${entry_v:,}</span>' if entry_v else ''
+    coc_part = f'<span class="k" title="Cash-on-Cash return: annual cash flow divided by total cash invested">Cash-on-Cash</span> {coc_v}%' if coc_v else ''
+    entry_part = f'<span class="k" title="Total cash to close: down payment + closing costs + assignment fee">Entry fee</span> ${entry_v:,}' if entry_v else ''
+    sub_sep = ' &nbsp;·&nbsp; ' if (coc_part and entry_part) else ''
+    sub_line = f'<div class="sub">{coc_part}{sub_sep}{entry_part}</div>' if (coc_part or entry_part) else ''
+    terms_line = f'<div class="terms">{d.get("creative_terms","")}</div>' if d.get('creative_terms') else ''
     creative_banner = (
-        f'<div style="margin:6px 0 8px;padding:8px 12px;background:linear-gradient(90deg,#0d2818,#0d1f24);'
-        f'border:1px solid #1a4d2e;border-radius:6px;font-size:14px;line-height:1.4;">'
-        f'{fee_part}'
-        f'<span style="color:#56d364;font-weight:700;font-size:16px;">✅ Creative CF +${cc:,}/mo</span>'
-        f'{coc_part}{entry_part}'
-        f'<br><span style="color:#e6edf3;">{d.get("creative_terms","")}</span>'
+        f'<div class="pitch">'
+        f'<div class="cf">+${cc:,}<small>/mo</small></div>'
+        f'{sub_line}{terms_line}'
         f'</div>'
     )
+    fee_line = f'<div class="fee">💰 Potential assignment fee <b>${potential_fee:,}</b> (solo — JV splits ~50/50)</div>' if potential_fee else ''
     # RISK FLAGS — heuristic warnings about heavy rehab / REO / data issues
     # BBC's API doesn't expose condition or REO status, so these are inferred from
     # year/foundation/imagery/DOM signals. Operator MUST verify on Zillow.
@@ -1845,7 +1844,7 @@ def render_deal(d, t):
     # URL prefill is unreliable, especially on mobile. Form view: viwLacCnkkZZF59Ko,
     # share token: shrccLE11iM5TsWa2 (created 2026-05-15 via CDP).
     track_url = f'https://airtable.com/{AT_BASE}/shrccLE11iM5TsWa2?{track_qs}'
-    track_link = f' <a class="zillow" href="{track_url}" target="_blank" style="background:#1e2c44;color:#79c0ff;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1e2c44;">+ Track Property</a>'
+    track_link = f' <a class="btn primary" href="{track_url}" target="_blank">＋ Track Property</a>'
     # REJECT button — opens 'Rejected by Tim' Airtable with prefilled context. Each
     # rejection feeds the weekly optimization agent which proposes new filter rules
     # so this category of mistake doesn't repeat. Permanent dedupe by PID.
@@ -1866,7 +1865,7 @@ def render_deal(d, t):
     # reliably open a Create Record modal (especially on mobile Safari).
     # Form view: viwValWHCe30R9EOS, created 2026-05-15 via CDP UI.
     reject_url = f'https://airtable.com/{AT_BASE}/shrHDH8RyCB4xXCTZ?{reject_qs}'
-    reject_link = f' <a class="zillow" href="{reject_url}" target="_blank" style="background:#3a1e1e;color:#ff7b72;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #3a1e1e;" title="Permanently reject from future triage + feed the optimization agent">✗ Reject</a>'
+    reject_link = f' <a class="btn danger" href="{reject_url}" target="_blank" title="Permanently reject from future triage + feed the optimization agent">✕ Reject</a>'
 
     # SAVE TO BBC PIPELINE button — only renders when Cloudflare Worker is configured
     # via BBC_PROXY_URL + BBC_PROXY_SECRET env vars. Hits the Worker which calls
@@ -1906,7 +1905,7 @@ def render_deal(d, t):
         # JSON-encode + escape for embedding in onclick attribute
         import html as _html_mod
         pipeline_json_attr = _html_mod.escape(json.dumps(pipeline_payload), quote=True)
-        pipeline_btn = f' <button class="zillow" type="button" onclick="bbcSavePipeline(this, this.dataset.payload)" data-payload="{pipeline_json_attr}" style="background:#1a4d2e;color:#56d364;padding:3px 8px;border-radius:6px;font-weight:600;border:1px solid #1a4d2e;cursor:pointer;font-family:inherit;font-size:12px;">🔑 Save to BBC Pipeline</button>'
+        pipeline_btn = f' <button class="btn" type="button" onclick="bbcSavePipeline(this, this.dataset.payload)" data-payload="{pipeline_json_attr}">🔑 Save to BBC Pipeline</button>'
     # CARD STRUCTURE — redesigned 2026-05-15 from wall-of-links to logical sections.
     # 4 sections mirror Richard's livestream workflow:
     #   ① CURRENT STATE   = BBC card facts (price, DOM, mortgage data, signals)
@@ -1922,6 +1921,34 @@ def render_deal(d, t):
     if d.get('year_built'): extras.append(f"built {d['year_built']}")
     if d.get('lot_size_sqft'): extras.append(f"lot {d['lot_size_sqft']:,}sqft")
     if extras: physical_meta += ' · ' + ' · '.join(extras)
+    # ── ① CURRENT STATE layout (2026-05-26 redesign) ────────────────────────
+    # Three hero stat boxes carry the decision numbers (asking / rent / DOM);
+    # everything else collapses into one quiet grey spec line. Color is reserved
+    # for meaning only — see the new CSS. Replaces the old 12-pill flat row where
+    # the list price was lost among tax/insurance/local-time pills.
+    rent_hero = d.get('monthly_rent') or 0
+    rent_hero_html = (f'${rent_hero:,}<small>/mo</small>') if rent_hero else '—'
+    dom_disp = f'{d["dom"]} {d["dom_flag"]}'.strip()
+    hero_html = (
+        f'<div class="heroRow">'
+        f'<div class="hero"><div class="v">${d["price"]:,.0f}</div><div class="l">Asking</div></div>'
+        f'<div class="hero"><div class="v">{rent_hero_html}</div><div class="l">Market Rent</div></div>'
+        f'<div class="hero"><div class="v">{dom_disp}</div><div class="l">Days on Market</div></div>'
+        f'</div>'
+    )
+    is_mt_like = (t == 'MT' or d.get('deal_type_raw') == 'mortgageTakeover')
+    spec_bits = []
+    if d.get('type') and d['type'] != 'Unknown': spec_bits.append(d['type'])
+    ex_rate_v = d.get('interest_rate') or 0
+    if is_mt_like and ex_rate_v: spec_bits.append(f'<b>Existing rate</b> {ex_rate_v:.2f}%')
+    if is_mt_like and d.get('monthly_payment_actual'): spec_bits.append(f'<b>Seller PITI</b> ${d["monthly_payment_actual"]:,}/mo')
+    if (not is_mt_like) and d.get('monthly_piti'): spec_bits.append(f'<b>Bank PITI</b> ${d["monthly_piti"]:,}/mo')
+    if 0 < tax_v < 5000: spec_bits.append(f'<b>Tax</b> ${tax_v:,}')
+    if 0 < ins_v < 2000: spec_bits.append(f'<b>Ins</b> ${ins_v:,}')
+    if 0 < hoa_v < 2000: spec_bits.append(f'<b>HOA</b> ${hoa_v:,}')
+    if bg_amount > 0: spec_bits.append(f'<b>{bg_label}</b> −${bg_amount:,}/mo')
+    tag_html = f'<span class="tag">{dt_label}</span>' if dt_label else ''
+    spec_line = f'<div class="specline">{tag_html}{" &nbsp;·&nbsp; ".join(spec_bits)}</div>' if (tag_html or spec_bits) else ''
     return (
         f'<div class="deal {cls}">'
         # HEADER
@@ -1929,24 +1956,15 @@ def render_deal(d, t):
         f'<div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div>'
         f'<div class="meta">{physical_meta}</div>'
         f'</div>'
-        # PHOTOS
-        f'{photo_strip}'
-        # ① CURRENT STATE — facts about the listing as-is + warning signals about
-        # those facts (owe-vs-ask, flip history, vision, risk flags). CoC% moved out
-        # to Creative Outcome since it's computed against the restructured offer.
+        # ① CURRENT STATE — hero decision numbers, then quiet spec line + buyer
+        # status, THEN photos (so the numbers hit before the operator scrolls the
+        # photo strip), then warning banners (owe-vs-ask, flip history, vision, risk).
         f'<div class="card-section">'
         f'<div class="section-label">① Current State</div>'
-        f'<div class="nums">'
-        f'{status_pill if d.get("status_state") == "active" else ""}{dt_pill}{pt_pill}'
-        f'<span class="pill" title="Current listing asking price">Asking ${d["price"]:,.0f}</span>'
-        f'<span class="pill" title="Monthly cash flow at the deal terms used in this card">{cf_label} ${d["cf"]:,.0f}/mo</span>'
-        f'{bank_gap_pill}'
-        f'<span class="pill" title="Days on Market — total days the listing has been live">Days on Market {d["dom"]} {d["dom_flag"]}</span>'
-        f'{mt_rate_pill}{actual_pmt_pill}{bank_piti_pill}{rent_pill}{tax_ins_pill}{buyer_pill}{tz_pill}'
-        f'</div>'
-        # Banners that reflect the CURRENT STATE of the listing — loan vs asking,
-        # flip-detection (sold/relisted history is current-state evidence), description
-        # signals, risk flags, vision verdict.
+        f'{hero_html}'
+        f'{spec_line}'
+        f'{status_line}'
+        f'{photo_strip}'
         f'{owe_banner}'
         f'{flip_banner}{desc_flip_banner}'
         f'{risk_banner}{vision_banner}'
@@ -1958,6 +1976,7 @@ def render_deal(d, t):
         f'<div class="section-label">② Creative Outcome (the pitch)</div>'
         f'{target_70_banner}'
         f'{creative_banner}'
+        f'{fee_line}'
         f'{hybrid_banner}'
         f'{richards_banner}'
         f'{bl}'
@@ -2003,17 +2022,38 @@ h2{font-size:14px;color:#8b949e;text-transform:uppercase;letter-spacing:0.04em;m
 .deal .meta{font-size:13px;color:#8b949e;}
 .card-section{margin-top:12px;padding-top:10px;border-top:1px dashed #30363d;}
 .card-section:first-of-type{border-top:none;padding-top:8px;}
-.section-label{font-size:11px;color:#6e7681;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:6px;}
-.deal .nums{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+.section-label{font-size:11px;color:#6e7681;text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin:16px 0 8px;display:flex;align-items:center;gap:7px;}
+.section-label::after{content:"";flex:1;height:1px;background:#30363d;}
+.card-section:first-of-type .section-label{margin-top:4px;}
+/* ① hero stat trio — the decision numbers */
+.heroRow{display:flex;gap:8px;margin:10px 0;}
+.hero{flex:1;background:#1c2128;border:1px solid #30363d;border-radius:10px;padding:10px 12px;}
+.hero .v{font-size:21px;font-weight:800;line-height:1.1;}
+.hero .v small{font-size:12px;font-weight:700;color:#8b949e;}
+.hero .l{font-size:10px;color:#6e7681;text-transform:uppercase;letter-spacing:0.05em;margin-top:3px;font-weight:600;}
+.hero.good{background:#0d2818;border-color:#1a4d2e;}.hero.good .v{color:#56d364;}
+/* quiet spec line + status */
+.specline{color:#8b949e;font-size:13px;line-height:1.7;}
+.specline b{color:#e6edf3;font-weight:600;}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:10px;margin-right:6px;background:#1e2c44;color:#79c0ff;}
+.status{font-size:13px;font-weight:600;margin-top:7px;}
+.status.good{color:#56d364;}.status.warn{color:#ffa657;}
+/* ② the pitch panel */
+.pitch{background:#0d2818;border:1px solid #1a4d2e;border-radius:10px;padding:13px 14px;margin-top:4px;}
+.pitch .cf{font-size:23px;font-weight:800;color:#56d364;line-height:1;}.pitch .cf small{font-size:13px;}
+.pitch .sub{color:#e6edf3;font-size:14px;margin-top:6px;}.pitch .sub .k{color:#8b949e;}
+.pitch .terms{color:#8b949e;font-size:13px;margin-top:7px;}
+.fee{color:#8b949e;font-size:13px;margin-top:9px;}.fee b{color:#e3b341;}
 .pill{background:#1c2128;border:1px solid #30363d;border-radius:12px;padding:3px 10px;font-size:12px;color:#8b949e;}
-.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
+.btn-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px;}
 .btn-row-actions{margin-top:8px;}
-.btn,a.btn,button.btn{display:inline-flex;align-items:center;gap:4px;padding:8px 14px;background:#1c2128;border:1px solid #30363d;border-radius:8px;font-size:13px;font-weight:500;color:#58a6ff;text-decoration:none;cursor:pointer;font-family:inherit;line-height:1.2;min-height:36px;}
-.btn:active{opacity:0.7;}
-.btn-script{background:#1e2c44;color:#79c0ff;border-color:#1e2c44;font-weight:600;}
-/* Make existing inline links button-shaped for consistency */
-a.zillow{display:inline-flex;align-items:center;gap:4px;padding:7px 12px;background:#1c2128;border:1px solid #30363d;border-radius:8px;font-size:12.5px;color:#58a6ff;text-decoration:none;line-height:1.2;min-height:34px;font-weight:500;}
-a.zillow:active{opacity:0.7;}
+/* unified button system — neutral by default; color only for primary (go) + danger (stop) */
+.btn,a.btn,button.btn,a.zillow,button.zillow{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;background:#1c2128;border:1px solid #30363d;border-radius:8px;font-size:12.5px;font-weight:600;color:#e6edf3;text-decoration:none;cursor:pointer;font-family:inherit;line-height:1.2;min-height:34px;}
+.btn:active,a.zillow:active{opacity:0.7;}
+.btn:hover,a.zillow:hover{border-color:#8b949e;}
+.btn-script{}
+.btn.primary{background:#1a4d2e;border-color:#1a4d2e;color:#d6ffe0;}
+.btn.danger{background:transparent;border-color:#5c2626;color:#f85149;}
 .play-link{display:inline-flex;align-items:center;padding:9px 16px;background:#58a6ff;color:#0d1117;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-top:4px;min-height:36px;}
 .tier-A{border-left:3px solid #ff7b72;}.tier-B{border-left:3px solid #d2a8ff;}.tier-HY{border-left:3px solid #c971ff;}.tier-MT{border-left:3px solid #79c0ff;}.tier-FF{border-left:3px solid #f0883e;}.tier-C{border-left:3px solid #56d364;}
 .rejected{color:#8b949e;font-size:13px;padding:4px 0;}
