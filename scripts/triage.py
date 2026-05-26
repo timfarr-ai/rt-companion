@@ -302,7 +302,9 @@ vision_cache = {}  # PID → analysis dict
 vision_calls = 0
 vision_skipped = 0
 
-MAX_VISION_PHOTOS = 20  # safety cap so a 50-photo listing can't blow up latency/cost
+MAX_VISION_PHOTOS = 8  # enough to include interior shots (kills exterior-only hallucination)
+                        # without the 10x latency/cost blowup of sending every photo. Most BBC
+                        # listings have <=8 photos, so this is effectively "all photos" for them.
 
 def analyze_property_vision(p):
     """Send the listing's photos to Claude vision; return analysis dict or None on
