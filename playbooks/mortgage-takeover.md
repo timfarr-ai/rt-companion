@@ -341,6 +341,52 @@ Source: MT Course L900-950 (realtor conversations section)
 
 ---
 
+### Objection 6: "Won't this mortgage stop me from buying my next house?" (the DTI objection)
+
+**This is the highest-leverage objection to nail** — it's the natural follow-up to the "off your DTI" frame (the highest-converting transition in the corpus, see top of playbook). The seller's real fear: *"If the loan stays in my name, my debt-to-income is wrecked and no lender will approve me for my next property."*
+
+**Rebuttal (lead with the authority, not 'trust me'):**
+```
+"Great question — and the answer isn't my opinion, it's literally 
+Fannie Mae and Freddie Mac's own rule. The agencies that write the 
+lending guidelines for the whole country say: if SOMEONE ELSE has 
+been making your mortgage payment, that payment comes OFF your 
+debt-to-income — it doesn't count against you.
+
+So once I've made 12 months of payments — and you've got the bank 
+statements to prove it — your loan officer removes it from your DTI 
+and you qualify for your next place as if it were never there."
+```
+
+**The two ways the payment comes off the seller's DTI — know both:**
+
+1. **Payments-made-by-another-party path (the clean, documented one).** After **12 months** of the buyer making the payment, with **canceled checks or bank statements** documenting it, the seller's future lender excludes the full housing payment from their DTI. This is codified:
+   - Fannie Mae — **B3-6-05, Monthly Debt Obligations** ("mortgage paid by another party"): <https://selling-guide.fanniemae.com/sel/b3-6-05/monthly-debt-obligations>
+   - Freddie Mac — **Single-Family Seller/Servicer Guide §5401.2** (Monthly debt payment-to-income ratio, debt paid by others): <https://guide.freddiemac.com/app/guide/section/5401.2>
+
+2. **Rental-income / Occupancy-Agreement path (faster, but more conditions).** Because the property is in a trust with a lease in place, the seller's loan officer can be given the **trust certificate** (showing the seller is still attached as **Settlor/Beneficiary**) plus the **Occupancy Agreement (lease)**, and the seller is credited a share of the rent (commonly cited as ~75%, which typically covers PITI). The community frames this as coming off DTI "as soon as it's rented out." **⚠ Be careful here:** agency rental-income rules generally still want a lease *and* tax-return (Schedule E) seasoning before counting it cleanly — so treat this as the faster *claim* but verify with the seller's actual loan officer. Don't promise "instant."
+
+**⚠ HONESTY GUARDRAILS — do not oversell these two things:**
+- **The trust does NOT shorten the 12 months.** Putting the house in a trust solves a *different* problem (due-on-sale — see Objection 1). The 12-month documented-payment requirement under B3-6-05 / §5401.2 has **no trust, LLC, or entity carve-out** — it's a hard 12 months. If you tell a seller "the trust gets it off your DTI in 6 months," that blows up at their next loan application. Lean on **12 months**.
+- **Due-on-sale is reduced, not eliminated** (see Objection 1 caveat).
+
+**✅ Operational backstop — HMHW's loan originator (Andrew).** The strongest close on this objection is naming the *person* who does it: HMHW has partnered with a **nationwide loan originator, Andrew**, who helps your seller get a **new loan after they've sold to you via the Trust Mortgage Takeover method.** This turns "the rule allows it" into "and here's the lender who'll actually write your next loan." **Submission gate:** the seller must have given a **verbal acceptance** of your deal terms — a signed contract is *not* required yet, but a verbal yes is. Submit accepted-but-need-a-loan deals here:
+> **New Loans for Sellers with Andrew** (HMHW Google Form): <https://docs.google.com/forms/d/e/1FAIpQLSc9yXJb0U_uNFE7URGiOIwFeHNEG1H8aAFGKshQn-yqv5f_nQ/viewform>
+
+---
+
+### Objection 1 — statutory backing (deep-dive reserve)
+
+If an agent or a seller's attorney presses *why* the trust survives the due-on-sale clause, the answer is a federal statute, not a loophole:
+
+> **Garn–St Germain Act, 12 U.S.C. §1701j-3(d)(8)** — a lender *may not* exercise a due-on-sale clause upon *"a transfer into an inter vivos trust in which the borrower is and remains a beneficiary and which does not relate to a transfer of rights of occupancy in the property."*
+
+**This is why the trust structure is built the way it is:** the seller is kept on as a **5–10% beneficiary** (the buyer is assigned the **90–95%** controlling beneficial interest) specifically so *"the borrower is and remains a beneficiary"* stays true. The deed of the property moves into the trust; the **mortgage does not** — it stays under the seller's original liability, which is exactly why the DTI objection above matters.
+
+**⚠ The honest soft spot:** that same statute requires the transfer *"does not relate to a transfer of rights of occupancy."* A real MT/trust deal usually *does* hand occupancy and economic control to the buyer — so the protection is partly **legal (the §1701j-3(d)(8) exemption)** and partly **practical (a deed-into-trust isn't reported to the lender the way a warranty deed to a new owner is).** Reduced risk — not zero. Use an attorney; don't claim it's bulletproof.
+
+---
+
 ## Counter-offer patterns (MT specific)
 
 ### When seller wants MORE cash than you offered
