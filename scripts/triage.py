@@ -425,6 +425,20 @@ TERMINAL_DESC_KEYWORDS = [
     'end buyers only',
     'owner-occupants only', 'owner occupants only',
     'no double close', 'no double-close',
+    # POST-foreclosure / institutional auction — bank is the seller, cash-only,
+    # no contingencies. Distinct from PRE-auction (owner still on title, auction
+    # date set) which is a top-priority MT/subject-to lead (see risks.md #20).
+    # Each phrase below describes a state only possible AFTER foreclosure, or is
+    # terminology only auction houses use — none fire on pre-auction MLS text.
+    # Caught 3849 E Antisdale (Cleveland REO auction surfaced 2026-05-26).
+    'foreclosure deed', 'foreclosure has been recorded',
+    'bank owned', 'bank-owned',
+    'reo property', 'reo sale', 'is reo',  # avoid bare 'reo' (matches 'stereo')
+    'no buyer premium', 'buyer premium', "buyer's premium",
+    'starting bid',
+    'auction property', 'live auction', 'public auction', 'online auction',
+    'no inspection or financing contingencies',
+    'sold as-is, where-is', 'as-is, where-is', 'as is, where is', 'as-is/where-is',
 ]
 FLIP_DESC_KEYWORDS = [
     'freshly updated', 'newly updated', 'recently updated',
