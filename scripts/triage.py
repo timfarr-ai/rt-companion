@@ -263,6 +263,49 @@ for state in STATES:
         print(f'  {state} (off-market): +{delta}', file=sys.stderr)
 print(f'Off-market MT pass: +{len(all_leads) - om_count_before} listings added', file=sys.stderr)
 
+# 4c. DEDICATED MFH PASS — Richard's bread-and-butter (Tier A). The blind primary
+# pull is DOM-sorted and capped at 75/state, so genuine multi-family (5+ unit AND
+# 2-4 unit plexes) gets crowded out by cheap stale SFH — empirically only 1-7 of 75
+# slots were MFH. BBC's /search-property accepts `property_type` ONLY as an ARRAY of
+# lowercase codes; the value for multi-family is "multi" (the display string
+# "Multi Family" is silently ignored — confirmed live 2026-05-30 against OH/TN, where
+# ["multi"] returned 75/75 MFH vs 7 and 1 in the blind pull). deal_type kept broad so
+# MFH that BBC tagged MT/FF also enters and gets routed by tier(). Overlap with the
+# primary pull is removed by the pid-dedupe in the scoring loop below.
+print(f'\nDedicated MFH pass (property_type=["multi"])...', file=sys.stderr)
+mfh_count_before = len(all_leads)
+for state in STATES:
+    payload = {'search_query': state,
+               'deal_type': ['sellerFinance', 'mortgageTakeover', 'fixAndFlip'],
+               'property_type': ['multi'],
+               'market_status': 'Active', 'page': 1, 'limit': 75,
+               'sort_field': 'daysOnMarket', 'sort_order': 'desc',
+               'price_range': {'max': 1_400_000}}
+    code, body = http_req('https://www.buyboxcartel.com/api/lightning-leads/search-property',
+                          method='POST', json_body=payload,
+                          headers={'Accept': 'text/event-stream',
+                                   'Authorization': f'Bearer {bbc_token}'},
+                          use_opener=True)
+    if code != 200:
+        print(f'{state} (mfh): HTTP {code} — skipping', file=sys.stderr); continue
+    text = body.decode(errors='ignore')
+    state_before = len(all_leads)
+    for block in text.split('\n\n'):
+        if 'event: complete' in block:
+            for line in block.split('\n'):
+                if line.startswith('data:'):
+                    try:
+                        d = json.loads(line[5:])
+                        for p in d.get('propertyDetails', []):
+                            p['_mfh_pass'] = True  # tag for later labeling
+                            all_leads.append(p)
+                    except: pass
+            break
+    delta = len(all_leads) - state_before
+    if delta:
+        print(f'  {state} (mfh): +{delta}', file=sys.stderr)
+print(f'Dedicated MFH pass: +{len(all_leads) - mfh_count_before} listings added (pre-dedupe)', file=sys.stderr)
+
 # 4b. Helpers: agent unlock + timezone lookup
 # US state → IANA timezone (covers 99% of triage target states; some states span multiple TZs,
 # we pick the dominant metro TZ. East-TN/El-Paso/etc. are slight approximations.)
@@ -873,8 +916,19 @@ buckets = {'A':[], 'B':[], 'HY':[], 'MT':[], 'FF':[], 'C':[], 'REJECT':[]}
 land_skipped = 0
 tracked_skipped = 0
 new_construction_skipped = 0
+dup_skipped = 0
+seen_pids = set()  # cross-pass dedupe — the dedicated MFH pass overlaps the primary pull
 this_year = date.today().year  # date imported at module top from datetime
 for p in all_leads:
+    # Cross-pass pid-dedupe — same property can be returned by both the primary pull
+    # and the dedicated MFH pass (and the off-market pass). First occurrence wins;
+    # the property object is identical regardless of which search surfaced it.
+    _pid = p.get('pid')
+    if _pid:
+        if _pid in seen_pids:
+            dup_skipped += 1
+            continue
+        seen_pids.add(_pid)
     # Deal Flow dedupe — if Tim has tracked this property at any status, drop from daily.
     # He manages it via Airtable Deal Flow kanban from here.
     if p.get('pid') in tracked_pids:
@@ -921,7 +975,7 @@ for p in all_leads:
 for t in ('A','B','HY','MT','C'): buckets[t].sort(key=lambda x: (-x['creative_cf'], -x['dom']))
 # Fix & Flip: sort by DOM desc (motivation) since CF isn't the relevant metric
 buckets['FF'].sort(key=lambda x: -x['dom'])
-print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  HY={len(buckets["HY"])}  MT={len(buckets["MT"])}  FF={len(buckets["FF"])}  C={len(buckets["C"])}  REJECT={len(buckets["REJECT"])}  Land-skipped={land_skipped}  NewConstruction-skipped={new_construction_skipped}  Tracked-skipped={tracked_skipped}', file=sys.stderr)
+print(f'\nA={len(buckets["A"])}  B={len(buckets["B"])}  HY={len(buckets["HY"])}  MT={len(buckets["MT"])}  FF={len(buckets["FF"])}  C={len(buckets["C"])}  REJECT={len(buckets["REJECT"])}  Land-skipped={land_skipped}  NewConstruction-skipped={new_construction_skipped}  Tracked-skipped={tracked_skipped}  Dup-skipped={dup_skipped}', file=sys.stderr)
 
 # 5b. Surface agent info — cookie-free via BBC's contact-seller endpoint (the one
 # behind the Create Offer modal). Cost: $0/unlock. Run on ALL Tier A/B/C deals.
