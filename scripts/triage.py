@@ -15,6 +15,23 @@ BBC_PROXY_URL = os.environ.get('BBC_PROXY_URL', '')  # Cloudflare Worker URL (Sa
 BBC_PROXY_SECRET = os.environ.get('BBC_PROXY_SECRET', '')  # HMAC secret shared with Worker
 GH_PAT    = os.environ['GH_PAT']
 GH_REPO   = os.environ.get('GH_REPO', 'timfarr-ai/rt-companion')
+
+def clean_image_urls(raw, limit=8):
+    """Extract up to `limit` string photo URLs from BBC image entries, DROPPING any
+    Google Street View Static URLs (maps.googleapis.com). Those arrive from the
+    upstream provider pre-signed with THEIR Maps API key embedded in the URL — and
+    this briefing is published to a PUBLIC GitHub Pages repo, so republishing them
+    trips GitHub secret scanning (and exposes a third-party key). The keyless
+    '📍 Street View ↗' map link still covers Richard's neighborhood eye-check.
+    See secret-scanning remediation 2026-06-01."""
+    out = []
+    for img in (raw or []):
+        u = img if isinstance(img, str) else (img.get('url') or '')
+        if u and 'maps.googleapis.com' not in u:
+            out.append(u)
+            if len(out) >= limit:
+                break
+    return out
 # 10-state list, each one with primary-source teaching from Richard's courses:
 #   AL,TX,GA,TN,IN,OH,MI,FL  — MT course canonical list (lines 1041-1046):
 #     "We love Alabama. Texas. Georgia. Tennessee. Indiana. Ohio. Michigan.
@@ -771,7 +788,7 @@ def score(p):
             'year_built': int(cd.get('yearBuilt')) if (cd.get('yearBuilt') and str(cd.get('yearBuilt')).isdigit()) else 0,
             'foundation': (cd.get('foundation') or '').strip(),
             'image_count': len(p.get('images') or []),
-            'images': [(img if isinstance(img, str) else img.get('url') or '') for img in (p.get('images') or [])[:8] if img],
+            'images': clean_image_urls(p.get('images')),  # drops keyed maps.googleapis streetview URLs — see clean_image_urls
             # NEW: BBC fields previously dropped — closes the data gap on MT motivation
             # signals + PITI breakdown. The big one is `balance` (loan owed) for MT.
             'loan_balance': int(float(cd.get('balance') or cd.get('loanAmount') or 0)),
