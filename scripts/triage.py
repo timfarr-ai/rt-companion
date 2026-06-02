@@ -1,4 +1,4 @@
-import urllib.request, urllib.error, urllib.parse, http.cookiejar, json, base64, sys, re
+import urllib.request, urllib.error, urllib.parse, http.cookiejar, json, base64, sys, re, time
 from datetime import datetime, date, timedelta
 
 import os
@@ -15,6 +15,23 @@ BBC_PROXY_URL = os.environ.get('BBC_PROXY_URL', '')  # Cloudflare Worker URL (Sa
 BBC_PROXY_SECRET = os.environ.get('BBC_PROXY_SECRET', '')  # HMAC secret shared with Worker
 GH_PAT    = os.environ['GH_PAT']
 GH_REPO   = os.environ.get('GH_REPO', 'timfarr-ai/rt-companion')
+
+def clean_image_urls(raw, limit=8):
+    """Extract up to `limit` string photo URLs from BBC image entries, DROPPING any
+    Google Street View Static URLs (maps.googleapis.com). Those arrive from the
+    upstream provider pre-signed with THEIR Maps API key embedded in the URL — and
+    this briefing is published to a PUBLIC GitHub Pages repo, so republishing them
+    trips GitHub secret scanning (and exposes a third-party key). The keyless
+    '📍 Street View ↗' map link still covers Richard's neighborhood eye-check.
+    See secret-scanning remediation 2026-06-01."""
+    out = []
+    for img in (raw or []):
+        u = img if isinstance(img, str) else (img.get('url') or '')
+        if u and 'maps.googleapis.com' not in u:
+            out.append(u)
+            if len(out) >= limit:
+                break
+    return out
 # 10-state list, each one with primary-source teaching from Richard's courses:
 #   AL,TX,GA,TN,IN,OH,MI,FL  — MT course canonical list (lines 1041-1046):
 #     "We love Alabama. Texas. Georgia. Tennessee. Indiana. Ohio. Michigan.
@@ -112,14 +129,22 @@ if code == 200:
                        'min_cf': float(f.get('Min Cash Flow') or 0)})
 print(f'Buyers: {len(buyers)} active', file=sys.stderr)
 
-# 3. Existing watchlist
+# 3. Existing watchlist — PAGINATED. Was a single 100-row page, which silently
+# capped dedup once the watchlist grew past 100 'Watching' rows → the reject-push
+# (step 6) then re-POSTed hundreds of already-watched addresses every run (the
+# multi-minute grind). Now walks all pages like the Deal Flow / Rejected fetches.
 existing_addrs = set()
-url = f'https://api.airtable.com/v0/{AT_BASE}/{WL_TABLE}?filterByFormula=%7BStatus%7D%3D%27Watching%27&pageSize=100'
-code, body = http_req(url, headers={'Authorization': f'Bearer {AT_TOKEN}'})
-if code == 200:
-    for r in json.loads(body).get('records', []):
+_wl_base = f'https://api.airtable.com/v0/{AT_BASE}/{WL_TABLE}?filterByFormula=%7BStatus%7D%3D%27Watching%27&pageSize=100'
+url = _wl_base
+while url:
+    code, body = http_req(url, headers={'Authorization': f'Bearer {AT_TOKEN}'})
+    if code != 200: break
+    data = json.loads(body)
+    for r in data.get('records', []):
         a = r['fields'].get('Address', '').strip().lower()
         if a: existing_addrs.add(a)
+    offset = data.get('offset')
+    url = f'{_wl_base}&offset={offset}' if offset else None
 print(f'Watchlist: {len(existing_addrs)} existing', file=sys.stderr)
 
 # 3b. Fetch tracked PIDs from Deal Flow — existence = excluded from today's briefing.
@@ -776,7 +801,7 @@ def score(p):
             'year_built': int(cd.get('yearBuilt')) if (cd.get('yearBuilt') and str(cd.get('yearBuilt')).isdigit()) else 0,
             'foundation': (cd.get('foundation') or '').strip(),
             'image_count': len(p.get('images') or []),
-            'images': [(img if isinstance(img, str) else img.get('url') or '') for img in (p.get('images') or [])[:8] if img],
+            'images': clean_image_urls(p.get('images')),  # drops keyed maps.googleapis streetview URLs — see clean_image_urls
             # NEW: BBC fields previously dropped — closes the data gap on MT motivation
             # signals + PITI breakdown. The big one is `balance` (loan owed) for MT.
             'loan_balance': int(float(cd.get('balance') or cd.get('loanAmount') or 0)),
@@ -1193,16 +1218,20 @@ if captured_agents:
                 print(f'  ! Airtable {method} returned {code}: {body[:200]}', file=sys.stderr)
     print(f'Airtable Known Agents: {len(creates)} new, {len(updates)} updated, {agents_written} writes succeeded', file=sys.stderr)
 
-# 6. Push rejects
+# 6. Push rejects — BATCHED. Airtable accepts up to 10 records/request; this was
+# one POST per reject (O(rejects) sequential round-trips), which the MFH flood +
+# the broken dedup above turned into a multi-minute grind. Now: dedupe against the
+# (now-complete) watchlist, then write in batches of 10, paced under Airtable's
+# 5 req/s limit, with a single 429 retry per batch.
 today = date.today().isoformat()
 watch_until = (date.today() + timedelta(days=180)).isoformat()
-pushed = 0
+to_push = []
 for s in buckets['REJECT']:
     if s['cf'] <= 0: continue
     addr_only = s['address'].split(',')[0].strip()
     if not addr_only or addr_only.lower() in existing_addrs: continue
     existing_addrs.add(addr_only.lower())
-    rec = {'records': [{'fields': {
+    to_push.append({'fields': {
         'Address': addr_only,
         'City State': ', '.join(s['address'].split(',')[1:]).strip(),
         'Original Asking': s['price'], 'Original CF': s['cf'],
@@ -1211,12 +1240,22 @@ for s in buckets['REJECT']:
         'DOM at Rejection': s['dom'], 'Current DOM': s['dom'],
         'Zillow URL': s['zillow'] or None,
         'First Seen': today, 'Last Checked': today, 'Watch Until': watch_until,
-        'Status': 'Watching'}}]}
+        'Status': 'Watching'}})
+pushed = 0
+for i in range(0, len(to_push), 10):
+    batch = to_push[i:i+10]
+    payload = {'records': batch}
     code, body = http_req(f'https://api.airtable.com/v0/{AT_BASE}/{WL_TABLE}',
-                          method='POST', json_body=rec,
+                          method='POST', json_body=payload,
                           headers={'Authorization': f'Bearer {AT_TOKEN}'})
-    if code in (200, 201): pushed += 1
-print(f'Pushed {pushed} to watchlist', file=sys.stderr)
+    if code == 429:  # rate limited — brief backoff + one retry
+        time.sleep(0.5)
+        code, body = http_req(f'https://api.airtable.com/v0/{AT_BASE}/{WL_TABLE}',
+                              method='POST', json_body=payload,
+                              headers={'Authorization': f'Bearer {AT_TOKEN}'})
+    if code in (200, 201): pushed += len(batch)
+    time.sleep(0.21)  # stay under Airtable's 5 req/s
+print(f'Pushed {pushed} to watchlist ({len(to_push)} new, batched in {(len(to_push)+9)//10} requests)', file=sys.stderr)
 
 # 7. Render HTML
 date_iso = today
