@@ -1,4 +1,4 @@
-import urllib.request, urllib.error, urllib.parse, http.cookiejar, json, base64, sys, re
+import urllib.request, urllib.error, urllib.parse, http.cookiejar, json, base64, sys, re, time
 from datetime import datetime, date, timedelta
 
 import os
@@ -129,14 +129,22 @@ if code == 200:
                        'min_cf': float(f.get('Min Cash Flow') or 0)})
 print(f'Buyers: {len(buyers)} active', file=sys.stderr)
 
-# 3. Existing watchlist
+# 3. Existing watchlist — PAGINATED. Was a single 100-row page, which silently
+# capped dedup once the watchlist grew past 100 'Watching' rows → the reject-push
+# (step 6) then re-POSTed hundreds of already-watched addresses every run (the
+# multi-minute grind). Now walks all pages like the Deal Flow / Rejected fetches.
 existing_addrs = set()
-url = f'https://api.airtable.com/v0/{AT_BASE}/{WL_TABLE}?filterByFormula=%7BStatus%7D%3D%27Watching%27&pageSize=100'
-code, body = http_req(url, headers={'Authorization': f'Bearer {AT_TOKEN}'})
-if code == 200:
-    for r in json.loads(body).get('records', []):
+_wl_base = f'https://api.airtable.com/v0/{AT_BASE}/{WL_TABLE}?filterByFormula=%7BStatus%7D%3D%27Watching%27&pageSize=100'
+url = _wl_base
+while url:
+    code, body = http_req(url, headers={'Authorization': f'Bearer {AT_TOKEN}'})
+    if code != 200: break
+    data = json.loads(body)
+    for r in data.get('records', []):
         a = r['fields'].get('Address', '').strip().lower()
         if a: existing_addrs.add(a)
+    offset = data.get('offset')
+    url = f'{_wl_base}&offset={offset}' if offset else None
 print(f'Watchlist: {len(existing_addrs)} existing', file=sys.stderr)
 
 # 3b. Fetch tracked PIDs from Deal Flow — existence = excluded from today's briefing.
@@ -775,6 +783,11 @@ def score(p):
             'creative_cf': creative_cf,
             'creative_offer': creative_offer,
             'creative_down': creative_down,
+            # Buyer-side creative cash-on-cash — Richard's own deal metric (SF Course
+            # ~L759-775: annual CF ÷ (down + ~$5K closing); his go/no-go = "beats the
+            # stock market", target 14-20%). Entry = creative_down + $8K closing.
+            'creative_coc': (round(creative_cf * 12 / (creative_down + 8000) * 100, 1)
+                             if (creative_down + 8000) > 0 and creative_cf > 0 else 0),
             'creative_terms': creative_terms,
             'sf_balloon_years': sf_balloon_years,
             'richards_monthly_to_seller': richards_monthly_to_seller,
@@ -1141,6 +1154,9 @@ print(f'History+desc: {desc_rejected} rejected (terminal kw) · {flip_detected} 
 
 # Re-sort buckets after vision-driven moves
 for t in ('A','B','HY','MT','C'): buckets[t].sort(key=lambda x: (-x.get('creative_cf',0), -x.get('dom',0)))
+# Tier A is the flood — rank it by Richard's CoC metric instead of raw CF, so the
+# highest-return deals surface first regardless of deal size.
+buckets['A'].sort(key=lambda x: (-x.get('creative_coc',0), -x.get('creative_cf',0)))
 buckets['FF'].sort(key=lambda x: -x.get('dom',0))
 
 # 5c. Persist captured agents to Airtable Known Agents (upsert by phone or by name+state)
@@ -1202,16 +1218,20 @@ if captured_agents:
                 print(f'  ! Airtable {method} returned {code}: {body[:200]}', file=sys.stderr)
     print(f'Airtable Known Agents: {len(creates)} new, {len(updates)} updated, {agents_written} writes succeeded', file=sys.stderr)
 
-# 6. Push rejects
+# 6. Push rejects — BATCHED. Airtable accepts up to 10 records/request; this was
+# one POST per reject (O(rejects) sequential round-trips), which the MFH flood +
+# the broken dedup above turned into a multi-minute grind. Now: dedupe against the
+# (now-complete) watchlist, then write in batches of 10, paced under Airtable's
+# 5 req/s limit, with a single 429 retry per batch.
 today = date.today().isoformat()
 watch_until = (date.today() + timedelta(days=180)).isoformat()
-pushed = 0
+to_push = []
 for s in buckets['REJECT']:
     if s['cf'] <= 0: continue
     addr_only = s['address'].split(',')[0].strip()
     if not addr_only or addr_only.lower() in existing_addrs: continue
     existing_addrs.add(addr_only.lower())
-    rec = {'records': [{'fields': {
+    to_push.append({'fields': {
         'Address': addr_only,
         'City State': ', '.join(s['address'].split(',')[1:]).strip(),
         'Original Asking': s['price'], 'Original CF': s['cf'],
@@ -1220,16 +1240,32 @@ for s in buckets['REJECT']:
         'DOM at Rejection': s['dom'], 'Current DOM': s['dom'],
         'Zillow URL': s['zillow'] or None,
         'First Seen': today, 'Last Checked': today, 'Watch Until': watch_until,
-        'Status': 'Watching'}}]}
+        'Status': 'Watching'}})
+pushed = 0
+for i in range(0, len(to_push), 10):
+    batch = to_push[i:i+10]
+    payload = {'records': batch}
     code, body = http_req(f'https://api.airtable.com/v0/{AT_BASE}/{WL_TABLE}',
-                          method='POST', json_body=rec,
+                          method='POST', json_body=payload,
                           headers={'Authorization': f'Bearer {AT_TOKEN}'})
-    if code in (200, 201): pushed += 1
-print(f'Pushed {pushed} to watchlist', file=sys.stderr)
+    if code == 429:  # rate limited — brief backoff + one retry
+        time.sleep(0.5)
+        code, body = http_req(f'https://api.airtable.com/v0/{AT_BASE}/{WL_TABLE}',
+                              method='POST', json_body=payload,
+                              headers={'Authorization': f'Bearer {AT_TOKEN}'})
+    if code in (200, 201): pushed += len(batch)
+    time.sleep(0.21)  # stay under Airtable's 5 req/s
+print(f'Pushed {pushed} to watchlist ({len(to_push)} new, batched in {(len(to_push)+9)//10} requests)', file=sys.stderr)
 
 # 7. Render HTML
 date_iso = today
 date_human = datetime.now().strftime('%a %b %d, %Y')
+# Tier A CoC display bands (Richard's framing): floor 10% = "beats the stock
+# market" (anything below folds into a collapsed backlog); 16% = the data knee +
+# inside his 14-20% target band = the 🔴 CALL FIRST shortlist. Both tunable here.
+TIER_A_FLOOR_COC = 10
+CALLFIRST_COC = 16
+
 def render_deal(d, t):
     cls = {'A':'tier-A','B':'tier-B','HY':'tier-HY','MT':'tier-MT','FF':'tier-FF','C':'tier-C'}[t]
     playbook = {'A':'/rt-companion/strategy/tier-a-multifamily-checkmate.html',
@@ -2036,10 +2072,18 @@ def render_deal(d, t):
     if bg_amount > 0: spec_bits.append(f'<b>{bg_label}</b> −${bg_amount:,}/mo')
     tag_html = f'<span class="tag">{dt_label}</span>' if dt_label else ''
     spec_line = f'<div class="specline">{tag_html}{" &nbsp;·&nbsp; ".join(spec_bits)}</div>' if (tag_html or spec_bits) else ''
+    # 🔴 CALL FIRST badge — Tier A deals at/above the CoC shortlist threshold.
+    _coc = d.get('creative_coc', 0)
+    callfirst_badge = (
+        f'<div style="display:inline-block;background:#c0392b;color:#fff;font-size:11px;'
+        f'font-weight:700;letter-spacing:.6px;padding:3px 9px;border-radius:3px;margin-bottom:8px;">'
+        f'🔴 CALL FIRST · {_coc:.0f}% CoC</div>'
+    ) if (t == 'A' and _coc >= CALLFIRST_COC) else ''
     return (
         f'<div class="deal {cls}">'
         # HEADER
         f'<div class="deal-header">'
+        f'{callfirst_badge}'
         f'<div class="addr">{d["address"]}{pipe}{status_pill if d.get("status_state") != "active" else ""}</div>'
         f'<div class="meta">{physical_meta}</div>'
         f'</div>'
@@ -2086,7 +2130,28 @@ def render_deal(d, t):
         f'</div>'
     )
 
-section_a = ('<h2>🎯 TIER A — Multifamily Seller Finance ($200K-$1.4M, 2+ units, DOM 90+; 2-4 units only if NOT retail-desirable)</h2>' + ''.join(render_deal(d,'A') for d in buckets['A'])) if buckets['A'] else ''
+def _build_section_a():
+    if not buckets['A']: return ''
+    # already sorted by creative_coc desc above
+    cf   = [d for d in buckets['A'] if d.get('creative_coc',0) >= CALLFIRST_COC]
+    std  = [d for d in buckets['A'] if TIER_A_FLOOR_COC <= d.get('creative_coc',0) < CALLFIRST_COC]
+    back = [d for d in buckets['A'] if d.get('creative_coc',0) < TIER_A_FLOOR_COC]
+    rend = lambda lst: ''.join(render_deal(d,'A') for d in lst)
+    out = ['<h2>🎯 TIER A — Multifamily Seller Finance ($200K-$1.4M, 2+ units, DOM 90+; 2-4 units only if NOT retail-desirable)</h2>']
+    if cf:
+        out.append(f'<h3 style="color:#c0392b;margin:18px 0 8px;">🔴 CALL FIRST — CoC ≥ {CALLFIRST_COC}% ({len(cf)})</h3>')
+        out.append(rend(cf))
+    if std:
+        out.append(f'<h3 style="color:#1a2332;margin:22px 0 8px;">CoC {TIER_A_FLOOR_COC}–{CALLFIRST_COC}% ({len(std)})</h3>')
+        out.append(rend(std))
+    if back:
+        out.append(
+            f'<details style="margin-top:22px;background:#f4f6f9;border-radius:6px;padding:10px 14px;">'
+            f'<summary style="cursor:pointer;font-weight:700;color:#5a7a99;">'
+            f'⚪ Below {TIER_A_FLOOR_COC}% CoC — backlog ({len(back)}) — sub-stock-market return, click to expand</summary>'
+            f'<div style="margin-top:12px;">{rend(back)}</div></details>')
+    return ''.join(out)
+section_a = _build_section_a()
 section_b = ('<h2>🏘️ TIER B — Cheap SFH Stale Seller Finance (&lt;$150K, SFH, DOM 90+)</h2>' + ''.join(render_deal(d,'B') for d in buckets['B'])) if buckets['B'] else ''
 section_hy = ('<h2>🔀 HYBRID — Assume existing favorable loan + carry-back the seller equity gap (SF terms on the gap)</h2>' + ''.join(render_deal(d,'HY') for d in buckets['HY'])) if buckets['HY'] else ''
 section_mt = ('<h2>🔑 MORTGAGE TAKEOVER — Favorable existing loan, LOW equity (positive CF at assumed rate, DOM 60+)</h2>' + ''.join(render_deal(d,'MT') for d in buckets['MT'])) if buckets['MT'] else ''
