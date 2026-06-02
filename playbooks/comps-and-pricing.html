@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Comps & Pricing — RT Deal Desk</title>
+  <style>
+    :root {
+      --bg:#0d1117; --panel:#161b22; --panel-2:#1c2128; --border:#30363d;
+      --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#56d364;
+      --amber:#d29922; --red:#f85149; --gold:#e3b341;
+    }
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.55;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);-webkit-text-size-adjust:100%;}
+    a{color:var(--accent);text-decoration:none;}
+    a:active{opacity:0.7;}
+    header{position:sticky;top:0;background:rgba(13,17,23,0.95);backdrop-filter:saturate(180%) blur(10px);-webkit-backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid var(--border);padding:14px 16px;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+    header h1{margin:0;font-size:17px;font-weight:600;}
+    header .back{font-size:14px;color:var(--accent);}
+    main{padding:14px;max-width:760px;margin:0 auto;}
+    main h1{display:none;}
+    /* H2 = section header — boxed panel start */
+    main h2{margin:18px 0 10px;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border);padding-bottom:8px;}
+    main h3{margin:14px 0 6px;font-size:15px;font-weight:600;color:var(--text);}
+    main p{margin:8px 0;}
+    main ul,main ol{margin:8px 0;padding-left:22px;}
+    main li{margin-bottom:6px;}
+    main li input[type="checkbox"]{margin-right:6px;}
+    main strong{color:var(--text);font-weight:600;}
+    main em{color:var(--muted);font-style:normal;}
+    main hr{border:0;border-top:1px solid var(--border);margin:24px 0;}
+    main blockquote{margin:10px 0;padding:10px 14px;background:var(--panel-2);border-left:3px solid var(--accent);border-radius:6px;color:var(--text);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:14px;line-height:1.5;white-space:pre-wrap;}
+    main code{background:var(--panel-2);padding:1px 6px;border-radius:4px;font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13.5px;color:var(--accent);}
+    main pre{background:#0b0f15;border:1px solid var(--border);border-radius:8px;padding:12px;overflow-x:auto;font-size:13px;line-height:1.5;}
+    main pre code{background:transparent;padding:0;color:var(--text);}
+    main table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;}
+    main th,main td{border:1px solid var(--border);padding:6px 10px;text-align:left;}
+    main th{background:var(--panel-2);font-weight:600;}
+    /* Source-call refs styled */
+    .strategy-pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-bottom:8px;}
+    .pill-a{background:rgba(255,123,114,0.15);color:#ff7b72;}
+    .pill-b{background:rgba(210,168,255,0.15);color:#d2a8ff;}
+    .pill-mt{background:rgba(121,192,255,0.15);color:#79c0ff;}
+    .pill-ff{background:rgba(240,136,62,0.15);color:#f0883e;}
+    nav.bottom{padding:18px 0 24px;text-align:center;color:var(--muted);font-size:13px;}
+    nav.bottom a{color:var(--muted);margin:0 10px;}
+    @media (min-width:720px){body{font-size:17px;}main{padding:24px;max-width:860px;}}
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/rt-companion/" class="back">‹ Dashboard</a>
+    <h1>📊 Comps & Pricing — validate befor</h1>
+    <a href="/rt-companion/briefings/latest.html" class="back" style="text-align:right;">📋 Briefing</a>
+  </header>
+  <main>
+    <div class="strategy-pill pill-ff">📊 Comps & Pricing — validate before offering</div>
+    <h1>Comps &amp; Pricing — Validate Price + Rent BEFORE You Offer</h1>
+<h2>⚠ Read this first — what the dashboard comps buttons actually are</h2>
+<p>The comps controls on every card — <strong><code>Sold comps ↗</code></strong>, <strong><code>📊 Comps (Propwire) ↗</code></strong>, and the <strong>🏠 Rent / 💳 PITI / 💰 Tax</strong> pills — are a <strong>link-launcher, not a validator.</strong> They open a pre-filtered Zillow Sold search, open Propwire with the address copied to your clipboard, and re-display <strong>BBC's own</strong> rent/PITI/tax numbers. <strong>Nothing is computed or checked for reasonableness.</strong></p>
+<blockquote>
+<p>The dashboard launches the tools. <strong>You</strong> make the judgment. The ritual below IS the validation — that's why a number on a card alone shouldn't make you confident.</p>
+</blockquote>
+<p>Source: triage.py render_deal (Sold-comps URL builder + Propwire link + BBC pills)</p>
+<hr />
+<h2>Rule zero — which comp matters depends on the deal type</h2>
+<p>Doing the wrong comp work for the deal is the #1 confidence-killer. Decide this first:</p>
+<table>
+<thead>
+<tr>
+<th>Deal</th>
+<th>Lives or dies on</th>
+<th>Does asking price matter?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tier A / B — Seller Finance</strong></td>
+<td><strong>RENT</strong> (CF = rent × 0.80 − PITI)</td>
+<td><strong>Less</strong> — you knowingly pay +10–20% over market in exchange for 0% terms. Rent is what makes the deal real.</td>
+</tr>
+<tr>
+<td><strong>Tier C / Fix &amp; Flip — Cash</strong></td>
+<td><strong>ARV from SOLD comps</strong> (70% rule)</td>
+<td><strong>Everything</strong> — your offer = a % of value, not of list.</td>
+</tr>
+<tr>
+<td><strong>Mortgage Takeover / Hybrid</strong></td>
+<td>ARV (to size real equity = price − loan balance) <strong>+</strong> rent (assumed-loan CF)</td>
+<td>Need ARV to know if the equity gap is real.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>If you remember one thing: SF deals live or die on RENT. Cash/FF deals live or die on ARV.</strong></p>
+<hr />
+<h2>RITUAL 1 — Rent comp (every SF / Tier B / MT deal) — ~30 sec</h2>
+<p><strong>Richard's method &amp; source (verbatim):</strong> read the Zillow rent, then <strong>discount the asking rent to the real average.</strong></p>
+<blockquote>
+<p><em>"They're asking 1,700. Doesn't mean they're getting 1,700. I bet it's on average maybe $1,400 — you have a tenant from the past still paying $950, a new one at $1,700, a handful at $1,300… averages out to 1,400."</em>
+🎬 <strong>Watch him do it:</strong> <a href="https://www.youtube.com/watch?v=WXVfSBu-bAc&amp;t=1240s">Seller Finance Course @ 20:40 ↗</a></p>
+</blockquote>
+<p>For Section 8 / cheap-SFH rent his source is the <strong>Section 8 Fair Market Rent site</strong> → state → county → ZIP → <strong>bedroom count</strong> (more beds = materially more rent), and he assumes they lowball:</p>
+<blockquote>
+<p><em>"they kind of like to lowball us… you will be making more than normal rent with section 8."</em>
+🎬 <strong>Watch him build the rent comp:</strong> <a href="https://www.youtube.com/watch?v=KGXI134QiaM&amp;t=1640s">Cash Course @ 27:20 ↗</a></p>
+</blockquote>
+<p><strong>Steps:</strong></p>
+<ul>
+<li>☐ Tap the <strong>Zillow</strong> link on the card → read the <strong>Rent Zestimate</strong>.</li>
+<li>☐ Compare to the card's <strong>🏠 Rent</strong> pill (BBC's number). <strong>If they disagree by &gt;20%, the LOWER one wins</strong> (Richard's "asking ≠ getting" rule).</li>
+<li>☐ Section 8 estimates online are <em>"sometimes exaggerated or inflated"</em> (quiz) — <strong>haircut them.</strong></li>
+<li>☐ If Zillow rent is null / zero / outlier → run a <strong>Rentometer</strong> check. <em>(Rentometer is our tech-stack fallback for missing data — NOT Richard's method; he only uses Zillow + the Section 8 site.)</em></li>
+<li>☐ Re-run the gut check: <strong>CF = (chosen rent × 0.80) − PITI.</strong> If that goes negative or thin, the listing rent was carrying a bad deal → kill or re-tier.</li>
+</ul>
+<p>Source: Seller Finance Course L604–618 ("asking ≠ getting") | Cash Course L757–775 (Section 8 site, lowball) | quiz-cash L274–277 (online estimates inflated)</p>
+<hr />
+<h2>RITUAL 2 — Value / ARV comp (every Cash / FF / MT / Hybrid deal) — ~60 sec</h2>
+<p><strong>Richard's gold-standard checklist — Cash Course L716–895:</strong></p>
+<blockquote>
+<p><em>"You can list a property for any price… </em><em>Doesn't mean it's worth that price. Sales mean it's worth that price. So let's click on sold.</em><em>"</em>
+🎬 <strong>Watch him build the valuation comp:</strong> <a href="https://www.youtube.com/watch?v=KGXI134QiaM&amp;t=1570s">Cash Course @ 26:10 ↗</a></p>
+</blockquote>
+<p><strong>Steps, in his order:</strong></p>
+<ul>
+<li>☐ <strong>Click SOLD on Zillow</strong> — never trust active list prices. The card's <code>Sold comps ↗</code> link already pre-filters: sold ≤180 days, beds ±1, sqft ±20%, type-matched.</li>
+<li>☐ <strong>Draw a tight radius</strong> around the subject. <em>"the closer the better… literally my neighbor's house, a block and a half away — that's a comp."</em></li>
+<li>☐ <strong>Match the property type</strong> — duplex ≠ quadplex (<em>"definitely not what we are"</em>).</li>
+<li>☐ <strong>Year built within 10 years, 15 max.</strong> <em>"You got a comp within 10 years, 15 years max."</em></li>
+<li>☐ <strong>Adjust for beds / baths / sqft + condition.</strong> A retail-finish flip sells higher than your investor product — don't comp your as-is duplex to a renovated owner-occupant home.</li>
+<li>☐ <strong>Triangulate — it's not exact.</strong> <em>"Just not an exact science, guys."</em> Bracket it: <em>"you've got a 170k sale and a 180k sale and a plethora of 120s, and we're bigger than the 120s with more beds — hence 140 is what I think my ARV is."</em></li>
+<li>☐ <strong>Cross-check owner / equity + a second comp set in Propwire</strong> (the <code>📊 Comps (Propwire)</code> link copies the address — paste it). Use it to confirm ARV before any cash/FF offer.</li>
+</ul>
+<p><strong>Then apply the rule:</strong></p>
+<ul>
+<li>Cash opening offer ≈ <strong>70% of list</strong> (loose anchor; the 70% rule is the <strong>CEILING</strong> — offer below it).</li>
+<li>Deal grades: <strong>60% of value = excellent · 70% = good · 90% = weak/pass.</strong></li>
+<li>Fix &amp; Flip go/no-go: <strong>ARV − purchase − rehab = profit.</strong> Need a real spread (good-deal examples clear ~$35–50K profit on ~$140–200K ARV; ~$10K profit = bad).</li>
+</ul>
+<p>Source: Cash Course L716–895 (sold-comp walkthrough + ARV triangulation) | quiz-cash L283–295, L500–501 (70/60/90 grades) | fix-and-flip-cash.html (70% = ceiling)</p>
+<hr />
+<h2>The 60-second pre-offer checklist (paste into the deal note)</h2>
+<pre><code>DEAL: ____________________   TIER: A / B / C / FF / MT / HY
+☐ Pulled SOLD comps on Zillow (not active) — radius tight, type match, yr ±15
+☐ ARV estimate (triangulated): $______  | List: $______  | List ÷ ARV = ____%
+☐ Rent: Zillow Zestimate $______ vs BBC $______ → chosen (lower if &gt;20% gap): $______
+☐ Section 8 / Rentometer cross-check if rent was null/outlier
+☐ CF = (rent × 0.80) − PITI = $______/mo   → still qualifies? Y / N
+☐ Propwire: owner equity / liens checked (MT / HY / Cash)
+☐ Offer math: SF = asking +10–20% terms | Cash ≈ 70% list | FF = ARV − rehab − profit
+VERDICT: PROCEED / COUNTER / KILL     (it's not exact — bracket it)
+</code></pre>
+<hr />
+<h2>Honest framing — say it to yourself every time</h2>
+<p>The dashboard <strong>launches the tools</strong>; it does not validate price. The rituals above are the validation. Richard himself calls ARV <em>"not an exact science"</em> — your confidence comes from running the <strong>sold-comp + rent-haircut ritual every time</strong>, not from a single number on a card.</p>
+    <nav class="bottom">
+      <a href="/rt-companion/">Dashboard</a> ·
+      <a href="/rt-companion/briefings/latest.html">Today's Briefing</a> ·
+      <a href="/rt-companion/playbooks/">All Playbooks</a>
+    </nav>
+  </main>
+</body>
+</html>
