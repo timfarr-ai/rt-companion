@@ -1432,40 +1432,77 @@ def render_deal(d, t):
     bg_label = 'Refi gap' if d.get('deal_type_raw') == 'mortgageTakeover' else 'Bank gap'
     bank_gap_title = f'PITI ${bg_piti:,}/mo − Rent ${bg_rent:,}/mo (BBC figures)' if bg_piti and bg_rent else 'From BBC monthlyCashFlow'
     bank_gap_pill = f' <span class="pill" style="background:#3a2418;color:#ffa657;border-color:#3a2418;font-weight:600;" title="Bank Gap: how much LESS monthly cash flow a conventional investor (DSCR, 20% down, 7%, 30yr P&amp;I) would get vs the creative restructure. The pitch hook — bigger gap = bigger reason the listing fails at standard financing.">🏦 {bg_label} −${bg_amount:,}/mo</span>' if bg_amount > 0 else ''
-    # Sold comps — Zillow ZIP-scoped with tight filters: beds=exact, sqft band ±20%,
-    # property type matched. Prior version returned ~2000 results because only ZIP was
-    # filtering. We use Zillow's searchQueryState JSON-encoded URL parameter so all
-    # filters apply at once (Zillow's slug syntax /3-_beds/ alone is unreliable).
+    # Sold comps — Zillow searchQueryState JSON-encoded URL so all filters apply at once.
+    # HOME-TYPE AWARE: a multi-unit property comps ONLY to multifamily sales, never to
+    # single-family homes. Richard, Cash Course: "let's comp similar properties...
+    # multifamily... that quadplex is definitely not what we are." The prior version
+    # used isAllHomes for every card, so duplex/triplex/MFH cards linked to comps that
+    # mixed in SFHs — wrong, and useless in low-volume markets. We also emit a WIDE
+    # fallback (radius + longer window) because rural/low-volume ZIPs — and rare MFH —
+    # return nothing on the tight search.
     zip_code = d.get('zip', '')
     beds = d.get('beds', 0)
     sqft_val = d.get('sqft', 0)
-    if zip_code:
-        # Build searchQueryState — Zillow's canonical filter mechanism on web URLs
-        sqs = {
-            'pagination': {},
-            'filterState': {
-                'sortSelection': {'value': 'globalrelevanceex'},
-                'isRecentlySold': {'value': True},
-                'isAllHomes': {'value': True},
-                'isForSaleByAgent': {'value': False},
-                'isForSaleByOwner': {'value': False},
-                'isNewConstruction': {'value': False},
-                'isComingSoon': {'value': False},
-                'isAuction': {'value': False},
-                'isForSaleForeclosure': {'value': False},
-                'doz': {'value': '180'},  # sold within 180 days
-            },
-            'isListVisible': True,
+    units_n = d.get('units', 1) or 1
+    is_mfh = units_n >= 2 or (d.get('type', '') or '').lower() in (
+        'multifamily', 'multi-family', 'multi family', 'duplex', 'triplex',
+        'fourplex', 'quadplex', 'quadruplex')
+    try:
+        lat_f = float(d.get('lat')) if d.get('lat') not in (None, '') else None
+        lng_f = float(d.get('lng')) if d.get('lng') not in (None, '') else None
+    except (TypeError, ValueError):
+        lat_f = lng_f = None
+
+    def _sold_comp_url(wide):
+        fs = {
+            'sortSelection': {'value': 'globalrelevanceex'},
+            'isRecentlySold': {'value': True},
+            'isForSaleByAgent': {'value': False},
+            'isForSaleByOwner': {'value': False},
+            'isNewConstruction': {'value': False},
+            'isComingSoon': {'value': False},
+            'isAuction': {'value': False},
+            'isForSaleForeclosure': {'value': False},
         }
-        if beds:
-            sqs['filterState']['beds'] = {'min': max(1, beds - 1), 'max': beds + 1}
-        if sqft_val and sqft_val > 200:
-            sqs['filterState']['sqft'] = {'min': int(sqft_val * 0.80), 'max': int(sqft_val * 1.20)}
-        sqs_q = urllib.parse.quote(json.dumps(sqs, separators=(',', ':')))
-        sold_url = f'https://www.zillow.com/{zip_code}/sold/?searchQueryState={sqs_q}'
-    else:
-        sold_url = ''
-    sold_link = f' <a class="zillow" href="{sold_url}" target="_blank">Sold comps ↗</a>' if sold_url else ''
+        if is_mfh:
+            # Multifamily ONLY — exclude SFH/condo/townhouse/land/manufactured.
+            fs.update({'isSingleFamily': {'value': False}, 'isMultiFamily': {'value': True},
+                       'isTownhouse': {'value': False}, 'isCondo': {'value': False},
+                       'isLotLand': {'value': False}, 'isApartment': {'value': False},
+                       'isManufactured': {'value': False}})
+        else:
+            fs['isAllHomes'] = {'value': True}
+        # Sold window: MFH sales are rare → 3yr always; SFH 6mo tight / 1yr wide.
+        fs['doz'] = {'value': ('1095' if is_mfh else ('365' if wide else '180'))}
+        # Beds/sqft bands only make sense for SFH (per-unit beds + building sqft of an
+        # MFH aren't comparable across properties); never on the wide net.
+        if beds and not is_mfh:
+            fs['beds'] = {'min': max(1, beds - 1), 'max': beds + 1}
+        if sqft_val and sqft_val > 200 and not is_mfh and not wide:
+            fs['sqft'] = {'min': int(sqft_val * 0.80), 'max': int(sqft_val * 1.20)}
+        sqs = {'filterState': fs, 'isListVisible': True}
+        if wide and lat_f is not None and lng_f is not None:
+            pad = 0.45 if is_mfh else 0.27  # ~25-30mi for rare MFH, ~15mi for SFH
+            sqs['mapBounds'] = {'west': lng_f - pad, 'east': lng_f + pad,
+                                'south': lat_f - pad, 'north': lat_f + pad}
+            sqs['isMapVisible'] = True
+            q = urllib.parse.quote(json.dumps(sqs, separators=(',', ':')))
+            return f'https://www.zillow.com/homes/recently_sold/?searchQueryState={q}'
+        if not zip_code:
+            return ''
+        q = urllib.parse.quote(json.dumps(sqs, separators=(',', ':')))
+        return f'https://www.zillow.com/{zip_code}/sold/?searchQueryState={q}'
+
+    sold_url = _sold_comp_url(wide=False)
+    wide_url = _sold_comp_url(wide=True)
+    comp_label = 'MFH sold comps' if is_mfh else 'Sold comps'
+    sold_link = f' <a class="zillow" href="{sold_url}" target="_blank">{comp_label} ↗</a>' if sold_url else ''
+    # Wide fallback — never a dead end. Use when the tight search is empty (rural /
+    # low-volume markets, rare multifamily). Re-apply Richard's weighting by hand:
+    # closest + same type + year built ±15 win.
+    wide_link = (f' <a class="zillow" href="{wide_url}" target="_blank" '
+                 f'title="Wider radius + longer sold window. Use when the tight comp search comes back empty (rural / low-volume markets, rare multifamily). Weight the nearest, most-similar 2-3 by hand.">'
+                 f'🔭 Wide comps ↗</a>') if wide_url else ''
     # GOOGLE STREET VIEW — closes the gap on Richard's livestream eye-check step 3b.
     # He opens Street View on every property in 5 sec to read the neighborhood +
     # exterior condition before committing to dial. Uses Maps Search API URL with
@@ -2062,6 +2099,15 @@ def render_deal(d, t):
     is_mt_like = (t == 'MT' or d.get('deal_type_raw') == 'mortgageTakeover')
     spec_bits = []
     if d.get('type') and d['type'] != 'Unknown': spec_bits.append(d['type'])
+    # Multi-unit caution — the Asking/Market-Rent heroes can be a PACKAGE (multiple
+    # parcels / all units) stapled to one address. Confirm the rent is COMBINED gross
+    # for every unit and that price/sqft isn't a multi-property bundle before trusting
+    # the CF. Comp to multifamily sales only. See briefing package mis-attribution.
+    _units_n = d.get('units', 1) or 1
+    if _units_n >= 2:
+        spec_bits.append(
+            f'<b style="color:#ffa657;">⚠ {_units_n} units</b> '
+            f'<span style="color:#8b949e;">— verify rent is COMBINED &amp; price isn\'t a multi-parcel package</span>')
     ex_rate_v = d.get('interest_rate') or 0
     if is_mt_like and ex_rate_v: spec_bits.append(f'<b>Existing rate</b> {ex_rate_v:.2f}%')
     if is_mt_like and d.get('monthly_payment_actual'): spec_bits.append(f'<b>Seller PITI</b> ${d["monthly_payment_actual"]:,}/mo')
@@ -2115,7 +2161,7 @@ def render_deal(d, t):
         # ③ RESEARCH BUTTONS
         f'<div class="card-section">'
         f'<div class="section-label">③ Research (verify before dialing)</div>'
-        f'<div class="btn-row">{street_view_link}{z}{sold_link}{propwire_link}{our_calc_link}{oven_link}{bbc_link}{bbc_mobile_link}</div>'
+        f'<div class="btn-row">{street_view_link}{z}{sold_link}{wide_link}{propwire_link}{our_calc_link}{oven_link}{bbc_link}{bbc_mobile_link}</div>'
         f'</div>'
         # ④ ACTION SEQUENCE — SOP-ordered
         f'<div class="card-section">'
