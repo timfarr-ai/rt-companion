@@ -44,10 +44,33 @@
     .ff{display:none}
     a{color:var(--accent)}
     .src{margin-top:18px;font-size:12.5px;color:var(--muted)}
+    /* subto multi-loan sub-card (mobile-friendly: one row per loan, 3 columns) */
+    .subto-block{display:none;margin-top:8px}
+    .loan-head,.loan-row{display:grid;grid-template-columns:46px 1fr 1fr 1fr;gap:6px;align-items:center;}
+    .loan-head{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin:8px 0 2px;}
+    .loan-row{margin:4px 0}
+    .loan-row .lbl{font-size:13px;color:var(--muted);font-weight:600}
+    .loan-row input{width:100%;padding:6px 7px;font-size:13px;}
+    /* suitability verdict panel */
+    .verdict{margin-top:18px;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+    .verdict-head{padding:12px 16px;font-size:16px;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
+    .verdict-head.go{background:#0f2417;border-bottom:1px solid #1f5132;color:var(--green)}
+    .verdict-head.counter{background:#2a2410;border-bottom:1px solid #5c4a14;color:var(--amber)}
+    .verdict-head.kill{background:#2a1213;border-bottom:1px solid #5c1f22;color:var(--red)}
+    .eval-row{display:flex;justify-content:space-between;align-items:center;gap:10px;
+      padding:8px 16px;border-bottom:1px solid var(--border);font-size:13.5px;background:var(--panel);}
+    .eval-row:last-child{border-bottom:none}
+    .eval-row .crit{color:var(--text)}
+    .eval-row .res{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .eval-row.pass{border-left:3px solid var(--green)}
+    .eval-row.fail{border-left:3px solid var(--red)}
+    .eval-row.info{border-left:3px solid var(--muted)}
+    .eval-row.pass .res{color:var(--green)} .eval-row.fail .res{color:var(--red)} .eval-row.info .res{color:var(--muted)}
+    .eval-detail{color:var(--muted);font-size:11.5px;display:block;margin-top:2px}
   </style>
 </head>
 <body>
-  <h1>🧮 Offer Oven Calculator</h1>
+  <h1>🧮 Creative Offer Oven</h1>
   <div class="sub">Hosted mirror of Richard's Creative Offer Oven sheet. Auto-fills from the briefing card; tweak any input live. <span id="prefillNote"></span></div>
 
   <div class="modes">
@@ -55,28 +78,52 @@
     <button class="mode-btn" id="mFF" onclick="setMode('ff')">Fix &amp; Flip (70%)</button>
   </div>
 
-  <!-- ============ CREATIVE FINANCE ============ -->
+  <!-- ============ MODE 1 — CREATIVE FINANCE (Calculator + Subto tabs) ============ -->
   <div id="cf">
   <div class="grid">
     <div class="card">
       <h2>Offer structure</h2>
-      <label><span>Purchase price</span><input id="price" type="number" value="120000"></label>
-      <label><span>Listed price</span><input id="list" type="number" value="100000"></label>
+      <label><span>Purchase price</span><input id="price" type="number" value="770000"></label>
+      <label><span>Listed price</span><input id="list" type="number" value="699000"></label>
       <label><span>Offer type</span>
         <select id="otype"><option>Seller Finance</option><option>Subto</option><option>Hybrid</option></select></label>
-      <label><span>Down payment $</span><input id="down" type="number" value="6500"></label>
+      <label><span>Down payment $</span><input id="down" type="number" value="70000"></label>
       <label><span>Interest rate %</span><input id="rate" type="number" step="0.1" value="0"></label>
       <label><span>Amortization (yrs)</span><input id="amort" type="number" value="30"></label>
       <label><span>Interest only?</span><select id="io"><option>No</option><option>Yes</option></select></label>
-      <label><span>Balloon (yrs)</span><input id="balloon" type="number" value="7"></label>
-      <label><span>Rehab $</span><input id="rehab" type="number" value="1000"></label>
+      <label><span>Balloon (yrs)</span><input id="balloon" type="number" value="6"></label>
       <label><span>Assignment fee $</span><input id="assign" type="number" value="0"></label>
-      <label id="subtoRow" style="display:none"><span>Existing loan balance $</span><input id="subbal" type="number" value="0"></label>
-      <label id="subtoPayRow" style="display:none"><span>Existing loan pmt $/mo</span><input id="subpay" type="number" value="0"></label>
+      <label><span>Rehab $</span><input id="rehab" type="number" value="0"></label>
+
+      <!-- Subto multi-loan block (Subto + Hybrid only) — mirrors the Subto tab -->
+      <div class="subto-block" id="subtoBlock">
+        <div class="loan-head">
+          <span></span><span>Pmt $/mo</span><span>Rate %</span><span>Balance $</span>
+        </div>
+        <div class="loan-row">
+          <span class="lbl">Loan 1</span>
+          <input id="l1pay" type="number" value="0">
+          <input id="l1rate" type="number" step="0.1" value="0">
+          <input id="l1bal" type="number" value="0">
+        </div>
+        <div class="loan-row">
+          <span class="lbl">Loan 2</span>
+          <input id="l2pay" type="number" value="0">
+          <input id="l2rate" type="number" step="0.1" value="0">
+          <input id="l2bal" type="number" value="0">
+        </div>
+        <div class="loan-row">
+          <span class="lbl">Loan 3</span>
+          <input id="l3pay" type="number" value="0">
+          <input id="l3rate" type="number" step="0.1" value="0">
+          <input id="l3bal" type="number" value="0">
+        </div>
+        <label style="margin-top:8px"><span>Down Req. $</span><input id="downReq" type="number" value="0"></label>
+      </div>
     </div>
     <div class="card">
       <h2>Rent &amp; expenses (monthly)</h2>
-      <label><span>Rent</span><input id="rent" type="number" value="1600"></label>
+      <label><span>Rent</span><input id="rent" type="number" value="5000"></label>
       <label><span>Insurance</span><input id="ins" type="number" value="100"></label>
       <label><span>Property tax</span><input id="tax" type="number" value="100"></label>
       <label><span>HOA</span><input id="hoa" type="number" value="0"></label>
@@ -85,6 +132,7 @@
       <label><span>Management % of rent</span><input id="mgmt" type="number" step="1" value="10"></label>
       <label><span>Vacancy % of rent</span><input id="vac" type="number" step="1" value="0"></label>
       <label><span>Appreciation %/yr</span><input id="appr" type="number" step="0.1" value="4.5"></label>
+      <label><span>Years of appreciation</span><input id="apprYrs" type="number" value="5"></label>
     </div>
   </div>
 
@@ -95,169 +143,281 @@
       <div class="out"><span>Down payment %</span><span class="v" id="oDownPct">—</span></div>
       <div class="out"><span>Loan amount</span><span class="v" id="oLoan">—</span></div>
       <div class="out"><span>Monthly payment (P&amp;I)</span><span class="v" id="oPmt">—</span></div>
+      <div class="out"><span>Closing (2% of price)</span><span class="v" id="oClose">—</span></div>
+      <div class="out"><span>Buyer entry fee</span><span class="v" id="oEntry">—</span></div>
+      <div class="out"><span>Operating expenses /yr</span><span class="v" id="oOpex">—</span></div>
       <div class="out big"><span>Monthly cash flow</span><span class="v" id="oCF">—</span></div>
       <div class="out"><span>Annual cash flow</span><span class="v" id="oCFy">—</span></div>
-      <div class="out"><span>Buyer entry fee</span><span class="v" id="oEntry">—</span></div>
       <div class="out big"><span>Cash-on-cash return</span><span class="v" id="oCoC">—</span></div>
     </div>
     <div class="card">
       <h2>Exit / balloon</h2>
-      <div class="out"><span>Balloon balance @ <span id="balYrLbl">7</span>yr</span><span class="v" id="oBalloon">—</span></div>
       <div class="out"><span>Principal paid by balloon</span><span class="v" id="oPrin">—</span></div>
-      <div class="out"><span>Projected value @ <span id="apprYrLbl">10</span>yr</span><span class="v" id="oAppr">—</span></div>
-      <div class="out"><span>40%-of-rent check</span><span class="v" id="o40">—</span></div>
-      <div class="note">40%-of-rent is Richard's on-call sanity anchor, not the core math — compare it to the P&amp;I above. <a href="40-percent-rent-rule.html" target="_blank">Why ↗</a></div>
+      <div class="out"><span>Outstanding balance @ <span id="balYrLbl">6</span>yr</span><span class="v" id="oBalloon">—</span></div>
+      <div class="out"><span>Total paid over term</span><span class="v" id="oTotPaid">—</span></div>
+      <div class="out big"><span>Projected value @ <span id="apprYrLbl">5</span>yr</span><span class="v" id="oAppr">—</span></div>
+      <div class="note">Appreciation uses the <strong>listed</strong> price compounded at the appreciation rate for the years above — mirrors the sheet's K-column.</div>
     </div>
   </div>
 
-  <div class="pitch" id="pitchBox">—</div>
+  <!-- ============ SUITABILITY VALIDATION (the sheet's two eval blocks) ============ -->
+  <div class="verdict" id="verdict">
+    <div class="verdict-head" id="verdictHead"><span id="verdictLabel">—</span><span id="verdictCount"></span></div>
+    <div id="evalRows"></div>
+  </div>
   </div>
 
-  <!-- ============ FIX & FLIP ============ -->
+  <!-- ============ MODE 2 — FIX & FLIP (Fix&Flip Calc tab) ============ -->
   <div id="ff" class="ff">
   <div class="grid">
     <div class="card">
       <h2>ARV inputs</h2>
       <label><span>ARV (after-repair value)</span><input id="ffArv" type="number" value="180000"></label>
+      <label><span>Percentage %</span><input id="ffPct" type="number" step="1" value="70"></label>
       <label><span>Rehab $</span><input id="ffRehab" type="number" value="80000"></label>
       <label><span>Assignment fee $</span><input id="ffAssign" type="number" value="10000"></label>
-      <label><span>70% rule factor</span><input id="ffPct" type="number" step="1" value="70"></label>
-      <div class="note">ARV from comps: avg comp $/sqft × subject sqft. Pull comps in <a href="https://propwire.com/search" target="_blank">Propwire</a> (free) or Zillow. The 70% factor is the CEILING — Richard often offers below it (60–65%) to hedge ARV.</div>
+      <div class="note">The 70% factor is the CEILING — Richard often offers below it (60–65%) to hedge ARV.</div>
     </div>
     <div class="card">
       <h2>Offer output</h2>
-      <div class="out"><span>ARV × {{pct}}%</span><span class="v" id="ffArvPct">—</span></div>
-      <div class="out"><span>− Closing (1.5% of 70% ARV)</span><span class="v" id="ffClose">—</span></div>
+      <div class="out"><span>ARV × <span id="ffPctLbl">70</span>%</span><span class="v" id="ffArvPct">—</span></div>
+      <div class="out"><span>− Closing (1.5% of ARV×%)</span><span class="v" id="ffClose">—</span></div>
       <div class="out"><span>− Rehab</span><span class="v" id="ffRehabOut">—</span></div>
       <div class="out big"><span>Max Allowable Offer (MAO)</span><span class="v" id="ffMAO">—</span></div>
       <div class="out big"><span>Your offer (MAO − assignment)</span><span class="v" id="ffOffer">—</span></div>
     </div>
   </div>
+
+  <div class="card" style="margin-top:18px">
+    <h2>ARV from comps</h2>
+    <div class="loan-head" style="grid-template-columns:46px 1fr 1fr 1fr">
+      <span></span><span>Sqft</span><span>Sold price $</span><span>$/sqft</span>
+    </div>
+    <div class="loan-row" style="grid-template-columns:46px 1fr 1fr 1fr">
+      <span class="lbl">Comp 1</span><input id="c1sf" type="number" value="0"><input id="c1px" type="number" value="0"><input id="c1ps" type="number" readonly value="0">
+    </div>
+    <div class="loan-row" style="grid-template-columns:46px 1fr 1fr 1fr">
+      <span class="lbl">Comp 2</span><input id="c2sf" type="number" value="0"><input id="c2px" type="number" value="0"><input id="c2ps" type="number" readonly value="0">
+    </div>
+    <div class="loan-row" style="grid-template-columns:46px 1fr 1fr 1fr">
+      <span class="lbl">Comp 3</span><input id="c3sf" type="number" value="0"><input id="c3px" type="number" value="0"><input id="c3ps" type="number" readonly value="0">
+    </div>
+    <label style="margin-top:10px"><span>Avg $/sqft</span><input id="avgPs" type="number" readonly value="0"></label>
+    <label><span>Subject sqft</span><input id="subjSf" type="number" value="0"></label>
+    <label><span>Computed ARV</span><input id="compArv" type="number" readonly value="0"></label>
+    <button class="mode-btn" style="margin-top:8px;flex:none;width:100%" onclick="pushArv()">↑ Use computed ARV above</button>
+  </div>
   </div>
 
   <div class="src">
-    Formulas mirror the <strong>Creative Offer Oven</strong> Google Sheet (Calculator + Fix &amp; Flip Calc tabs). When Richard iterates the sheet, update the <code>OVEN</code> formula block in this file to match — inputs and outputs are mapped to the original cell refs in code comments.
+    Formulas mirror the <strong>Creative Offer Oven</strong> Google Sheet (Calculator + Subto + Fix &amp; Flip Calc tabs). When Richard iterates the sheet, update the <code>OVEN</code> formula block in this file to match — inputs and outputs are mapped to the sheet's formulas in code comments.
     Source sheet: <em>File → Make a Copy</em> from Richard's master.
   </div>
 
 <script>
 /* ============================================================
-   OFFER OVEN formula spec — mirrors the Google Sheet cells.
-   Calculator tab cell map (for maintainability when sheet iterates):
-     B3 price · B4 list · D6 offer type · C7 down · C8 rate · C9 amort
-     D10 interest-only · B21/C25 balloon yrs · G5 rehab · G6 assignment
-     H17 rent · H21 ins · H22 tax · H23 hoa · H24 other
-     I25 capex% · (mgmt) · I27 vacancy% · K16 appr% · K17 appr yrs
-   Outputs:
-     C4 %over=(B3-B4)/B4 · C6 loan · D7 down% · C11 PMT · G3 entry=SUM(G4:G7)
-     G11 CF=G17-G18 · G12 CoC=G11/G3 · balloon bal via amortization · K18 appr
+   OFFER OVEN formula spec — mirrors the Google Sheet.
+   Verified against the $770k purchase / $699k list / $70k down / 0% / 30yr / 5yr-balloon example:
+     loan $700,000 · P&I $1,944.44/mo · closing $15,400 · opex $43,373/yr
+     cash flow $16,627/yr ($1,386/mo) · CoC ≈16.4%
+     balloon: principal $116,666.67 / outstanding $583,333.33 @ 5yr
+     appreciation: $699,000 × 1.045^5 = $871,081 (LIST price, not purchase)
+   Fix&Flip verified: ARV $180k, 70%, rehab $80k → MAO $44,110; +$10k assign → offer $34,110
    ============================================================ */
 const $ = id => document.getElementById(id);
 const N = id => parseFloat($(id).value) || 0;
 const money = n => (n<0?'-':'')+'$'+Math.abs(Math.round(n)).toLocaleString();
 const pct = n => (n*100).toFixed(1)+'%';
 
-function pmt(rateMo, nMo, pv){ // PMT(rate, nper, -pv): payment on loan pv
+function pmt(rateMo, nMo, pv){ // standard amortized payment
   if(rateMo===0) return pv/nMo;
   return pv*rateMo/(1-Math.pow(1+rateMo,-nMo));
 }
-function balanceAfter(pv, rateMo, nMo, paidMo){ // remaining balance after paidMo payments
-  if(rateMo===0) return Math.max(0, pv - pmt(rateMo,nMo,pv)*paidMo);
+function principalPaidAfter(pv, rateMo, nMo, paidMo){ // principal portion paid after paidMo payments
+  if(pv<=0) return 0;
+  if(rateMo===0) return Math.min(pv, pmt(rateMo,nMo,pv)*paidMo);   // flat: each pmt is pure principal
   const p = pmt(rateMo,nMo,pv);
-  return Math.max(0, pv*Math.pow(1+rateMo,paidMo) - p*((Math.pow(1+rateMo,paidMo)-1)/rateMo));
+  const bal = pv*Math.pow(1+rateMo,paidMo) - p*((Math.pow(1+rateMo,paidMo)-1)/rateMo);
+  return Math.max(0, pv - Math.max(0,bal));
+}
+
+function subtoLoans(){
+  return [
+    {pay:N('l1pay'), rate:N('l1rate')/100, bal:N('l1bal')},
+    {pay:N('l2pay'), rate:N('l2rate')/100, bal:N('l2bal')},
+    {pay:N('l3pay'), rate:N('l3rate')/100, bal:N('l3bal')},
+  ];
 }
 
 function calcCF(){
   const price=N('price'), list=N('list'), otype=$('otype').value, down=N('down');
   const rate=N('rate')/100, amort=N('amort'), io=$('io').value, balloonYr=N('balloon');
-  const rehab=N('rehab'), assign=N('assign'), subbal=N('subbal'), subpay=N('subpay');
+  const rehab=N('rehab'), assign=N('assign');
   const rent=N('rent'), ins=N('ins'), tax=N('tax'), hoa=N('hoa'), other=N('other');
-  const capex=N('capex')/100, mgmt=N('mgmt')/100, vac=N('vac')/100, appr=N('appr')/100;
+  const capex=N('capex')/100, mgmt=N('mgmt')/100, vac=N('vac')/100, appr=N('appr')/100, apprYrs=N('apprYrs');
 
-  // C6 loan amount by offer type
+  const loans = subtoLoans();
+  const totLoanBal = loans.reduce((s,l)=>s+l.bal,0);
+  const totLoanPay = loans.reduce((s,l)=>s+l.pay,0);
+  const isSubto = otype==='Subto', isHybrid = otype==='Hybrid', isSF = otype==='Seller Finance';
+
+  // loan = SF: price-down · Hybrid: price-down-(sum subto balances) · Subto: 0 (take over existing)
   let loan;
-  if(otype==='Seller Finance') loan = price - down;
-  else if(otype==='Hybrid') loan = price - down - subbal;
-  else loan = 0; // Subto: take over existing loan
+  if(isSF) loan = price - down;
+  else if(isHybrid) loan = price - down - totLoanBal;
+  else loan = 0;
   loan = Math.max(0, loan);
 
   const rateMo = rate/12, nMo = amort*12;
-  // C11 monthly P&I
+  // Monthly P&I: Subto=sum subto pmts · IO=loan*rate/12 · rate0=loan/(amort*12) · else amortized
   let monthlyPI;
-  if(otype==='Subto') monthlyPI = subpay;                 // take over existing payment
-  else if(io==='Yes') monthlyPI = loan*rate/12;           // interest-only
+  if(isSubto) monthlyPI = totLoanPay;
+  else if(io==='Yes') monthlyPI = loan*rate/12;
   else monthlyPI = pmt(rateMo, nMo, loan);
   const annualPI = monthlyPI*12;
 
-  // G3 buyer entry fee = down + rehab + 0.6*assignment + closing(2% price)
+  // Closing = 2% of purchase price · Buyer entry fee = down + rehab + assignment(FULL) + closing
   const closing = price*0.02;
-  const entry = down + rehab + assign*0.6 + closing;
+  const entry = down + rehab + assign + closing;
 
-  // Operating expenses (annual) — G18
-  const exp = annualPI + ins*12 + tax*12 + hoa*12 + other*12
-            + (rent*12*capex) + (rent*12*mgmt) + (rent*12*vac);
-  const revenue = rent*12;            // G17
-  const cfYear = revenue - exp;       // G11
-  const cfMonth = cfYear/12;          // H11
-  const coc = entry>0 ? cfYear/entry : 0; // G12
+  // Operating expenses (annual). Add subto loan payments only for Hybrid (Subto already in P&I above).
+  const subtoPmtAnnual = isHybrid ? totLoanPay*12 : 0;
+  const opex = annualPI + ins*12 + tax*12 + hoa*12 + other*12
+            + (rent*12*capex) + (rent*12*mgmt) + (rent*12*vac) + subtoPmtAnnual;
+  const revenue = rent*12;                 // Rental revenue annual
+  const cfYear = revenue - opex;           // Cash flow annual
+  const cfMonth = cfYear/12;               // Cash flow monthly
+  const coc = entry>0 ? cfYear/entry : 0;  // Cash-on-cash
 
-  // Balloon balance
-  const balloonBal = balanceAfter(loan, rateMo, nMo, balloonYr*12);
-  const prinPaid = loan - balloonBal;
-  const apprVal = list*Math.pow(1+appr, N('appr')>0?10:0) ; // K18 uses K17 yrs; default 10
-  const apprYears = 10;
-  const apprValFixed = list*Math.pow(1+appr, apprYears);
+  // Balloon @ balloonYr: principal paid, outstanding balance, total paid over term
+  const balMo = balloonYr*12;
+  let prinPaid, outstanding;
+  if(isSubto){
+    // take-over existing loans: principal paid across all subto loans, outstanding = remaining
+    prinPaid = loans.reduce((s,l)=>s+principalPaidAfter(l.bal, l.rate/12, nMo, balMo),0);
+    outstanding = Math.max(0, totLoanBal - prinPaid);
+  } else {
+    prinPaid = principalPaidAfter(loan, rateMo, nMo, balMo);
+    outstanding = Math.max(0, loan - prinPaid);
+  }
+  const totalPaid = down + monthlyPI*balMo + outstanding;
 
-  // 40%-of-rent anchor
-  const fortyPct = rent*0.4;
+  // Appreciation total = LISTED price × (1+appr)^years
+  const apprVal = list*Math.pow(1+appr, apprYrs);
 
+  // ---- render Deal output ----
   $('oOverList').textContent = list>0?pct((price-list)/list):'—';
   $('oDownPct').textContent = price>0?pct(down/price):'—';
   $('oLoan').textContent = money(loan);
   $('oPmt').textContent = money(monthlyPI)+'/mo';
+  $('oClose').textContent = money(closing);
+  $('oEntry').textContent = money(entry);
+  $('oOpex').textContent = money(opex);
   const cfEl=$('oCF'); cfEl.textContent=money(cfMonth)+'/mo';
   cfEl.className='v big '+(cfMonth>0?'pos':'neg');
   $('oCFy').textContent = money(cfYear)+'/yr';
-  $('oEntry').textContent = money(entry);
   const cocEl=$('oCoC'); cocEl.textContent=pct(coc);
-  cocEl.className='v big '+(coc>=0.2?'pos':coc>0?'amb':'neg');
-  $('oBalloon').textContent = money(balloonBal);
-  $('oPrin').textContent = money(prinPaid);
-  $('oAppr').textContent = money(apprValFixed);
-  $('balYrLbl').textContent = balloonYr;
-  $('apprYrLbl').textContent = apprYears;
-  const f40=$('o40');
-  f40.textContent = money(fortyPct)+'/mo';
-  f40.className = 'v '+(Math.abs(fortyPct-monthlyPI) > monthlyPI*0.5 ? 'amb':'');
+  cocEl.className='v big '+(coc>=0.13?'pos':coc>0?'amb':'neg');
 
-  // Pitch line
-  $('pitchBox').innerHTML = `💬 <strong>Offer:</strong> <code>${money(price)}</code> at <code>${(rate*100).toFixed(1)}%</code>, `+
-    `<code>${pct(price>0?down/price:0)}</code> down (<code>${money(down)}</code>), `+
-    `<code>${amort}yr</code> amortization, <code>${balloonYr}yr</code> balloon. `+
-    `Seller payment ≈ <code>${money(monthlyPI)}/mo</code>. `+
-    `End-buyer cash flow <strong class="${cfMonth>0?'pos':'neg'}">${money(cfMonth)}/mo</strong>, `+
-    `CoC <strong class="${coc>=0.2?'pos':'amb'}">${pct(coc)}</strong>.`;
+  // ---- render Exit / balloon ----
+  $('oPrin').textContent = money(prinPaid);
+  $('oBalloon').textContent = money(outstanding);
+  $('oTotPaid').textContent = money(totalPaid);
+  $('oAppr').textContent = money(apprVal);
+  $('balYrLbl').textContent = balloonYr;
+  $('apprYrLbl').textContent = apprYrs;
+
+  // ---- Suitability validation ----
+  renderVerdict({otype,isSubto,isHybrid,isSF,price,list,down,rate,balloonYr,
+    cfMonth,coc,entry,loans,totLoanBal});
 }
 
+/* SUITABILITY VALIDATION — the sheet's two eval blocks.
+   Returns PASS/FAIL per row; overall: 0 fail = PROCEED, 1-2 = COUNTER, 3+ = KILL.
+   (info rows do not count toward the fail tally) */
+function renderVerdict(d){
+  const rows=[]; // {crit, res, state:'pass'|'fail'|'info', detail}
+  const downPct = d.price>0 ? d.down/d.price : 0;
+  const entryPct = d.price>0 ? d.entry/d.price : 0;
+
+  if(d.isSubto){
+    // SUBTO eval
+    rows.push(passInfo('Min $150+/mo cashflow', money(d.cfMonth)+'/mo',
+      'Subto does NOT necessarily need to cash flow — info only', d.cfMonth>=150));
+    // per-loan rate ceiling: bal<=150k → max 8%, bal>=150k → max 5% (skip empty loans)
+    d.loans.forEach((l,i)=>{
+      if(l.bal<=0) return;
+      const cap = l.bal>=150000 ? 0.05 : 0.08;
+      rows.push(passFail(`Loan ${i+1} rate ≤ ${(cap*100)}% (bal ${money(l.bal)})`,
+        (l.rate*100).toFixed(1)+'%', l.rate<=cap+1e-9));
+    });
+    const equityPct = d.list>0 ? (d.list - d.totLoanBal)/d.list : 0;
+    rows.push(passFail('Max equity 15%', pct(equityPct), equityPct<=0.15));
+    rows.push(passFail('Min cash-on-cash −10%+', pct(d.coc), d.coc>=-0.10));
+    rows.push(passFail('Max down payment 15%', pct(downPct), downPct<=0.15));
+    rows.push(passFail('Max entry/offer 15%', pct(entryPct), entryPct<=0.15));
+    rows.push(passFail('Min balloon 5 years', d.balloonYr+'yr', d.balloonYr>=5));
+  } else {
+    // SELLER FINANCE / CLOSER eval (Seller Finance + Hybrid)
+    rows.push(passFail('Min $200+/mo cashflow', money(d.cfMonth)+'/mo', d.cfMonth>=200));
+    rows.push(passFail('Max offer price $500,000', money(d.price), d.price<=500000));
+    rows.push(passFail('Min cash-on-cash 13%+', pct(d.coc), d.coc>=0.13));
+    rows.push(passFail('Max down payment 15%', pct(downPct), downPct<=0.15));
+    rows.push(passFail('Max entry/offer 15%', pct(entryPct), entryPct<=0.15));
+    rows.push(passFail('Max interest rate 4%', (d.rate*100).toFixed(1)+'%', d.rate<=0.04+1e-9));
+    rows.push(passFail('Min balloon 5 years', d.balloonYr+'yr', d.balloonYr>=5));
+  }
+
+  const fails = rows.filter(r=>r.state==='fail').length;
+  let head, label, hcls;
+  if(fails===0){ label='✅ PROCEED'; hcls='go'; }
+  else if(fails<=2){ label='⚠ COUNTER'; hcls='counter'; }
+  else { label='❌ KILL'; hcls='kill'; }
+
+  $('verdictHead').className = 'verdict-head '+hcls;
+  $('verdictLabel').textContent = label + (d.isSubto?' · Subto criteria':' · Seller Finance / Closer criteria');
+  $('verdictCount').textContent = fails+' fail'+(fails===1?'':'s');
+  $('evalRows').innerHTML = rows.map(r=>
+    `<div class="eval-row ${r.state}"><span class="crit">${r.crit}`+
+    (r.detail?`<span class="eval-detail">${r.detail}</span>`:'')+
+    `</span><span class="res">${r.state==='pass'?'✓ ':r.state==='fail'?'✗ ':'• '}${r.res}</span></div>`
+  ).join('');
+}
+function passFail(crit,res,ok){ return {crit,res,state:ok?'pass':'fail'}; }
+function passInfo(crit,res,detail,ok){ return {crit,res,state:'info',detail}; }
+
+/* FIX & FLIP (Fix&Flip Calc tab)
+   Closing = 1.5% × (ARV × pct) · MAO = (ARV×pct) − rehab − closing · Offer = MAO − assignment */
 function calcFF(){
   const arv=N('ffArv'), rehab=N('ffRehab'), assign=N('ffAssign'), pctF=N('ffPct')/100;
   const arvPct = arv*pctF;
-  const close = arvPct*0.015;                // D12: (A12*B12)*0.015
-  const mao = arvPct - rehab - close;        // D12
-  const offer = mao - assign;                // B15
+  const close = arvPct*0.015;
+  const mao = arvPct - rehab - close;
+  const offer = mao - assign;
+  $('ffPctLbl').textContent = N('ffPct');
   $('ffArvPct').textContent = money(arvPct);
   $('ffClose').textContent = '-'+money(close);
   $('ffRehabOut').textContent = '-'+money(rehab);
   $('ffMAO').textContent = money(mao);
   const oe=$('ffOffer'); oe.textContent=money(offer); oe.className='v big '+(offer>0?'pos':'neg');
-  document.querySelectorAll('#ff .out span').forEach(s=>{ if(s.textContent.includes('{{pct}}')) s.textContent=s.textContent.replace('{{pct}}',N('ffPct')); });
-  $('ffArvPctLbl') && ($('ffArvPctLbl').textContent=N('ffPct'));
+
+  // ARV from comps: each price/sqft, avg, then avg × subject sqft
+  let sum=0, cnt=0;
+  [['c1sf','c1px','c1ps'],['c2sf','c2px','c2ps'],['c3sf','c3px','c3ps']].forEach(([sf,px,ps])=>{
+    const perSf = N(sf)>0 ? N(px)/N(sf) : 0;
+    $(ps).value = perSf ? perSf.toFixed(2) : 0;
+    if(perSf>0){ sum+=perSf; cnt++; }
+  });
+  const avgPs = cnt>0 ? sum/cnt : 0;
+  $('avgPs').value = avgPs ? avgPs.toFixed(2) : 0;
+  $('compArv').value = Math.round(avgPs*N('subjSf'));
 }
+function pushArv(){ $('ffArv').value = N('compArv'); calcFF(); }
 
 function recalc(){
-  const subto = $('otype').value!=='Seller Finance';
-  $('subtoRow').style.display = subto?'flex':'none';
-  $('subtoPayRow').style.display = ($('otype').value==='Subto')?'flex':'none';
+  const otype = $('otype').value;
+  const showSubto = (otype==='Subto'||otype==='Hybrid');
+  $('subtoBlock').style.display = showSubto?'block':'none';
   calcCF(); calcFF();
 }
 
@@ -268,17 +428,30 @@ function setMode(m){
   $('mFF').classList.toggle('active', m==='ff');
 }
 
-// Prefill from URL params (set by the briefing card's 🧮 Calculator button)
+// Auto-set balloon default on offer-type change (5 for Subto/Hybrid, 6 for SF) unless user has typed.
+let balloonTouched=false;
+$('balloon').addEventListener('input', ()=>{ balloonTouched=true; });
+$('otype').addEventListener('change', ()=>{
+  if(!balloonTouched){ $('balloon').value = ($('otype').value==='Seller Finance')?6:5; }
+});
+
+/* Prefill from URL params (set by the briefing card's 🧮 Calculator button).
+   Deal-type-aware: otype Subto/Hybrid shows subto block; subbal→Loan 1 balance, subpay→Loan 1 pmt.
+   mode=ff switches to Fix & Flip. */
 function prefill(){
   const q = new URLSearchParams(location.search);
-  const map = {price:'price',list:'list',down:'down',rate:'rate',amort:'amort',
-    balloon:'balloon',rehab:'rehab',assign:'assign',rent:'rent',ins:'ins',tax:'tax',
-    hoa:'hoa',otype:'otype',io:'io',subbal:'subbal',subpay:'subpay',
+  const map = {price:'price',list:'list',down:'down',rate:'rate',rent:'rent',
+    balloon:'balloon',otype:'otype',tax:'tax',ins:'ins',hoa:'hoa',assign:'assign',rehab:'rehab',
     arv:'ffArv',ffrehab:'ffRehab',ffassign:'ffAssign'};
   let any=false;
   for(const [k,id] of Object.entries(map)){
-    if(q.has(k)){ const el=$(id); if(el){ el.value=q.get(k); any=true; } }
+    if(q.has(k)){ const el=$(id); if(el){ el.value=q.get(k); any=true; if(k==='balloon') balloonTouched=true; } }
   }
+  // subto Loan 1 mapping
+  if(q.has('subbal')){ $('l1bal').value=q.get('subbal'); any=true; }
+  if(q.has('subpay')){ $('l1pay').value=q.get('subpay'); any=true; }
+  // otype set but balloon not → apply the matching default (5 Subto/Hybrid, 6 SF)
+  if(q.has('otype') && !q.has('balloon')){ $('balloon').value = (q.get('otype')==='Seller Finance')?6:5; }
   if(q.get('mode')==='ff') setMode('ff');
   if(any) $('prefillNote').innerHTML = '<span style="color:var(--green)">✓ Pre-filled from briefing card</span>';
 }

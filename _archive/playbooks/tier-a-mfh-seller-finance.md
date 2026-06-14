@@ -1,5 +1,17 @@
 # Call Playbook — Tier A: Multifamily Seller Finance
 
+> ## ⚠ CANONICAL CORRECTIONS (2026-06-12) — supersede the offer numbers below
+> From the HMHW Discord *Seller Finance* group (CHECK MATE PITCH doc + FAQ + email deck). Provenance:
+> `assets/CAPTURED_SOURCES.md` #4 + `STRATEGY_BEDDOWN_SELLER_FINANCE.md`.
+> - **Offer formula (verbatim):** `asking +15%` · `10% down` · **monthly to seller = 40% of rent** ·
+>   **72-month (6-yr) balloon`.** *(Replaces +10% / 5-yr.)* The **40%-of-rent IS the offer monthly**, not
+>   just a verbal anchor; the underwriting check stays `CF = rent×0.80 − PITI`.
+> - **Checkmate sourcing:** tenant-occupied, listed **>$300K**, where **mortgage > rent** → un-sellable to
+>   investor/cash/retail → SF is the only exit. Small MFH **>$1M, 4-12 units, free & clear** = capital-gains
+>   sweet spot. SFH ceiling **~$500K** (not $150K).
+> - **Terms:** EMD $1-1.5K / 1% post-inspection · 5-day inspection · COE 30 days · down 5-10% +
+>   commission from down · "TBD at escrow" for closing attorney · sign own LLC, **never Grandin Taylor**.
+
 ## ⚠ Live-call refinements (2026-05-16)
 
 Validated against ~10hrs of Richard's actual live wholesale streams (4 captioned videos, ~30K caption lines). See [full validation report](live-call-validation.html). **Apply these refinements before calling — they reflect what Richard does on live calls, not just what the course teaches.**

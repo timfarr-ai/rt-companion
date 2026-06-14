@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Seller Finance — RT Deal Desk</title>
+  <style>
+    :root {
+      --bg:#0d1117; --panel:#161b22; --panel-2:#1c2128; --border:#30363d;
+      --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#56d364;
+      --amber:#d29922; --red:#f85149; --gold:#e3b341;
+    }
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.55;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);-webkit-text-size-adjust:100%;}
+    a{color:var(--accent);text-decoration:none;}
+    a:active{opacity:0.7;}
+    header{position:sticky;top:0;background:rgba(13,17,23,0.95);backdrop-filter:saturate(180%) blur(10px);-webkit-backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid var(--border);padding:14px 16px;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+    header h1{margin:0;font-size:17px;font-weight:600;}
+    header .back{font-size:14px;color:var(--accent);}
+    main{padding:14px;max-width:760px;margin:0 auto;}
+    main h1{display:none;}
+    /* H2 = section header — boxed panel start */
+    main h2{margin:18px 0 10px;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border);padding-bottom:8px;}
+    main h3{margin:14px 0 6px;font-size:15px;font-weight:600;color:var(--text);}
+    main p{margin:8px 0;}
+    main ul,main ol{margin:8px 0;padding-left:22px;}
+    main li{margin-bottom:6px;}
+    main li input[type="checkbox"]{margin-right:6px;}
+    main strong{color:var(--text);font-weight:600;}
+    main em{color:var(--muted);font-style:normal;}
+    main hr{border:0;border-top:1px solid var(--border);margin:24px 0;}
+    main blockquote{margin:10px 0;padding:10px 14px;background:var(--panel-2);border-left:3px solid var(--accent);border-radius:6px;color:var(--text);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:14px;line-height:1.5;white-space:pre-wrap;}
+    main code{background:var(--panel-2);padding:1px 6px;border-radius:4px;font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13.5px;color:var(--accent);}
+    main pre{background:#0b0f15;border:1px solid var(--border);border-radius:8px;padding:12px;overflow-x:auto;font-size:13px;line-height:1.5;}
+    main pre code{background:transparent;padding:0;color:var(--text);}
+    main table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;}
+    main th,main td{border:1px solid var(--border);padding:6px 10px;text-align:left;}
+    main th{background:var(--panel-2);font-weight:600;}
+    /* Source-call refs styled */
+    .strategy-pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-bottom:8px;}
+    .pill-a{background:rgba(255,123,114,0.15);color:#ff7b72;}
+    .pill-b{background:rgba(210,168,255,0.15);color:#d2a8ff;}
+    .pill-mt{background:rgba(121,192,255,0.15);color:#79c0ff;}
+    .pill-ff{background:rgba(240,136,62,0.15);color:#f0883e;}
+    nav.bottom{padding:18px 0 24px;text-align:center;color:var(--muted);font-size:13px;}
+    nav.bottom a{color:var(--muted);margin:0 10px;}
+    @media (min-width:720px){body{font-size:17px;}main{padding:24px;max-width:860px;}}
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/rt-companion/" class="back">‹ Dashboard</a>
+    <h1>🤑 Seller Finance</h1>
+    <a href="/rt-companion/briefings/latest.html" class="back" style="text-align:right;">📋 Briefing</a>
+  </header>
+  <main>
+    <div class="strategy-pill pill-a">🤑 Seller Finance</div>
+    <h1>Seller Finance — Canonical SOP</h1>
+<blockquote>
+<p>Single source of truth for Seller Finance. Replaces <code>tier-a-mfh-seller-finance.md</code> +
+<code>tier-b-cheap-sfh-stale.md</code> + <code>40-percent-rent-rule.md</code>. Provenance: <code>assets/CAPTURED_SOURCES.md</code> #4.
+One of 5 strategies. <strong>Equity spectrum: Seller Finance = HIGH equity / free &amp; clear → Hybrid = medium →
+Sub-To = low.</strong></p>
+</blockquote>
+<p><strong>What it is:</strong> seller owns <strong>free &amp; clear (NO mortgage)</strong> → the seller becomes the bank and carries the
+whole note. Two entry profiles: <strong>Checkmate</strong> (MFH / non-retail) and <strong>Stale-SFH</strong> (cheap, long DOM).</p>
+<hr />
+<h2>1. CRITERIA</h2>
+<ul>
+<li><strong>Determination:</strong> <code>loan_balance ≈ 0</code> (free &amp; clear). Find via <strong>Propwire (free) → Free &amp; Clear</strong> or
+  <strong>PropStream → Mortgage Info → Free &amp; Clear</strong>. BBC <code>sellerFinance</code> tag.</li>
+<li><strong>Checkmate (MFH SF):</strong> 5+ units, or 2-4plex <strong>not retail-desirable</strong> (owner-occupant can't FHA it);
+  <strong>$200K–$1.4M</strong>; DOM 90+. <em>Why it closes:</em> FHA fails (5+) → DSCR fails at 7%+ → SF is the only exit.</li>
+<li><strong>Stale-SFH:</strong> SFH, <strong>&lt; ~$500K</strong> (NOT $150K), DOM 90+ (150+ ideal). Sub-$140K → interest variant.</li>
+<li><strong>Sourcing theory:</strong> tenant-occupied, listed <strong>&gt;$300K</strong>, where <strong>mortgage payment &gt; rent</strong> → un-sellable
+  to investor (DSCR fails) / cash (poor ROI) / retail (tenant in place) → SF is the only path. Small MFH
+  <strong>&gt;$1M, 4-12 units, free &amp; clear</strong> = capital-gains-motivated sweet spot.</li>
+<li><strong>Triage rank:</strong> Checkmate by buyer CoC (CALL FIRST ≥ threshold); Stale-SFH by creative CF / DOM.</li>
+</ul>
+<h2>2. COMPS</h2>
+<ul>
+<li><strong>Load-bearing = RENT</strong> (SF deals live/die on rent). Haircut <strong>asking rent → real average</strong> (SF Course
+  L604-606: <em>"asking 1,700… getting maybe 1,400"</em>). Zillow Zestimate vs BBC pill, lower wins if &gt;20% gap.</li>
+<li>Gut check: <code>CF = rent×0.80 − PITI</code>. If negative/thin, the listing rent was carrying a bad deal — re-tier.</li>
+</ul>
+<h2>3. MATH / OFFER  <em>(canonical — CHECK MATE PITCH)</em></h2>
+<pre><code>offer        = asking + 15%        (default; flexes higher, balloon stretches to 96mo on big premiums)
+down         = 10% of offer        (5-10% range; &quot;+ agent commission&quot; paid from the down)
+monthly to seller = 40% of rent    ← THE offer (mental-math anchor the seller understands)
+balloon      = 72 months (6 years)
+balloon payout = offer − down − (monthly × 72)
+</code></pre>
+<ul>
+<li><strong>40%-of-rent IS the seller's monthly payment</strong> (the offer), not a "verbal anchor." Underwriting check
+  is separate: end-buyer <code>CF = rent×0.80 − PITI</code>, buyer cash-CoC = <code>(rent×0.8 − PITI)×12 / price</code>.</li>
+<li><strong>Never give BOTH inflated price AND interest</strong> — pick one. 3rd lever if seller wants a rate: extend
+  amortization 35-40yr so the payment "disappears to interest."</li>
+<li><strong>Sub-$140K interest variant:</strong> ≈$5K over asking · 6.5% interest · ~$15K down · 5yr balloon · deed of trust.</li>
+<li><strong>Reconciled CoC/entry</strong> (Offer Oven sheet): <code>entry = down + 2%×offer + $5K assignment</code>; <code>CoC = CF×12/entry</code>.</li>
+<li>Terms: EMD <strong>$1-1.5K or 1%</strong> post-inspection · <strong>5-day inspection</strong> · <strong>COE 30 days</strong> · closing attorney
+  "TBD at escrow" · sign <strong>own LLC, NEVER Grandin Taylor</strong>.</li>
+</ul>
+<h2>4. SCRIPT</h2>
+<ul>
+<li><strong>Open conversational, NOT DSCR-first:</strong> <em>"What can you tell me about this?"</em> → listen → drop the formula.
+  DSCR-wall is the Checkmate <em>explanation</em> you reach for when asked "why propose this?" — not the lead.</li>
+<li><strong>One-liner:</strong> <em>"[asking +15%], 10% down, 40% of whatever it rents for, 6-year balloon."</em></li>
+<li><strong>"Impossible deal" frame (CHECK MATE PITCH):</strong> can't get a loan (DSCR fails), can't cash (poor ROI),
+  can't lowball (renovated), can't get a low rate → "so how does this sell? My solution: over asking on a
+  short set of payments."</li>
+<li><strong>Objections:</strong> cash-only → "how vs what they get paid"; other offers → "are they clearing DSCR at
+  7.25%?"; 0% too low → "premium IS the interest, effective 8-9%"; default → deed reverts, mutual skin.</li>
+<li><strong>Verbal yes</strong> = <em>"let me run it by my seller"</em> + agent forwards contract + follow-up booked.</li>
+</ul>
+<h2>5. EMAIL TEMPLATES</h2>
+<ul>
+<li>"A Slide Show Full of Seller Finance Email Templates" (Drive <code>1 - Seller Finance/</code>; orig
+  <code>1GUfmZsoW7Myi…</code>). Verbatim "SF + Cash" template: Offer Price · Down + commission · Monthly · 6yr
+  balloon · Payout at balloon · EMD $1K post-contractor-walk · 5-day inspection. Realtor-army recruitment
+  emails (get agents to submit offers for you).</li>
+<li><em>(Offer Oven "commit → template" fills the numbers; email only, not the contract.)</em></li>
+</ul>
+<h2>6. CONTRACT</h2>
+<ul>
+<li>The editable <strong>"Mortgage Takeover OR Seller Finance" .docx</strong> (Drive <code>1 - Seller Finance/</code>) — one doc
+  serves SF + MT. Plus the <strong>how-to-fill video</strong> ("Creative Contract in an Emergency"). Section 1.7 closing
+  attorney = "TBD at escrow." <em>(Contract .docx body not yet read clause-by-clause.)</em></li>
+</ul>
+<h2>7. TERMINOLOGY</h2>
+<p>Seller finance (owner = the bank) · free &amp; clear · creative finance (umbrella: SF + Sub-To + Hybrid) ·
+balloon · monthly payment (P&amp;I only, not PITI) · high equity · cash flow (<code>rent×0.80 − PITI</code>) · entry fee
+(down + closing + TC fee + assignment) · assignment fee · land contract / contract-for-deed · lease option.</p>
+<hr />
+<h2>Sources</h2>
+<p>SF Course transcript L135-148, L580-668, L958-982 · CHECK MATE PITCH doc · "Seller Finance Discord
+Content" (FAQ + pitch process + terminology) · SF email deck · <code>comps-sop.md</code> · Steve Ward §1-2 ·
+<code>TRIAGE_OFFEROVEN_RECONCILIATION.md</code> · <code>STRATEGY_BEDDOWN_SELLER_FINANCE.md</code> (full spec).</p>
+    <nav class="bottom">
+      <a href="/rt-companion/">Dashboard</a> ·
+      <a href="/rt-companion/briefings/latest.html">Today's Briefing</a> ·
+      <a href="/rt-companion/playbooks/">All Playbooks</a>
+    </nav>
+  </main>
+</body>
+</html>

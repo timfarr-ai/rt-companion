@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Hybrid — RT Deal Desk</title>
+  <style>
+    :root {
+      --bg:#0d1117; --panel:#161b22; --panel-2:#1c2128; --border:#30363d;
+      --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#56d364;
+      --amber:#d29922; --red:#f85149; --gold:#e3b341;
+    }
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.55;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);-webkit-text-size-adjust:100%;}
+    a{color:var(--accent);text-decoration:none;}
+    a:active{opacity:0.7;}
+    header{position:sticky;top:0;background:rgba(13,17,23,0.95);backdrop-filter:saturate(180%) blur(10px);-webkit-backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid var(--border);padding:14px 16px;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+    header h1{margin:0;font-size:17px;font-weight:600;}
+    header .back{font-size:14px;color:var(--accent);}
+    main{padding:14px;max-width:760px;margin:0 auto;}
+    main h1{display:none;}
+    /* H2 = section header — boxed panel start */
+    main h2{margin:18px 0 10px;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border);padding-bottom:8px;}
+    main h3{margin:14px 0 6px;font-size:15px;font-weight:600;color:var(--text);}
+    main p{margin:8px 0;}
+    main ul,main ol{margin:8px 0;padding-left:22px;}
+    main li{margin-bottom:6px;}
+    main li input[type="checkbox"]{margin-right:6px;}
+    main strong{color:var(--text);font-weight:600;}
+    main em{color:var(--muted);font-style:normal;}
+    main hr{border:0;border-top:1px solid var(--border);margin:24px 0;}
+    main blockquote{margin:10px 0;padding:10px 14px;background:var(--panel-2);border-left:3px solid var(--accent);border-radius:6px;color:var(--text);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:14px;line-height:1.5;white-space:pre-wrap;}
+    main code{background:var(--panel-2);padding:1px 6px;border-radius:4px;font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13.5px;color:var(--accent);}
+    main pre{background:#0b0f15;border:1px solid var(--border);border-radius:8px;padding:12px;overflow-x:auto;font-size:13px;line-height:1.5;}
+    main pre code{background:transparent;padding:0;color:var(--text);}
+    main table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;}
+    main th,main td{border:1px solid var(--border);padding:6px 10px;text-align:left;}
+    main th{background:var(--panel-2);font-weight:600;}
+    /* Source-call refs styled */
+    .strategy-pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-bottom:8px;}
+    .pill-a{background:rgba(255,123,114,0.15);color:#ff7b72;}
+    .pill-b{background:rgba(210,168,255,0.15);color:#d2a8ff;}
+    .pill-mt{background:rgba(121,192,255,0.15);color:#79c0ff;}
+    .pill-ff{background:rgba(240,136,62,0.15);color:#f0883e;}
+    nav.bottom{padding:18px 0 24px;text-align:center;color:var(--muted);font-size:13px;}
+    nav.bottom a{color:var(--muted);margin:0 10px;}
+    @media (min-width:720px){body{font-size:17px;}main{padding:24px;max-width:860px;}}
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/rt-companion/" class="back">‹ Dashboard</a>
+    <h1>🔀 Hybrid (medium equity)</h1>
+    <a href="/rt-companion/briefings/latest.html" class="back" style="text-align:right;">📋 Briefing</a>
+  </header>
+  <main>
+    <div class="strategy-pill pill-b">🔀 Hybrid (medium equity)</div>
+    <h1>Hybrid — Canonical SOP</h1>
+<blockquote>
+<p>Single source of truth for Hybrid. Replaces <code>hybrid-mt-sf-carryback.md</code> (which wrongly used the SF
+40%-of-rent method — <strong>do NOT use that</strong>). Provenance: <code>assets/CAPTURED_SOURCES.md</code> #2, #5.
+One of 5 strategies.</p>
+</blockquote>
+<p><strong>What it is:</strong> the <strong>MEDIUM-equity</strong> middle of the spectrum — <strong>Seller Finance (high equity / no debt)
+fused with Mortgage Takeover (low equity)</strong>. Seller has an existing loan <strong>AND</strong> meaningful equity, so
+neither pure play fits: pure Sub-To undersells (they want their equity, not a $10K walk); pure SF ignores
+the cheap existing loan. <strong>Hybrid = assume the existing loan + carry the seller's equity as a note.</strong>
+<em>(There is no standalone Hybrid course — it's defined by the medium-equity position. Steve Ward §1.)</em></p>
+<hr />
+<h2>1. CRITERIA</h2>
+<ul>
+<li><strong>Determination:</strong> existing loan present + <strong>medium equity</strong> (real equity, not cornered) + <strong>rate
+  assumable (≤ ~6%)</strong>. By equity-after-costs: <code>seller_net = price − loan − 6%</code> is meaningfully <strong>&gt; ~$15K</strong>
+  (above the Sub-To cornered line) but there's still a loan worth assuming.</li>
+<li><strong>Real equity + 7%+ rate ⇒ no Hybrid</strong> (seller can sell conventionally; a 7%+ loan isn't worth assuming).</li>
+<li>Property types: SFH · condo · MFH (MFH uncapped). Confirm the existing rate <strong>first</strong> — if 7%+, pivot.</li>
+<li><strong>Triage:</strong> ranks within the Mortgage Takeover group (lowest equity → lowest rate), tagged Hybrid.</li>
+</ul>
+<h2>2. COMPS</h2>
+<ul>
+<li><strong>Load-bearing = ARV</strong> (to confirm the equity is real) <strong>+ rent</strong> (for the cash-flow headroom on the
+  carry-back). Pull SOLD comps (see <code>comps-sop.md</code>). Get the mortgage statement to confirm the balance.</li>
+</ul>
+<h2>3. MATH / OFFER  <em>(canonical — "Hybrid Multi Family Email Template")</em></h2>
+<p><strong>Three parts. NOT +15%/40%-of-rent. The carry-back is on the EQUITY, the monthly is NEGOTIATED.</strong></p>
+<pre><code>Buy price ≈ at/near asking      (e.g. $250,000)
+ ├─ Cash / down at close        (e.g. $30,000 — negotiable; Sub-To-style $5-10K also common)
+ ├─ Assume the existing loan     (e.g. $144,000 — you pay the bank its PITI; 4+ legal ways to take it over)
+ └─ Carry back the EQUITY note:  carry-back = price − down − loan balance   (e.g. $76,000)
+        monthly to seller = NEGOTIATED (e.g. $400/mo) — keep ≤ cash-flow headroom (rent×0.80 − existing PITI)
+        balloon (5yr typical) payout = carry-back − (monthly × months)      (e.g. $52,000)
+</code></pre>
+<ul>
+<li><strong>Flexibility is the edge:</strong> seller wants more cash now? Bump the down, trim the balloon — same total.</li>
+<li>Seasonal/negotiated monthlies are fine (canonical $3.8M example: $4K/mo slow season, $15K/mo peak).</li>
+</ul>
+<h2>4. SCRIPT</h2>
+<ul>
+<li><strong>Lead creative, never say "hybrid" or "subject-to" out loud</strong> — say <em>"take over the loan + carry your
+  equity."</em> Open: <em>"I noticed your seller probably has an existing loan they're paying down — are they
+  sitting on a low rate from a few years back?"</em> Confirm rate + balance first.</li>
+<li><strong>Pitch:</strong> <em>"$[cash] to your seller at close. I take over the existing loan and keep paying it — they're
+  off the mortgage. The remaining equity, about $[carry-back], I carry back at $[monthly]/mo for [N]
+  years, balloon at year [N]. They get the full asking, just spread out — no realtor cut, no capital-gains
+  hit all at once."</em></li>
+<li><strong>Objections:</strong> due-on-sale → land trust, banks don't call performing loans; "why not cash?" → compare:
+  cash nets them <code>equity − 6% realtor</code>, Hybrid gives cash now + monthly + balloon = full asking; default →
+  property reverts, seller keeps all payments; "too complicated" → "three numbers: cash now, monthly,
+  balloon — like a rental they don't manage; I'll put it in writing for their attorney."</li>
+<li><strong>Verbal yes</strong> = <em>"the structure makes sense, let me run it by my seller"</em> → text the proposal within 60s.</li>
+</ul>
+<h2>5. EMAIL TEMPLATES</h2>
+<ul>
+<li>In the Sub-To deck (<code>assets/sources/subto-email-templates-and-scripts.md</code>): <strong>"Hybrid Multi Family
+  Email Template"</strong>, "Subto Hybrid Email Template" (rare deals), "Multi Family Subject to Hybrid Email."
+  Canonical pattern = state what's owed → what they net at asking after commission → the 3-part
+  alternative (buy price / down / term / payout / monthly) with the breakdown.</li>
+</ul>
+<h2>6. CONTRACT</h2>
+<ul>
+<li>Same <strong>"Mortgage Takeover OR Seller Finance" .docx</strong> as Sub-To/SF + <strong>Trust Acquisition</strong> (revocable
+  living trust; buyer 90-95% / seller 5-10% beneficial interest; mortgage stays in seller's name; HUD-1
+  line 203) for the takeover portion, with the carry-back note documenting the equity. Land trust beats
+  due-on-sale.</li>
+</ul>
+<h2>7. TERMINOLOGY</h2>
+<p>Hybrid (assume + carry) · seller carry-back / carry-back note · beneficial interest · trust acquisition ·
+due-on-sale · cash-flow headroom · balloon · medium equity.</p>
+<hr />
+<h2>Sources</h2>
+<p>"Hybrid Multi Family Email Template" + deck L186 ($3.8M 3-part example) · MT course · Steve Ward §1 (the
+equity spectrum) · <code>assets/CAPTURED_SOURCES.md</code> #2/#5 · <code>triage.py</code> Hybrid banner (canonical, post-fix).</p>
+    <nav class="bottom">
+      <a href="/rt-companion/">Dashboard</a> ·
+      <a href="/rt-companion/briefings/latest.html">Today's Briefing</a> ·
+      <a href="/rt-companion/playbooks/">All Playbooks</a>
+    </nav>
+  </main>
+</body>
+</html>

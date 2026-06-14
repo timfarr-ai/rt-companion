@@ -1,5 +1,27 @@
 # Call Playbook — Mortgage Takeover (Subject-To / Trust Acquisition)
 
+> ## ⚠ CANONICAL CORRECTIONS (2026-06-12) — read first
+> From the HMHW Discord *Mortgage Takeover* group (Trust Acquisition doc + 60-template email deck) +
+> the MT course transcript. Provenance: `~/Code/rt-companion/assets/CAPTURED_SOURCES.md` #1-3.
+>
+> - **Cash flow is NOT a gate — it tags the disposition EXIT.** Cash-flows ⇒ sell to an **investor**;
+>   doesn't ⇒ **$0 down, sell to a live-in / retail buyer** (a homeowner who can't get traditional
+>   financing). *"6-7% on a more expensive property… you're doing $0 down… you're only selling those to
+>   somebody who wants to live in the property"* (MT L1067-1080). **Never reject a low-equity deal on CF.**
+> - **Triage sort = lowest equity (motivation) → lowest rate (CoC). Rate never gates**; ≤5% is optional
+>   narrowing to the easy-investor-CF subset.
+> - **Trojan-Horse offer formula (cornered seller):** `cash offer = loan balance + 4% of asking` → nets
+>   seller ~$0 → make it *to be rejected* → agent reveals equity → pivot to the takeover/trust pitch.
+>   Best on **5-10% equity**. ($0 / $10K-to-take-over-the-debt on truly underwater sellers.)
+> - **Sub-To vs Hybrid** by equity-after-costs (`price − loan − 6%`): ≤~$15K ⇒ Sub-To; real equity +
+>   rate ≤6% ⇒ Hybrid; real equity + 7%+ ⇒ no MT structure (they can sell conventionally).
+> - **Contract = Trust Acquisition** (revocable living trust; buyer 90-95% beneficial interest, seller
+>   5-10%; mortgage stays in the seller's name → lowers due-on-sale risk; legal basis HUD-1 line 203 +
+>   Modern Real Estate Practice Unit 12). Deed-back protection if 2 payments missed.
+> - **Data:** BBC carries rate/balance/equity% 100% on MT leads (rank on BBC). PropStream has **no API**
+>   → manual pre-call verify only (loan TYPE for HELOC/reverse, 2nd liens, AVM, skip-trace owner).
+> - **Email templates:** 60+ verbatim at `assets/sources/subto-email-templates-and-scripts.md`.
+
 > **Typical timeline:** First call → verbal yes same call to 7 days (homeowner-direct fastest) · End-to-end **21-35 days** · See [pipeline-timeline.html](pipeline-timeline.html).
 
 

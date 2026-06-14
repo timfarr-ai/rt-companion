@@ -1,5 +1,15 @@
 # Call Playbook — Tier B: Cheap SFH, Stale Listing
 
+> ## ⚠ CANONICAL CORRECTIONS (2026-06-12)
+> Source: HMHW Discord *Seller Finance* FAQ + CHECK MATE PITCH. Provenance: `assets/CAPTURED_SOURCES.md` #4.
+> - **SFH ceiling is ~$500K, NOT $150K** (FAQ: *"no hard price limit… for SFH tend to stay under $500,000"*).
+>   "Cheap SFH" is the *cheaper end* of one SF lane, not a $150K cap. The old `<$150K` gate was rejecting
+>   valid SF deals — triage must widen it.
+> - **$150K is the line below which you switch to the INTEREST VARIANT** (instead of big-premium 0%):
+>   sub-~$140K → ≈$5K over asking · **6.5% interest** · ~$15K down · **5-yr balloon** · secured by deed of trust.
+> - **Standard 0% offer (≥~$140K):** asking **+15%** · 10% down · **40% of rent monthly** · **72-mo balloon**
+>   (same formula as Checkmate; the 40%-of-rent IS the offer monthly). Underwrite on `CF = rent×0.80 − PITI`.
+
 ## ⚠ Live-call refinements (2026-05-16)
 
 Validated against ~10hrs of Richard's actual live streams. See [validation report](live-call-validation.html).
