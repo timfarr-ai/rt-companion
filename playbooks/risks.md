@@ -37,13 +37,13 @@ The 40% of rent formula = the entire pitch math. If BBC's rent estimate is missi
 
 - **Consequence:** End buyer's cash flow math breaks, deal falls apart at dispo.
 - **Prevent:** Cross-check rent on Zillow Rent Zestimate before quoting. The card shows both the 40% number AND the amortization-derived baseline — if they're wildly different, rent is off.
-- **Source:** [40%-rent-rule explainer](40-percent-rent-rule.html)
+- **Source:** [40%-rent-rule explainer](seller-finance.html)
 
 ### 5. Wrong tier classification
 You see "MT" on the BBC card and treat it as pure Mortgage Takeover, but the seller has $80K equity — they'll never accept just $10K and walk.
 
 - **Consequence:** Seller insulted, call ends in 30 seconds.
-- **Prevent:** Triage now auto-detects HY (Hybrid) tier when there's a favorable existing loan + meaningful equity. **If the card says 🔀 HY, use the [Hybrid playbook](hybrid-mt-sf-carryback.html), not the MT playbook.**
+- **Prevent:** Triage now auto-detects HY (Hybrid) tier when there's a favorable existing loan + meaningful equity. **If the card says 🔀 HY, use the [Hybrid playbook](hybrid.html), not the MT playbook.**
 
 ---
 
@@ -178,7 +178,7 @@ Seller has $80K equity AND a 2021 mortgage at 3.2%. Pure SF makes no sense — w
 
 - **Consequence:** Seller hears your offer + smells lost money on the existing rate. No deal.
 - **Prevent:** **Use Hybrid (HY) playbook.** Assume the cheap loan + carry back the equity gap. Triage now auto-classifies these as HY.
-- **Source:** [Hybrid playbook](hybrid-mt-sf-carryback.html)
+- **Source:** [Hybrid playbook](hybrid.html)
 
 ### 22. Pure MT on a high-equity seller
 Mirror of #21 from the other side. Pure MT pitch ($10K cash + take loan) on a seller with $80K equity = insult.
@@ -322,5 +322,5 @@ When you hit a new failure mode in the field, log it via the Reject button (with
 
 - [Live-Call Validation Report](live-call-validation.html) — playbook deltas with timestamps
 - [Call Moments Index](video-call-moments.html) — 81 navigable video segments
-- [Tier A playbook](tier-a-mfh-seller-finance.html) · [Tier B](tier-b-cheap-sfh-stale.html) · [Hybrid](hybrid-mt-sf-carryback.html) · [MT](mortgage-takeover.html) · [Cash/FF](fix-and-flip-cash.html)
-- [40%-of-Rent Rule](40-percent-rent-rule.html) — the pitch anchor
+- [Tier A playbook](seller-finance.html) · [Tier B](seller-finance.html) · [Hybrid](hybrid.html) · [MT](sub-to.html) · [Cash/FF](fix-and-flip.html)
+- [40%-of-Rent Rule](seller-finance.html) — the pitch anchor
