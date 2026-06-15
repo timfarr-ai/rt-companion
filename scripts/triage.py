@@ -2336,7 +2336,7 @@ def render_deal(d, t):
         f'<div class="section-label">④ Action Sequence (SOP flow)</div>'
         f'{agent_block}'
         f'<div class="btn-row btn-row-actions">'
-        f'<a class="btn btn-script" href="{playbook}">📖 Open Tier {t} playbook</a>'
+        f'<a class="btn btn-script" href="{playbook}">📖 {(d.get("strategy_subtype") or d.get("strategy_group") or "Strategy")} playbook</a>'
         f'{track_link}{reject_link}'
         f'{bbc_property_link}{gt_link}{pipeline_btn}'
         f'</div>'
