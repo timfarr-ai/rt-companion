@@ -1,87 +1,94 @@
 # Sub-To (Mortgage Takeover) — Canonical SOP
 
-> **Canonical, single source of truth for the Sub-To play.** Replaces the old `mortgage-takeover.md`
-> + scattered correction blocks. Every claim is sourced. Provenance ledger:
-> `assets/CAPTURED_SOURCES.md`. Verbatim email templates: `assets/sources/subto-email-templates-and-scripts.md`.
-> One of 5 strategies: **Seller Finance · Sub-To · Hybrid · Fix & Flip · Cash Arbitrage.**
-
-**What it is:** the seller has an existing mortgage and **little/no equity**. You take over the existing
-loan (keep making its payment), pay the seller a small lump (often $0), and the mortgage stays in the
-seller's name inside a trust. *Not* Seller Finance — there is **no +15% / 40%-of-rent here.**
-
----
-
-## 1. CRITERIA — who lands here
-- **Determination:** existing mortgage present + **low equity-after-costs** (`price − loan − 6% ≤ ~$15K`)
-  ⇒ cornered seller ⇒ Sub-To. *(Source: MT course L561-562 "less than 15K in equity"; L535 "going to
-  make any money on the sale.")*
-- **Search net (PropStream / BBC):** On-market, Active, **Estimated Equity ≤ 20%** (ideal **5–10%**),
-  interest rate any. Property types: **SFH · condo · MFH** (MFH can run well above the $500K SF-SFH
-  ceiling). Avoid HELOC / reverse mortgage. *(HMHW PropStream slide, `CAPTURED_SOURCES.md` #1.)*
-- **Triage sort = lowest equity (motivation) → lowest rate (CoC opportunity) = CALL FIRST.** Rate and
-  cash flow are **sorts, never gates** (committed 2026-06-12).
-- **Data:** BBC carries balance/rate/equity% at 100% on MT leads → triage ranks on BBC. **PropStream has
-  no API** → manual pre-call verify only (loan TYPE for HELOC/reverse, 2nd liens, AVM, owner skip-trace).
-
-## 2. COMPS — what to verify
-- **Load-bearing = ARV** (to confirm the equity is really thin) **+ existing PITI** (the payment you
-  inherit). Pull SOLD comps (Cash Course L716-895 ritual, see `comps-sop.md`).
-- Rent only matters to set the **exit** (below), and BBC populates it ~40% of the time — verify on Zillow.
-
-## 3. MATH — the offer + the exit
-- **The lump (cash to seller):** rate/price-scaled. **6%+ rate ⇒ $0 down** (MT L793-795 "6% interest
-  rate, you can do $0 down"); ≤$150K ⇒ up to a **$5–12K** lump (L738 "$12,000 down… 10K works"); pricier
-  ⇒ ~5%. Seller monthly ≈ $0 (you pay the *bank*, not the seller).
-- **Trojan-Horse pivot offer:** `cash offer = loan balance + 4% of asking` → nets the seller ~$0 → make
-  it **to be rejected** → the agent reveals the equity → you pivot to the takeover/trust pitch. Best on
-  5–10% equity. *(CAPTURED_SOURCES.md #2.)*
-- **EXIT CHANNEL (cash flow tags it, never gates):**
-  - **Cash-flows** at the existing payment (`rent×0.80 − PITI > 0`, typically cheap < ~$130K) ⇒ sell to an
-    **investor**.
-  - **Doesn't cash-flow** (expensive + 6–7%) ⇒ **$0 down, sell to a live-in / retail buyer** (a homeowner
-    who can't get traditional financing). *(MT L1067-1080 verbatim: "you're only selling those to somebody
-    who wants to live in the property.")* These are real deals — never reject them.
-
-## 4. SCRIPT — the call
-- **Homeowner-direct** (low-equity Lightning Leads), not listing agents (MT L21-11). Or the Trojan-Horse
-  via the agent.
-- **Broach the loan (Steve Ward script):** *"If you've got a mortgage, I'd be happy to take over your
-  payments — a servicing company pays it so you don't worry. If a payment's ever missed, the property
-  returns to you and you keep everything paid so far. Since I'd run it as a rental, I need the rate/terms
-  to make sure it cash-flows."*
-- **Top objections** (full scripts in the email deck): "subto is illegal" → **HUD-1 line 203** + Modern
-  Real Estate Practice Unit 12; "due-on-sale" → land trust, banks don't call performing loans; "what if
-  you stop paying" → **deed-back after 2 missed payments**; "can my seller get a new loan after?" → trust
-  certificate + occupancy agreement (VA-loan angle), partner originator "Andrew."
-
-## 5. EMAIL TEMPLATES
-- **60+ verbatim Richard templates** at `assets/sources/subto-email-templates-and-scripts.md` (TRUST
-  emails, Trojan-Horse email + post-call text, cash-offer, "LOW EQUITY EMAIL THAT GOT ME 5 DEALS IN 1
-  CALL", objection scripts). Source: Discord › Mortgage Takeover › Email Templates.
-- Canonical "latest TRUST email" pattern: take over the debt + small lump + cover closing + frame the
-  trust as a capital-gains/sale workaround, referencing your portfolio + proof of funds.
-- *(Integration TODO: the Offer Oven "commit → template" feature will pick the right one by subtype and
-  fill the numbers — email/offer template only, NOT the contract.)*
-
-## 6. CONTRACT — Trust Acquisition
-- **The Sub-To contract = Trust Acquisition** (a sub-category of subject-to). House → **revocable living
-  trust** via a trust attorney; deed transfers in, **mortgage stays in the seller's name**; buyer assigned
-  **90–95% beneficial interest**, seller keeps **5–10%**; buyer/trust pays the mortgage. Lender not
-  notified (not a "sale") → lowers due-on-sale risk. *(CAPTURED_SOURCES.md #2.)*
-- Legal basis: **HUD-1 Settlement Statement line 203** ("existing loan(s) taken subject to") + Modern
-  Real Estate Practice Unit 12.
-- Doc: the editable **"Mortgage Takeover OR Seller Finance" .docx** (in Drive `1 - Seller Finance/`) +
-  the **Assignment Disclosure Addendum** for the wholesale assignment. *(Contract .docx body not yet read
-  — ingest before relying on clause-level detail.)*
-
-## 7. TERMINOLOGY
-Subject-to · Trust Acquisition · beneficial interest · revocable living trust · due-on-sale clause ·
-deed-back · HUD-1 line 203 · land trust · existing PITI · equity-after-costs. *(Full FAQ:
-CAPTURED_SOURCES.md #2 + the MT reference doc.)*
+> Executable SOP — the **3 P's: Process · Policy · Props** + the **Submission/Dispo** steps. Everything
+> you need to run a Sub-To from lead to paid is here. Source ledger: `assets/CAPTURED_SOURCES.md`;
+> 60+ verbatim templates: `assets/sources/subto-email-templates-and-scripts.md`.
+>
+> **What it is:** seller has an existing mortgage + **little/no equity**. You take over the existing loan
+> (keep paying it), give the seller a small lump (often $0), and the mortgage stays in their name inside a
+> trust. NOT Seller Finance — no +15% / 40%-of-rent here.
 
 ---
 
+## ① PROCESS  (workflow)
+
+```
+ 1.FIND ─▶ 2.VERIFY ─▶ 3.COMP ─▶ 4.CALL ─▶ 5.OFFER ─▶ 6.PAPER ─▶ 7.SUBMIT ─▶ 8.TRACK
+  BBC ≤20%   PropStream   ARV +     Trojan     Trojan-      Trust       BBC Pipeline   Airtable
+  equity,    rate / loan  existing  Horse →     Horse cash   Acquisition + Grand In     Deal Flow
+  rank by    type (no     PITI →    pivot to    (bal+4%) OR  contract    Taylor JV      status
+  low eq +   HELOC/        decide   the trust   $0-12K lump  (+ trust    (50/50)        → close
+  low rate   reverse)      EXIT     pitch       to seller    attorney)
+                           (inv vs
+                           retail)
+                                   └── if cash offer rejected on equity → pivot (that's the Trojan Horse)
+```
+
+**Exit fork (set at step 3, drives steps 4-7):** cash-flows at the existing payment (`rent×0.80 − PITI > 0`,
+usually cheap <~$130K) → **investor** buyer. Doesn't cash-flow (expensive + 6-7%) → **$0-down, live-in /
+retail buyer** (Richard MT L1067-1080). Either way it's a real deal — never drop on cash flow.
+
+---
+
+## ② POLICY  (the rules)
+
+**Determination (who qualifies):** existing mortgage + **equity-after-costs `price − loan − 6% ≤ ~$15K`**
+(cornered seller). *MT course L561-562: "less than 15K in equity."*
+**Search net (the funnel):** On-market/Active · **Estimated Equity ≤ 20%** (ideal **5-10%**) · any rate ·
+SFH + **condo** + **MFH** (MFH uncapped — the $500K cap is SF-only) · **avoid HELOC / reverse mortgage**.
+**Sort = lowest equity (motivation) → lowest rate (CoC). Rate & cash flow are SORTS, never gates.**
+**Down rule:** 6%+ rate ⇒ **$0 down**; ≤$150K ⇒ $5-12K lump; pricier ⇒ ~5%.
+**Sub-To vs Hybrid:** ≤$15K net ⇒ Sub-To (here); real equity + rate ≤6% ⇒ Hybrid; real equity + 7%+ ⇒ no structure.
+**Guardrails:** confirm rate/balance/loan-type before contract (mortgage statement) · land trust to beat
+due-on-sale · deed-back clause if 2 payments missed · sign as **your own LLC, NEVER Grand In Taylor**.
+
+---
+
+## ③ PROPS + STEPS  (do this, with this)
+
+**Step 1 — FIND.** Pull low-equity leads; rank lowest-equity-first.
+▸ **Props:** [Today's Call Sheet](/rt-companion/briefings/latest.html) (Sub-To section, pre-ranked) · [BBC Lightning Leads](https://www.buyboxcartel.com/vip/lightning-leads) · PropStream filter: On-market, Estimated Equity ≤20%, Interest ≤5%.
+
+**Step 2 — VERIFY (before you call).** BBC gives rate/balance/equity%; confirm loan **type** (no HELOC/reverse) + 2nd liens.
+▸ **Props:** PropStream (manual — no API) · [Propwire](https://propwire.com/search) (free, partial) · the card's "verify rate/balance/loan-type in PropStream" pill.
+
+**Step 3 — COMP.** Load-bearing = **ARV** (confirm equity is thin) + **existing PITI**. Decide the **exit** (investor vs retail).
+▸ **Props:** Zillow SOLD comps (card "Sold comps ↗") · [Comps & Pricing SOP](/rt-companion/playbooks/comps-and-pricing.html) · the card's exit-channel tag.
+
+**Step 4 — CALL.** Homeowner-direct, or the **Trojan Horse** via the agent.
+- **Broach the loan (verbatim):** *"If you've got a mortgage, I'd be happy to take over your payments — a third-party servicing company pays it so you don't worry. If a payment's ever missed, the property returns to your name and you keep everything paid so far. Since I'd run it as a rental, I need the rate/terms to make sure it cash-flows — can you confirm them so my offer is valid?"*
+- **Trojan Horse:** make a cash offer that nets the seller **~$0** (`balance + 4% of asking`), *intending it to be rejected* → the agent reveals the equity → you act surprised and **pivot** to the takeover/trust pitch. Best on 5-10% equity.
+- **Objections (cheat-sheet):** *"Subto is illegal"* → **HUD-1 line 203** ("existing loan(s) taken subject to") + Modern Real Estate Practice Unit 12. *"Due-on-sale"* → land trust; banks don't call performing loans. *"What if you stop paying?"* → property reverts after 2 missed payments, seller keeps everything paid. *"Can my seller get a new loan after?"* → yes — trust certificate + occupancy agreement (VA-loan angle); partner originator **Andrew**.
+▸ **Props:** full 60+ scripts/objections → [`assets/sources/subto-email-templates-and-scripts.md`](https://github.com/timfarr-ai/rt-companion/blob/main/assets/sources/subto-email-templates-and-scripts.md) · OpenPhone click-to-call (card).
+
+**Step 5 — OFFER.** Cash-to-seller lump (rate/price-scaled), assume the loan; run the numbers + suitability check.
+▸ **Props:** [Offer Oven Calculator (Subto mode)](/rt-companion/playbooks/offer-oven-calculator.html?otype=Subto) — the card auto-fills it per deal (price/balance/rate/rent); it returns the **PROCEED / COUNTER / KILL** suitability verdict (the Closer-eval criteria).
+
+**Step 6 — EMAIL the offer.** Send after the call, referencing the conversation. Verbatim TRUST email pattern:
+```
+Good Evening [Name], thank you for your time today. My lender won't budge much on $[X]; your seller would
+still lose $5-10k on a sale. I could just take over their debt instead and let them qualify for a new loan:
+I'd take over whatever's owed on the mortgage, pay you $[8,500] and your seller $[7,000] cash, and cover all
+closing costs. The loan isn't assumable, but here's the loophole — your client puts the property into a trust
+created by an attorney and sells me the trust. This completely resets their DTI and is a legal sale. Can we
+present this so they walk with $[7k]? My portfolio + proof of funds are in your texts. Regards, [You]
+```
+▸ **Props:** [Sub-To email deck (60+)](https://docs.google.com/presentation/d/1faQLOfVvmOvZ5Yl4K9k6_wUvGCfbTwyMs2J6x7Mr7Kw/edit) · the card's "Copy values" + email autofill.
+
+**Step 7 — PAPER (contract).** **Trust Acquisition:** house → revocable living trust (trust attorney); deed in, mortgage stays in seller's name; buyer assigned **90-95% beneficial interest**, seller keeps **5-10%**; buyer/trust pays the mortgage. + **Assignment Disclosure Addendum** for the wholesale assignment.
+▸ **Props:** editable [Mortgage-Takeover / Seller-Finance contract (.docx)](https://docs.google.com/document/d/19sgM1zTQSvDYbiCvEYjYsBUfb1bouPZA/edit) · Assignment Disclosure Addendum (Drive) · Gold Key TC for transaction coordination.
+
+**Step 8 — SUBMIT / DISPO.** Get it under contract, then disposition:
+- **Save to BBC Pipeline** — the card's 🔑 button (HMAC-signed → BBC pipeline/add). Or [Create Offer in BBC](https://www.buyboxcartel.com/vip/lightning-leads).
+- **Submit to Grand In Taylor (JV)** — Richard's company places it with their buyer network, **50/50 split**: [Creative JV webform](https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78) (the card's 🤝 button).
+- **Closer eval** — confirm the deal meets the Closer criteria first (the calculator's suitability panel; min CF, max equity 15%, balloon ≥5yr) if you want Closer help.
+▸ **Props:** card buttons (Save to Pipeline · Submit to Grand In Taylor · Create Offer in BBC).
+
+**Step 9 — TRACK.** Log to Airtable **Deal Flow** (status: Contacted → Accepted → Pushed to TC → Buyer Found → Paid). Tracked PIDs auto-drop from the next day's call sheet.
+▸ **Props:** Airtable Deal Flow (card "Track" button auto-prefills the record).
+
+---
 ## Sources
-MT course transcript L21-11, L399-409, L535, L561-562, L738, L793-795, L1067-1080 · HMHW Discord
-*Mortgage Takeover* group (Trust Acquisition doc, 60-template email deck, PropStream slide) ·
-`comps-sop.md` · Steve Ward coaching §3 · BBC live data pull (2026-06-12) · `triage.py classify_strategy`.
+MT course L399-409, L561-562, L738, L793-795, L1067-1080 · Discord *Mortgage Takeover* (Trust Acquisition
+doc, 60-template deck, PropStream slide) · Steve Ward §3 (loan script) · `comps-sop.md` · BBC live data ·
+`triage.py` (classify, submission wiring). See also [Hybrid](/rt-companion/playbooks/hybrid.html) (medium equity).
