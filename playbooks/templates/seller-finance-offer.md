@@ -32,7 +32,9 @@ that works here. You're paid your full commission out of my down payment. Your c
 their full equity — above asking — and defers the tax hit. The premium I pay over list is
 their return, and the monthly payment is the lion's share of what the property nets after
 taxes, insurance and upkeep. I cover every other closing cost too, and at year {{balloonYrs}}
-I refinance or sell them out of the balance.
+I refinance or sell them out of the balance. I set that term deliberately: the property needs
+time to appreciate so I can refinance and pay your client in full — a shorter balloon would
+risk leaving them short.
 
 And your client carries no risk. A deed of trust protects them throughout — miss 60 days and
 the property reverts to them, keeping every payment made, no foreclosure. They're not a
