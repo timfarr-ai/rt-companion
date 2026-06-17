@@ -77,7 +77,7 @@ Re: Seller-Finance Offer — 13112 Canonbury St, Detroit, MI 48205
   Term:               7-year (84-month) balloon
   Payout at balloon:  ~$42,900 (via refinance or sale)
   EMD:                $1,000 non-refundable, after inspection
-  Inspection:         10 business days
+  Inspection:         7 business days
   COE:                on or before 30 days
   Buyer:              [Your LLC]   ·   Title: company of your choice
 
@@ -102,8 +102,8 @@ $65K. Either way, your client gives up equity. It's structural, not bad luck.
 
 Seller financing fixes all of it: your client gets their full equity, above asking, and
 defers the tax event. The premium I pay over list is their return, and the monthly payment
-hands them the lion's share of what the property nets — after taxes, insurance and upkeep it
-clears about $500 a month, and your client keeps the bulk of it. I cover every closing cost
+hands them the lion's share of what the property nets after taxes, insurance and upkeep —
+the bulk of it goes to your client. I cover every closing cost
 (your commission comes out of the down), and at year seven I refinance or sell them out of
 the balance. A deed of trust protects them throughout — if I'm ever 60 days late the property reverts to them and
 they keep every payment made, no foreclosure. Best of all, they're not a landlord: no
@@ -114,7 +114,7 @@ tenants, no repairs, no vacancy risk — just paid like the bank, every month, o
   - Payment:    $400/month
   - Balloon:    ~$42,900 at year 7
   - EMD:        $1,500 non-refundable, submitted after inspection
-  - Inspection: 10 business days
+  - Inspection: 7 business days
   - COE:        on or before 30 days
   - Security:   deed of trust
 
