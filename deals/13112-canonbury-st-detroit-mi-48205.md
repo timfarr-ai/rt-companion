@@ -100,21 +100,20 @@ either: a cash buyer can earn 10%+ in the stock market, so they only buy here at
 discount that beats it — hence the offers stuck around $65K. Either way, your client
 gives up equity. It's structural, not bad luck.
 
-Seller financing is the one structure that gets your client their FULL equity — over
-asking, with a monthly payment of up to 40% of the rent — instead of a discount:
+Seller financing fixes all of it: your client gets their full equity, above asking, and
+defers the tax event. The premium I pay over list is their return in place of interest;
+the monthly runs up to 40% of the rent; I cover every closing cost (your commission comes
+out of the down); and at year seven I refinance or sell them out of the balance. A deed of
+trust protects them throughout — if I'm ever 60 days late the property reverts to them and
+they keep every payment made, no foreclosure. Best of all, they're not a landlord: no
+tenants, no repairs, no vacancy risk — just paid like the bank, every month, occupied or not.
 
-  - Price:      $85,000  (well over what the market will actually pay)
-  - Down:       $8,500 at closing; I cover all closing costs (your commission paid from this)
-  - Interest:   0% — the premium over asking is your client's return
+  - Price:      $85,000
+  - Down:       $8,500
+  - Interest:   0%
   - Payment:    $400/month
-  - Balloon:    7 years — I refinance or sell your client out of the remaining ~$42,900
-  - Protection: a deed of trust. If I'm ever 60 days late, your client takes the property
-               back through the county and keeps every payment made — no foreclosure.
-
-And your client isn't a landlord — no tenants, no repairs, no vacancy risk. They're paid
-like the bank: $400 every month regardless of whether it's occupied, with their equity
-secured against the property. They collect the full $85,000 over the term and defer the
-tax event, instead of handing equity to a lowball cash buyer today.
+  - Balloon:    ~$42,900 at year 7
+  - Security:   deed of trust
 
 I can close fast, no appraisal needed.
 
