@@ -27,11 +27,12 @@ they'll only buy at a discount steep enough to beat it{{#cashLevel}}, which is w
 stuck around {{cashLevel}}{{/cashLevel}}. Either way your client loses equity — it's structural,
 not bad luck.
 
-Seller financing fixes all of it — and you're paid your full commission out of my down
-payment. Your client gets their full equity — above asking — and defers the tax hit. The
-premium I pay over list is their return, and the monthly payment is the lion's share of what
-the property nets after taxes, insurance and upkeep; I keep only a sliver. I cover every other
-closing cost too, and at year {{balloonYrs}} I refinance or sell them out of the balance.
+That's why I'm proposing seller financing — not my first choice either, but the only structure
+that works here. You're paid your full commission out of my down payment. Your client gets
+their full equity — above asking — and defers the tax hit. The premium I pay over list is
+their return, and the monthly payment is the lion's share of what the property nets after
+taxes, insurance and upkeep. I cover every other closing cost too, and at year {{balloonYrs}}
+I refinance or sell them out of the balance.
 
 And your client carries no risk. A deed of trust protects them throughout — miss 60 days and
 the property reverts to them, keeping every payment made, no foreclosure. They're not a
