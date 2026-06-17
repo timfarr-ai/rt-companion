@@ -85,51 +85,32 @@ Security: a deed of trust returns the property to your seller if I ever miss 60 
 payments — they keep everything paid to that point. No foreclosure needed.
 ```
 
-### Seller-Finance email (ready to send — adapted from Tim's takeover template)
+### Seller-Finance email (ready to send — this email IS the offer; free & clear, no DTI line)
 
 ```
-Subject: An offer that protects your full equity — 13112 Canonbury St
+Subject: Full-price offer (and then some) — 13112 Canonbury St
 
 Hi [Agent],
 
-I appreciate your time on the phone to flesh out how we might structure a transaction for this property.
+Thanks for your time on the phone — here's my offer in writing.
 
-I understand a straight sale is preferable, and I know your client is holding firm on price to get the
-most equity out of this property — which is exactly why I think terms beat cash here. Let me explain.
+The math on this one is simple: the rent only supports a DSCR loan around $65K. That's
+why cash won't go higher, and why financing fails above it — you've seen both (cash near
+$65K, the $75K offer fell through on financing). It's structural, not bad luck.
 
-A buyer using a DSCR loan fails on cash flow at today's rates, and often on the appraisal (which comes in
-under the market comp). FHA can't reach the price either. And a cash buyer will demand a steep discount —
-they can earn 10%+ cash-on-cash in the stock market, so they only buy here at a number that guts your
-client's equity. You've already seen this: cash is coming in around $65K, and the financed offer at $75K
-fell through. That isn't bad luck — it's structural, and the next financed buyer will fall out the same way.
+Seller financing is the one structure that gets your client their FULL equity — over
+asking — instead of a discount:
 
-Here's the alternative. Rather than lowball your client, I'll give them their FULL equity — actually above
-asking — and let them defer the tax event on the sale, while I take on terms that make the property cash
-flow for me:
+  - Price:      $85,000  (above your $77,500 ask)
+  - Down:       $8,500 at closing; I cover all closing costs (your commission paid from this)
+  - Interest:   0% — the premium over asking is your client's return
+  - Payment:    $400/month
+  - Balloon:    7 years — I refinance or sell your client out of the remaining ~$42,900
+  - Protection: a deed of trust. If I'm ever 60 days late, your client takes the property
+               back through the county and keeps every payment made — no foreclosure.
 
-  - Purchase price: $85,000  (above your $77,500 ask — your client's full equity, and then some)
-  - Down payment:   $8,500 at closing, and I cover all closing costs (your commission is paid from this)
-  - Interest:       0% — the premium over asking IS your client's return
-  - Payment:        $400/month to your client
-  - Term:           7-year balloon — I refinance or sell your client out of the remaining ~$42,900
-  - Protection:     a deed of trust signed at closing. If my servicing company is ever 60 days late,
-                    your client takes it back through the county — keeping every payment made to that
-                    point, with no foreclosure.
-
-Your client realizes their entire $85,000 over the term instead of giving up equity to a discount buyer
-today, and defers the capital-gains/1031 event in the process. Per Fannie Mae and Freddie Mac underwriting
-guidelines, payments made by another party over time are not counted against your client's DTI, so this
-doesn't block their next purchase.
-
-To put a written offer in front of you, I just need a few figures:
-  - Current rents and lease terms in place (start, end, rate)
-  - Annual expenses — I'm penciling ~$5,000 — and insurance ~$3,000
-  - Any existing mortgage on title (balance, rate, payment) — if it's free and clear, even simpler
-  - Any back taxes or liens
-
-Given the property's age and condition, inspection and settlement can happen quickly and without an
-appraisal. I want to move on this fast — get me those and I'll turn around a written offer with a short
-settlement and us covering closing costs.
+Your client collects the full $85,000 over the term and defers the tax event, instead of
+handing equity to a lowball cash buyer today. I can close fast, no appraisal needed.
 
 Regards,
 [You]
