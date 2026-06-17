@@ -114,12 +114,12 @@ Run it + get the verdict:
 
 ### Step 5 — Email the offer
 
-Send right after the call. This is the **canonical Seller Finance offer email** — lead with the offer,
+Send right after the call. This is the **master Seller Finance offer email** — lead with the offer,
 then the reasoning the agent uses to present it to the seller. **The Offer Oven (deal type = Seller
 Finance) auto-fills every figure and generates this exact email**, so you don't hand-calculate. Bracketed
 items are the fills; the `[ … ]` optional lines drop out when you have no competing-offer intel.
 
-*Source: Richard's seller-finance deck (canonical HMHW) + bedded down on the 13112 Canonbury St deal
+*Source: Richard's seller-finance deck (official HMHW) + bedded down on the 13112 Canonbury St deal
 (2026-06-17). Token spec: `playbooks/templates/seller-finance-offer.md`.*
 
 ```

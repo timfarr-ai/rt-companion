@@ -1,7 +1,7 @@
-# Seller Finance — Offer Email Template (LAUNCH CANON)
+# Seller Finance — Offer Email Template (MASTER)
 
 Source of truth for the Offer Oven's "Generate Offer Email" when **otype = Seller Finance**.
-Derived from the 13112 Canonbury St deal (bedded down 2026-06-17) + the canonical HMHW
+Derived from the 13112 Canonbury St deal (bedded down 2026-06-17) + the official HMHW
 seller-finance deck. Tokens in `{{ }}`. Optional intel uses Mustache-style conditionals
 `{{#token}}…{{/token}}` — the block renders only if that token has a value, so the same
 template works with full competing-offer intel (Canonbury) or cold (no intel).
