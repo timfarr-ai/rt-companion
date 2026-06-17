@@ -106,7 +106,7 @@ asking — instead of a discount:
   - Price:      $85,000  (well over what the market will actually pay)
   - Down:       $8,500 at closing; I cover all closing costs (your commission paid from this)
   - Interest:   0% — the premium over asking is your client's return
-  - Payment:    $400/month
+  - Payment:    $400/month — roughly 40% of the rent the property brings in
   - Balloon:    7 years — I refinance or sell your client out of the remaining ~$42,900
   - Protection: a deed of trust. If I'm ever 60 days late, your client takes the property
                back through the county and keeps every payment made — no foreclosure.
