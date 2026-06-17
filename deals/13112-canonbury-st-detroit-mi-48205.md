@@ -94,20 +94,22 @@ Hi [Agent],
 
 Thanks for your time on the phone — here's my offer in writing.
 
-An investment property only makes sense if it cash flows — and at this rent, it doesn't
-support a loan above ~$65K. So financing fails above that (you saw the $75K offer fall
-through), and cash won't reach your number either: a cash buyer can earn 10%+ in the stock
-market, so they only buy here at a discount that beats it — hence the offers stuck around
-$65K. Either way, your client gives up equity. It's structural, not bad luck.
+An investment property only makes sense if it cash flows, and at this rent it won't support
+a loan much above $65K. So financing fails above that — you saw the $75K offer fall through.
+And cash won't reach your number either: a cash buyer can earn 10%+ in the stock market, so
+they'll only buy at a discount steep enough to beat it, which is why offers are stuck around
+$65K. Either way your client loses equity — it's structural, not bad luck.
 
-Seller financing fixes all of it: your client gets their full equity, above asking, and
-defers the tax event. The premium I pay over list is their return, and the monthly payment
-hands them the lion's share of what the property nets after taxes, insurance and upkeep —
-the bulk of it goes to your client. I cover every closing cost
-(your commission comes out of the down), and at year seven I refinance or sell them out of
-the balance. A deed of trust protects them throughout — if I'm ever 60 days late the property reverts to them and
-they keep every payment made, no foreclosure. Best of all, they're not a landlord: no
-tenants, no repairs, no vacancy risk — just paid like the bank, every month, occupied or not.
+Seller financing fixes all of it — and you're paid your full commission out of my down
+payment. Your client gets their full equity — above asking — and defers the tax hit. The
+premium I pay over list is their return, and the monthly payment is the lion's share of what
+the property nets after taxes, insurance and upkeep; I keep only a sliver. I cover every other
+closing cost too, and at year seven I refinance or sell them out of the balance.
+
+And your client carries no risk. A deed of trust protects them throughout — miss 60 days and
+the property reverts to them, keeping every payment made, no foreclosure. They're not a
+landlord either: no tenants, no repairs, no vacancy — just paid like the bank, every month,
+occupied or not.
 
   - Price:      $85,000
   - Down:       $8,500
@@ -118,7 +120,8 @@ tenants, no repairs, no vacancy risk — just paid like the bank, every month, o
   - COE:        on or before 30 days
   - Security:   deed of trust
 
-My proof of funds is attached. I can close fast, no appraisal needed.
+My proof of funds is attached, I can close fast, and no appraisal is needed. Let me know what
+your client thinks.
 
 Regards,
 [You]
