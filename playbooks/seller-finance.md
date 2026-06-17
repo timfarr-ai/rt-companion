@@ -114,41 +114,72 @@ Run it + get the verdict:
 
 ### Step 5 — Email the offer
 
-Send right after the call — Richard's **Checkmate Pitch email, verbatim** (fill the [brackets]). It walks
-the agent through the same DSCR-wall logic, then lands the offer:
+Send right after the call. This is the **canonical Seller Finance offer email** — lead with the offer,
+then the reasoning the agent uses to present it to the seller. **The Offer Oven (deal type = Seller
+Finance) auto-fills every figure and generates this exact email**, so you don't hand-calculate. Bracketed
+items are the fills; the `[ … ]` optional lines drop out when you have no competing-offer intel.
+
+*Source: Richard's seller-finance deck (canonical HMHW) + bedded down on the 13112 Canonbury St deal
+(2026-06-17). Token spec: `playbooks/templates/seller-finance-offer.md`.*
 
 ```
-Good Evening [Lisa],
-Thank you for taking the time to speak with me today about your listing on [N Watts St]. I'm interested
-in making you an offer as close to your asking price as I possibly can. I initially intended to offer
-[$510,000], however if I get a mortgage on the property at that price, I'm paying [$3,300]/month while it
-rents for [$3,600]. After management, vacancy and repairs, I'm losing money every month, and no lender
-post-2008 will qualify a loan that doesn't cash-flow.
+Subject: Full-price offer (and then some) — [address]
 
-If I buy it in cash, I'm trading [$600,000] for about [$2,100]/month after expenses — roughly a 4% return.
-I'd do better in the stock market. And no owner-occupant is going to live in a tenant-occupied rental.
-So no matter what kind of buyer approaches you, this is very hard to sell conventionally.
+Hi [agent],
 
-As such, I'd like to present an offer on seller-financing terms — not because I prefer it, but because
-it's the only structure I can see that actually closes. If you know another way, please tell me.
+Thanks for your time on the phone — here's my offer in writing.
 
-- Buy Price: [$700,000]  (my interest is built into the price — about [$100k] over 72 months)
-- Down Payment: [$75,000] + closing costs ([$16,000] of this goes to you for commission)
-- Monthly Payment: [$1,000]/month (the property nets ~[$2,100]; my down needs to buy real cash flow)
-- Term & balloon: 72 months. If I miss 2 payments, the property is deeded back to your client and they
-  keep my renovations and down payment. We secure this with a deed of trust.
-- Balloon: on the 72nd month I refinance your client out their remaining [$553,000].
+  - Price:      [offer = asking +10–15%]
+  - Down:       [10% of offer]
+  - Payment:    [≈40% of rent — the lion's share of NET]/month
+  - Balloon:    ~[offer − down − (payment × term)] at month 72
+  - EMD:        [1% of price, floor $1,000] non-refundable, submitted after inspection
+  - Inspection: 7 business days
+  - COE:        on or before 30 days
+  - Security:   deed of trust
 
-I know your client wasn't looking to seller finance — neither was I. If you have a better way to get this
-done, I'm all ears. My proof of funds and portfolio are attached.
-Regards, [You]
+My proof of funds is attached, I can close fast, and no appraisal is needed. I have
+flexibility in the terms depending on your seller's needs.
+
+Here's the reasoning, so you can walk your seller through it:
+
+I'd love to buy this the conventional way, and I'm sure your seller would prefer a clean sale
+— but given how long it's been on the market, we both know that route isn't landing. There's
+a structural reason: an investment property only makes sense if it cash flows, and at this rent
+it won't support a loan much above [value the rent supports].
+
+So financing fails above that[ — you saw the [competing offer] fall through]. And cash won't
+reach your number either: a cash buyer can earn 10%+ in the stock market, so they'll only buy
+at a discount steep enough to beat it[, which is why offers are stuck around [cash level]].
+Either way your client loses equity — it's structural, not bad luck.
+
+That's why I'm proposing seller financing — not my first choice either, but the only structure
+that works here. You're paid your full commission out of my down payment, and your client gets
+their full equity — above asking — while deferring the tax hit.
+
+The premium I pay over list is their return, and the monthly payment is the lion's share of
+what the property nets after taxes, insurance and upkeep. I cover every other closing cost too.
+
+At the end of the term I refinance or sell them out of the balance. I set that term
+deliberately: the property needs time to appreciate so I can refinance and pay your client in
+full — a shorter balloon would risk leaving them short.
+
+And your client carries no risk. A deed of trust protects them throughout — miss 60 days and
+the property reverts to them, keeping every payment made, no foreclosure.
+
+They're not a landlord either: no tenants, no repairs, no vacancy — just paid like the bank,
+every month, occupied or not.
+
+Regards,
+[you]
 ```
 
 Cash-rich seller fixated on a lump sum? Pair it with the **cash + seller-finance** double-offer (Offer 1:
 ~70% cash via DSCR; Offer 2: the seller-finance terms above) so they self-select.
 
-Full library (multi-family, low-equity, with-interest, fix-&-flip seller-finance, "filters to find SF
-deals"): [Seller Finance email deck ↗](https://docs.google.com/presentation/d/1lt8Gv9lzlgOSZXEw8-pFkDt4i3UNvIZy3helfhM4Qvk/edit)
+Longer DSCR-wall walkthrough variant (the "Checkmate Pitch"), plus the full library (multi-family,
+low-equity, with-interest, fix-&-flip seller-finance, "filters to find SF deals"):
+[Seller Finance email deck ↗](https://docs.google.com/presentation/d/1lt8Gv9lzlgOSZXEw8-pFkDt4i3UNvIZy3helfhM4Qvk/edit)
 
 ### Step 6 — Get it under contract
 
