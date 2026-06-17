@@ -53,9 +53,12 @@ free-&-clear seller to eat a ~$23K haircut — they'll say no (not a distressed 
 their full price on 0% terms AND yields a ~50% end-buyer CoC you can dispo. Fire the cash offer only as
 the **Trojan opener** → pivot to SF on rejection.
 
-**From your Offer Oven (purchase $85K, rent $1,300, 0%, 7yr):** end-buyer CF **$682/mo, CoC 50.5%** ✓ great dispo product.
-- ⚠ **Pitch the seller $520/mo (40% of rent), NOT the $213/mo amortized figure** — $213 gets a "no." At $520/mo the end-buyer still nets ~$375/mo (~28% CoC) with a smaller (~$39K) balloon.
-- ⚠ **Balloon/exit risk:** at −8%/yr, projected value ~$56K@5yr is **below** the $58.6K balloon@7yr — refi/sale to clear it is tight. Cash flow cushions it; a cash buy avoids it.
+**Chosen terms: $85,000 price · $8,500 down (10%) · 0% · $400/mo · 7-yr balloon.** Seller realizes
+$8,500 + ($400×84) + $42,900 balloon = **$85,000 — their FULL equity, $7.5K over ask** (the equity-max hook).
+- Implied amortization at $400/mo = $76,500 ÷ $400 = **~15.9 yr** (genuinely low payment).
+- **Balloon ≈ $42,900 @ 7yr** ($47,700 @ 6yr) — **below the $65–75K market value → easy refi/resale exit.**
+- $400/mo ≈ 33% of $1,200 rent → end-buyer still cash-flows (~$130/mo + the ~$27K trapped-equity capture
+  at refi: owe ~$43K on a ~$70K asset).
 
 ---
 
@@ -67,12 +70,12 @@ rent won't carry the loan. This is the structure that does."*
 ```
 Re: Seller-Finance Offer — 13112 Canonbury St, Detroit, MI 48205
 
-  Offer Price:        $89,125   ($11,625 OVER asking)
-  Down Payment:       $8,900 cash + all closing/title fees (commission paid from this)
+  Offer Price:        $85,000   ($7,500 OVER asking — their full equity, deferred)
+  Down Payment:       $8,500 cash + all closing/title fees (commission paid from this)
   Interest Rate:      0%
-  Monthly Payment:    $480 / month to the seller
-  Term:               72-month balloon
-  Payout at balloon:  ~$45,665 (via refinance or sale)
+  Monthly Payment:    $400 / month to the seller
+  Term:               7-year (84-month) balloon
+  Payout at balloon:  ~$42,900 (via refinance or sale)
   EMD:                $1,000 non-refundable, after inspection
   Inspection:         5 business days
   COE:                on or before 30 days
@@ -80,6 +83,56 @@ Re: Seller-Finance Offer — 13112 Canonbury St, Detroit, MI 48205
 
 Security: a deed of trust returns the property to your seller if I ever miss 60 days of
 payments — they keep everything paid to that point. No foreclosure needed.
+```
+
+### Seller-Finance email (ready to send — adapted from Tim's takeover template)
+
+```
+Subject: An offer that protects your full equity — 13112 Canonbury St
+
+Hi [Agent],
+
+I appreciate your time on the phone to flesh out how we might structure a transaction for this property.
+
+I understand a straight sale is preferable, and I know your client is holding firm on price to get the
+most equity out of this property — which is exactly why I think terms beat cash here. Let me explain.
+
+A buyer using a DSCR loan fails on cash flow at today's rates, and often on the appraisal (which comes in
+under the market comp). FHA can't reach the price either. And a cash buyer will demand a steep discount —
+they can earn 10%+ cash-on-cash in the stock market, so they only buy here at a number that guts your
+client's equity. You've already seen this: cash is coming in around $65K, and the financed offer at $75K
+fell through. That isn't bad luck — it's structural, and the next financed buyer will fall out the same way.
+
+Here's the alternative. Rather than lowball your client, I'll give them their FULL equity — actually above
+asking — and let them defer the tax event on the sale, while I take on terms that make the property cash
+flow for me:
+
+  - Purchase price: $85,000  (above your $77,500 ask — your client's full equity, and then some)
+  - Down payment:   $8,500 at closing, and I cover all closing costs (your commission is paid from this)
+  - Interest:       0% — the premium over asking IS your client's return
+  - Payment:        $400/month to your client
+  - Term:           7-year balloon — I refinance or sell your client out of the remaining ~$42,900
+  - Protection:     a deed of trust signed at closing. If my servicing company is ever 60 days late,
+                    your client takes it back through the county — keeping every payment made to that
+                    point, with no foreclosure.
+
+Your client realizes their entire $85,000 over the term instead of giving up equity to a discount buyer
+today, and defers the capital-gains/1031 event in the process. Per Fannie Mae and Freddie Mac underwriting
+guidelines, payments made by another party over time are not counted against your client's DTI, so this
+doesn't block their next purchase.
+
+To put a written offer in front of you, I just need a few figures:
+  - Current rents and lease terms in place (start, end, rate)
+  - Annual expenses — I'm penciling ~$5,000 — and insurance ~$3,000
+  - Any existing mortgage on title (balance, rate, payment) — if it's free and clear, even simpler
+  - Any back taxes or liens
+
+Given the property's age and condition, inspection and settlement can happen quickly and without an
+appraisal. I want to move on this fast — get me those and I'll turn around a written offer with a short
+settlement and us covering closing costs.
+
+Regards,
+[You]
 ```
 
 ## LOI — Cash (Trojan opener only — expect a "no", then pivot to SF)
