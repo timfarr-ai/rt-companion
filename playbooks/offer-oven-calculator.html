@@ -90,6 +90,8 @@
       <label><span>Down payment $</span><input id="down" type="number" value="70000"></label>
       <label><span>Interest rate %</span><input id="rate" type="number" step="0.1" value="0"></label>
       <label><span>Amortization (yrs)</span><input id="amort" type="number" value="30"></label>
+      <label><span>Seller pmt $/mo <em style="font-size:11px;color:var(--muted);">(blank = use amort)</em></span><input id="sfPay" type="number" placeholder="auto"></label>
+      <label><span><a href="#" onclick="set40();return false;" style="font-size:13px;">↳ set payment to 40% of rent</a></span><span class="v" id="oEstAmort" style="color:var(--muted);font-size:13px;">—</span></label>
       <label><span>Interest only?</span><select id="io"><option>No</option><option>Yes</option></select></label>
       <label><span>Balloon (yrs)</span><input id="balloon" type="number" value="6"></label>
       <label><span>Assignment fee $</span><input id="assign" type="number" value="0"></label>
@@ -249,6 +251,7 @@ function subtoLoans(){
   ];
 }
 
+function set40(){ var r=N('rent'); if(r>0){ $('sfPay').value = Math.round(r*0.40); recalc(); } }
 function calcCF(){
   const price=N('price'), list=N('list'), otype=$('otype').value, down=N('down');
   const rate=N('rate')/100, amort=N('amort'), io=$('io').value, balloonYr=N('balloon');
@@ -268,10 +271,22 @@ function calcCF(){
   else loan = 0;
   loan = Math.max(0, loan);
 
-  const rateMo = rate/12, nMo = amort*12;
-  // Monthly P&I: Subto=sum subto pmts · IO=loan*rate/12 · rate0=loan/(amort*12) · else amortized
+  const rateMo = rate/12;
+  let nMo = amort*12;
+  // "Amortization For Seller Finance" helper (mirrors the sheet): if you TYPE a seller payment,
+  // it becomes the monthly and we back-solve the amortization term — so the balloon flows from the
+  // payment you'll actually offer (e.g. 40% of rent), not a nominal 30-yr schedule.
+  const sfPay = N('sfPay');
+  let estAmortYr = 0;
   let monthlyPI;
   if(isSubto) monthlyPI = totLoanPay;
+  else if((isSF || isHybrid) && sfPay > 0 && loan > 0){
+    monthlyPI = sfPay;
+    if(rateMo === 0) nMo = loan / sfPay;                                   // months to fully amortize at 0%
+    else if(sfPay > loan*rateMo) nMo = -Math.log(1 - rateMo*loan/sfPay)/Math.log(1+rateMo); // NPER
+    else nMo = 1e9;                                                        // pmt ≤ interest → ~interest-only
+    estAmortYr = nMo/12;
+  }
   else if(io==='Yes') monthlyPI = loan*rate/12;
   else monthlyPI = pmt(rateMo, nMo, loan);
   const annualPI = monthlyPI*12;
@@ -310,6 +325,7 @@ function calcCF(){
   $('oDownPct').textContent = price>0?pct(down/price):'—';
   $('oLoan').textContent = money(loan);
   $('oPmt').textContent = money(monthlyPI)+'/mo';
+  $('oEstAmort').textContent = estAmortYr>0 ? '≈ '+estAmortYr.toFixed(1)+' yr amort' : '—';
   $('oClose').textContent = money(closing);
   $('oEntry').textContent = money(entry);
   $('oOpex').textContent = money(opex);
@@ -442,7 +458,7 @@ function prefill(){
   const q = new URLSearchParams(location.search);
   const map = {price:'price',list:'list',down:'down',rate:'rate',rent:'rent',
     balloon:'balloon',otype:'otype',tax:'tax',ins:'ins',hoa:'hoa',assign:'assign',rehab:'rehab',
-    arv:'ffArv',ffrehab:'ffRehab',ffassign:'ffAssign'};
+    sfpay:'sfPay',arv:'ffArv',ffrehab:'ffRehab',ffassign:'ffAssign'};
   let any=false;
   for(const [k,id] of Object.entries(map)){
     if(q.has(k)){ const el=$(id); if(el){ el.value=q.get(k); any=true; if(k==='balloon') balloonTouched=true; } }
