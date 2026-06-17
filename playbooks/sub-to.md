@@ -25,19 +25,32 @@ Tool: PropStream (rate + liens) or [Propwire](https://propwire.com/search) (free
 
 ### Step 3 — Call
 
-Open by asking about the loan — **say this:**
+**The opener depends on who picks up:**
 
-> "If you've got a mortgage on it, I'd be happy to just take over your payments — a servicing company
-> pays it for you so you never worry about it. If a payment's ever missed, the property comes right back
-> to you and you keep everything paid up to that point. Since I'd run it as a rental, I just need the
-> rate and balance to make sure it cash-flows — can you confirm those?"
+**▸ Agent-listed (most Sub-To leads) — lead with the Trojan Horse.** Open near what they owe so the agent
+reveals there's no equity, then pivot. **Verbatim ("Get the Ball Rolling"):**
 
-If the agent won't entertain a takeover, run the **Trojan Horse**: make a cash offer built to be rejected
-(`loan balance + 4% of asking` — nets the seller ~$0). When they say the seller can't make money at that
-price, pivot:
+> "Hey, I'm calling about [address]. I was going to make an offer on this not far below asking — around
+> [mortgage balance] — but then I noticed they owe just about what I'd be offering. I'm guessing
+> [mortgage balance], or even $10k above that, wouldn't even be possible to accept, huh?
+>
+> Okay — well, I actually have a unique solution if other offers are coming in around what they owe. What
+> if I paid your commission AND put [4% of asking] in your client's pocket? I'll even cover title fees.
+> I'm not sure I'd be the best option though — initially I was going to offer close to asking, but that
+> looks like an even worse deal for them!"
 
-> "There might actually be a creative way for your seller to walk away clean without losing money — would
-> you be open to hearing it?"
+When the agent asks how you can "take over a mortgage":
+
+> "Oh yeah — I'd just use line 203 on the [state] HUD statement. Line 203 on every HUD statement nationwide
+> lets you take over a seller's mortgage, similar to an assumption."
+
+⚠ **Only run this at ≤10% equity** (asking − balance, from PropStream). Above that you'll embarrass yourself.
+
+**Homeowner-direct** (you reached the owner, no agent) — pitch the takeover straight instead:
+
+> "I'd be happy to just take over your payments — a servicing company pays the mortgage so you never worry
+> about it. If a payment's ever missed, the property comes right back to you and you keep everything paid
+> to that point. I just need the rate and balance to make sure it cash-flows."
 
 **Objections — say exactly this:**
 
@@ -70,39 +83,46 @@ Seller monthly ≈ **$0** (you pay the bank, not them). Run it + get the verdict
 
 ### Step 5 — Email the offer
 
-Send right after the call. **Copy-paste, fill the $$:**
+Send right after the call — Richard's **TRUST email, verbatim** (fill the [brackets]):
 
 ```
-Subject: [Address] — taking over the payments
-
-Good evening [Name], thank you for your time today.
-
-My lender won't budge much on [$130,000] — your seller would still lose $5–10k on a straight sale.
-So instead I'll just take over their debt and let them qualify for a new loan down the road:
-
-  • I take over whatever's owed and keep the mortgage current
-  • [$8,500] to you, [$7,000] cash to your seller
-  • I cover all closing costs
-
-The loan isn't assumable, but here's the legal loophole: your client puts the property into a trust
-created by an attorney and sells me the trust. It's a legal sale and resets their DTI completely.
-
-Can we present this so your seller walks with [$7,000]? My portfolio and proof of funds are in your
-text messages.
-
-Regards,
-[You]
+Good Evening [David],
+Thank you for your time today. My lender won't budge much on [$130,000], I can get him to [$133,000].
+It sounds like this may still result in your seller losing $5-10k on the sale.
+I could just take over their debt instead and allow them to qualify for a new loan. I'd offer to take
+over whatever is owed on the mortgage, pay you [$8,500] and your seller [$7,000] cash. I'll also cover
+all closing costs. I could try to assume this loan but it's not assumable. There's a well-established,
+completely legal way to do this though — the same structure families use to pass property to their kids:
+if your client doesn't sell, they'll likely one day transfer it into a trust and gift the trust to their
+kids to avoid six figures in capital gains taxes.
+We could do the exact same thing. I could have your client put the property into a trust created by an
+attorney and buy the trust off of them. This is what I did for all the properties listed below, most
+recently with [646 S Joplin, Aurora CO]. As long as this completely resets their DTI and acts as a
+legal sale, can we present this structure where they make [$7k]?
+My entire portfolio and proof of funds is in your text messages.
+Regards, [You]
 ```
 
-More variants (low-equity, cash-to-pivot, portfolio):
-[Sub-To email templates ↗](https://docs.google.com/presentation/d/1faQLOfVvmOvZ5Yl4K9k6_wUvGCfbTwyMs2J6x7Mr7Kw/edit)
+If you ran the Trojan Horse on the call, follow up with the **post-Trojan text** (same trust structure, casual):
+*"…my lender told me we could buy this off your client the same way they'd eventually transfer it to
+their kids — put it in a trust and I buy the trust. Gets the loan off their credit. I have [$10k] for
+your client, [$3k] for you, plus closing and the trust set-up fee."*
 
-### Step 6 — Sign
+Full library: [Sub-To email templates ↗](https://docs.google.com/presentation/d/1faQLOfVvmOvZ5Yl4K9k6_wUvGCfbTwyMs2J6x7Mr7Kw/edit)
 
-**Trust Acquisition** is the contract: the house goes into a revocable living trust (trust attorney); the
-**mortgage stays in the seller's name**; you take **90–95%** of the trust, seller keeps **5–10%**; you make
-the payments. Add an **Assignment Disclosure** so you can assign it.
-[Contract — Mortgage Takeover / Seller Finance ↗](https://docs.google.com/document/d/19sgM1zTQSvDYbiCvEYjYsBUfb1bouPZA/edit)
+### Step 6 — Get it under contract
+
+**Use BBC auto-contracts (primary).** Open the lead's **🏦 Create Offer in BBC** (the card button) →
+fill the offer → it generates the contract and **Save to Pipeline**. HMHW reviews & signs creative
+auto-contracts for you.
+
+**The legal structure = Trust Acquisition:** a trust attorney puts the property into a revocable living
+trust; you take **90–95%** beneficial interest, the seller keeps **5–10%**, the **mortgage stays in their
+name**, you make the payments. Add an **Assignment Disclosure** so you can assign it.
+
+*Fallback only (BBC contracts down):* the editable
+[contract .docx ↗](https://docs.google.com/document/d/19sgM1zTQSvDYbiCvEYjYsBUfb1bouPZA/edit) +
+[how to fill it — video ↗](https://drive.google.com/file/d/1L4JptVcCH2UXjau3QutEmLxraUuHYLl9/view)
 
 ### Step 7 — Submit & track
 
