@@ -94,9 +94,11 @@ Hi [Agent],
 
 Thanks for your time on the phone — here's my offer in writing.
 
-The math on this one is simple: the rent only supports a DSCR loan around $65K. That's
-why cash won't go higher, and why financing fails above it — you've seen both (cash near
-$65K, the $75K offer fell through on financing). It's structural, not bad luck.
+The math here is simple. The rent only supports a DSCR loan around $65K, so financing
+fails above that — you saw the $75K offer fall through. And cash won't reach your number
+either: a cash buyer can earn 10%+ in the stock market, so they only buy here at a
+discount that beats it — hence the offers stuck around $65K. Either way, your client
+gives up equity. It's structural, not bad luck.
 
 Seller financing is the one structure that gets your client their FULL equity — over
 asking — instead of a discount:
