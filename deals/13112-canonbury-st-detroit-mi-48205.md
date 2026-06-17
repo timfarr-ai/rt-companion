@@ -1,6 +1,14 @@
 # Deal Analysis — 13112 Canonbury St, Detroit, MI 48205
 
-**Status:** spoken to agent · constructing LOI · comps checked 2026-06-17.
+**Status:** spoken to agent · comps checked 2026-06-17 · **Seller Finance is the lead** (see intel).
+
+## 🔑 Market intel from the agent (2026-06-17)
+- **Cash offers in hand ≈ $65K** — at/below as-is value; no wholesale spread there.
+- **One offer at $75K — financing FELL THROUGH.** This is the DSCR wall live: rent can't carry a
+  loan near the ask, so financed buyers can't close. **Use it in the pitch** — *"that buyer won't be the
+  last to fall out on financing; seller finance is the only structure that actually closes at your number."*
+- **The wedge:** cash caps ~$65K, financed can't fund ~$75K, seller wants $77.5K → **only seller finance
+  bridges it.** Agent is motivated (burned a dead contract). Lead SF; cash $65K = Trojan opener only.
 
 ## Snapshot
 - **List:** $77,500 · 3 bd / 1 ba · **1,029 sqft** · built **1940**
@@ -51,23 +59,10 @@ the **Trojan opener** → pivot to SF on rejection.
 
 ---
 
-## LOI — Cash (primary)
+## LOI — Seller Finance (PRIMARY — lead with this; free & clear only)
 
-```
-Re: Cash Offer — 13112 Canonbury St, Detroit, MI 48205
-
-  Offer Price:   $65,000 cash
-  EMD:           $2,000 non-refundable, submitted after inspection
-  Inspection:    6 business days
-  COE:           on or before 30 days
-  Title:         company of your choice — proof of funds attached
-  Buyer:         [Your LLC]
-
-If your client needs closer to their number, I have a structure that can get them to (or above)
-their asking — happy to walk you through it.
-```
-
-## LOI — Seller Finance (if they want full price; free & clear only)
+*Open the email by naming the $75K-that-fell-through: "No financed buyer will close near your number — the
+rent won't carry the loan. This is the structure that does."*
 
 ```
 Re: Seller-Finance Offer — 13112 Canonbury St, Detroit, MI 48205
@@ -85,6 +80,25 @@ Re: Seller-Finance Offer — 13112 Canonbury St, Detroit, MI 48205
 
 Security: a deed of trust returns the property to your seller if I ever miss 60 days of
 payments — they keep everything paid to that point. No foreclosure needed.
+```
+
+## LOI — Cash (Trojan opener only — expect a "no", then pivot to SF)
+
+Fire this to match the field at $65K; when it loses (no spread for you here anyway), pivot to the SF offer above.
+
+```
+Re: Cash Offer — 13112 Canonbury St, Detroit, MI 48205
+
+  Offer Price:   $65,000 cash
+  EMD:           $2,000 non-refundable, submitted after inspection
+  Inspection:    6 business days
+  COE:           on or before 30 days
+  Title:         company of your choice — proof of funds attached
+  Buyer:         [Your LLC]
+
+I know you've already got cash around this number and a financed offer that fell through. If your client
+wants their FULL asking — and to skip the capital-gains hit — I have a seller-finance structure that gets
+them there with no bank to fall through. Happy to send it over.
 ```
 
 *(Lock the numbers once rent, free-&-clear status, DOM, and condition are confirmed.)*
