@@ -11,7 +11,7 @@ template works with full competing-offer intel (Canonbury) or cold (no intel).
 ## Template
 
 ```
-Subject: Full-price offer (and then some) on {{address}}
+Subject: LOI - {{address}}
 
 Hi {{agent}},
 

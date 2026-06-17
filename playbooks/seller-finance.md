@@ -123,7 +123,7 @@ items are the fills; the `[ … ]` optional lines drop out when you have no comp
 (2026-06-17). Token spec: `playbooks/templates/seller-finance-offer.md`.*
 
 ```
-Subject: Full-price offer (and then some) on [address]
+Subject: LOI - [address]
 
 Hi [agent],
 

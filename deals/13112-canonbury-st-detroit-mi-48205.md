@@ -88,7 +88,7 @@ payments — they keep everything paid to that point. No foreclosure needed.
 ### Seller-Finance email (ready to send — this email IS the offer; free & clear, no DTI line)
 
 ```
-Subject: Full-price offer (and then some) on 13112 Canonbury St
+Subject: LOI - 13112 Canonbury St
 
 Hi [Agent],
 
