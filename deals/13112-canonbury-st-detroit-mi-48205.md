@@ -94,11 +94,13 @@ Hi [Agent],
 
 Thanks for your time on the phone — here's my offer in writing.
 
-An investment property only makes sense if it cash flows, and at this rent it won't support
-a loan much above $65K. So financing fails above that — you saw the $75K offer fall through.
-And cash won't reach your number either: a cash buyer can earn 10%+ in the stock market, so
-they'll only buy at a discount steep enough to beat it, which is why offers are stuck around
-$65K. Either way your client loses equity — it's structural, not bad luck.
+I'd love to buy this the conventional way, and I'm sure your seller would prefer a clean sale
+— but given how long it's been on the market, we both know that route isn't landing. There's
+a structural reason. An investment property only makes sense if it cash flows, and at this
+rent it won't support a loan much above $65K. So financing fails above that — you saw the $75K
+offer fall through. And cash won't reach your number either: a cash buyer can earn 10%+ in the
+stock market, so they'll only buy at a discount steep enough to beat it, which is why offers
+are stuck around $65K. Either way your client loses equity — it's structural, not bad luck.
 
 Seller financing fixes all of it — and you're paid your full commission out of my down
 payment. Your client gets their full equity — above asking — and defers the tax hit. The
@@ -120,8 +122,8 @@ occupied or not.
   - COE:        on or before 30 days
   - Security:   deed of trust
 
-My proof of funds is attached, I can close fast, and no appraisal is needed. Let me know what
-your client thinks.
+My proof of funds is attached, I can close fast, and no appraisal is needed. I have
+flexibility in the terms depending on your seller's needs.
 
 Regards,
 [You]

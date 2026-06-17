@@ -17,12 +17,15 @@ Hi {{agent}},
 
 Thanks for your time on the phone — here's my offer in writing.
 
-An investment property only makes sense if it cash flows, and at this rent it won't support
-a loan much above {{dscrValue}}. So financing fails above that{{#fellThrough}} — you saw the
-{{fellThrough}} offer fall through{{/fellThrough}}. And cash won't reach your number either: a
-cash buyer can earn 10%+ in the stock market, so they'll only buy at a discount steep enough
-to beat it{{#cashLevel}}, which is why offers are stuck around {{cashLevel}}{{/cashLevel}}.
-Either way your client loses equity — it's structural, not bad luck.
+I'd love to buy this the conventional way, and I'm sure your seller would prefer a clean sale
+— but {{#dom}}after {{dom}} on the market{{/dom}}{{^dom}}given how long it's been listed{{/dom}}, we both know that
+route isn't landing. There's a structural reason. An investment property only makes sense if
+it cash flows, and at this rent it won't support a loan much above {{dscrValue}}. So financing
+fails above that{{#fellThrough}} — you saw the {{fellThrough}} offer fall through{{/fellThrough}}.
+And cash won't reach your number either: a cash buyer can earn 10%+ in the stock market, so
+they'll only buy at a discount steep enough to beat it{{#cashLevel}}, which is why offers are
+stuck around {{cashLevel}}{{/cashLevel}}. Either way your client loses equity — it's structural,
+not bad luck.
 
 Seller financing fixes all of it — and you're paid your full commission out of my down
 payment. Your client gets their full equity — above asking — and defers the tax hit. The
@@ -44,7 +47,8 @@ occupied or not.
   - COE:        on or before {{coeDays}} days
   - Security:   deed of trust
 
-My proof of funds is attached. I can close fast, no appraisal needed.
+My proof of funds is attached, I can close fast, and no appraisal is needed. I have
+flexibility in the terms depending on your seller's needs.
 
 Regards,
 {{you}}
@@ -58,6 +62,7 @@ Regards,
 |---|---|---|
 | `{{address}}` | Property section (identity) | — (required) |
 | `{{agent}}` | optional color input | `there` |
+| `{{dom}}` | optional input (e.g. `120 days`) | falls back to "given how long it's been listed" |
 | `{{dscrValue}}` | input / calc-suggested (value the rent supports) | — (required) |
 | `{{fellThrough}}` | optional color input (e.g. `$75K`) | *(block hidden)* |
 | `{{cashLevel}}` | optional color input (e.g. `$65K`) | *(block hidden)* |
