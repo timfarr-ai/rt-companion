@@ -53,10 +53,10 @@ free-&-clear seller to eat a ~$23K haircut — they'll say no (not a distressed 
 their full price on 0% terms AND yields a ~50% end-buyer CoC you can dispo. Fire the cash offer only as
 the **Trojan opener** → pivot to SF on rejection.
 
-**Chosen terms: $85,000 price · $8,500 down (10%) · 0% · $400/mo · 7-yr balloon.** Seller realizes
+**Chosen terms: $85,000 price · $8,500 down (10%) · 0% · $400/mo · 84-month balloon.** Seller realizes
 $8,500 + ($400×84) + $42,900 balloon = **$85,000 — their FULL equity, $7.5K over ask** (the equity-max hook).
-- Implied amortization at $400/mo = $76,500 ÷ $400 = **~15.9 yr** (genuinely low payment).
-- **Balloon ≈ $42,900 @ 7yr** ($47,700 @ 6yr) — **below the $65–75K market value → easy refi/resale exit.**
+- Implied amortization at $400/mo = $76,500 ÷ $400 = **~191 months** (genuinely low payment).
+- **Balloon ≈ $42,900 @ 84 months** ($47,700 @ 72 months) — **below the $65–75K market value → easy refi/resale exit.**
 - $400/mo ≈ 33% of $1,200 rent → end-buyer still cash-flows (~$130/mo + the ~$27K trapped-equity capture
   at refi: owe ~$43K on a ~$70K asset).
 
@@ -74,7 +74,7 @@ Re: Seller-Finance Offer — 13112 Canonbury St, Detroit, MI 48205
   Down Payment:       $8,500 cash + all closing/title fees (commission paid from this)
   Interest Rate:      0%
   Monthly Payment:    $400 / month to the seller
-  Term:               7-year (84-month) balloon
+  Term:               84-month balloon
   Payout at balloon:  ~$42,900 (via refinance or sale)
   EMD:                $1,000 non-refundable, after inspection
   Inspection:         7 business days
@@ -94,32 +94,10 @@ Hi [Agent],
 
 Thanks for your time on the phone — here's my offer in writing.
 
-I'd love to buy this the conventional way, and I'm sure your seller would prefer a clean sale
-— but given how long it's been on the market, we both know that route isn't landing. There's
-a structural reason. An investment property only makes sense if it cash flows, and at this
-rent it won't support a loan much above $65K. So financing fails above that — you saw the $75K
-offer fall through. And cash won't reach your number either: a cash buyer can earn 10%+ in the
-stock market, so they'll only buy at a discount steep enough to beat it, which is why offers
-are stuck around $65K. Either way your client loses equity — it's structural, not bad luck.
-
-That's why I'm proposing seller financing — not my first choice either, but the only structure
-that works here. You're paid your full commission out of my down payment. Your client gets
-their full equity — above asking — and defers the tax hit. The premium I pay over list is
-their return, and the monthly payment is the lion's share of what the property nets after
-taxes, insurance and upkeep. I cover every other closing cost too, and at year seven I
-refinance or sell them out of the balance. I set that term deliberately: the property needs
-time to appreciate so I can refinance and pay your client in full — a shorter balloon would
-risk leaving them short.
-
-And your client carries no risk. A deed of trust protects them throughout — miss 60 days and
-the property reverts to them, keeping every payment made, no foreclosure. They're not a
-landlord either: no tenants, no repairs, no vacancy — just paid like the bank, every month,
-occupied or not.
-
   - Price:      $85,000
   - Down:       $8,500
   - Payment:    $400/month
-  - Balloon:    ~$42,900 at year 7
+  - Balloon:    ~$42,900 at month 84
   - EMD:        $1,000 non-refundable, submitted after inspection
   - Inspection: 7 business days
   - COE:        on or before 30 days
@@ -127,6 +105,35 @@ occupied or not.
 
 My proof of funds is attached, I can close fast, and no appraisal is needed. I have
 flexibility in the terms depending on your seller's needs.
+
+Here's the reasoning, so you can walk your seller through it:
+
+I'd love to buy this the conventional way, and I'm sure your seller would prefer a clean sale
+— but given how long it's been on the market, we both know that route isn't landing. There's
+a structural reason: an investment property only makes sense if it cash flows, and at this rent
+it won't support a loan much above $65K.
+
+So financing fails above that — you saw the $75K offer fall through. And cash won't reach your
+number either: a cash buyer can earn 10%+ in the stock market, so they'll only buy at a
+discount steep enough to beat it, which is why offers are stuck around $65K. Either way your
+client loses equity — it's structural, not bad luck.
+
+That's why I'm proposing seller financing — not my first choice either, but the only structure
+that works here. You're paid your full commission out of my down payment, and your client gets
+their full equity — above asking — while deferring the tax hit.
+
+The premium I pay over list is their return, and the monthly payment is the lion's share of
+what the property nets after taxes, insurance and upkeep. I cover every other closing cost too.
+
+At month 84 I refinance or sell them out of the balance. I set that term deliberately: the
+property needs time to appreciate so I can refinance and pay your client in full — a shorter
+balloon would risk leaving them short.
+
+And your client carries no risk. A deed of trust protects them throughout — miss 60 days and
+the property reverts to them, keeping every payment made, no foreclosure.
+
+They're not a landlord either: no tenants, no repairs, no vacancy — just paid like the bank,
+every month, occupied or not.
 
 Regards,
 [You]
