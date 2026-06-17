@@ -1,5 +1,9 @@
 # RT Companion — Architecture (rethink, 2026-06-17)
 
+> **STATUS: PARKED — revisit after the first sale.** Git-as-deal-store is the known ceiling,
+> but the rebuild is deferred until a closed deal proves the playbook. Current static
+> tooling (triage call sheet + locked templates) is sufficient to make and work offers.
+
 ## The core loop (MVP)
 
 **An offer = address + numbers → strategy + terms → offer email → saved deal record.**
