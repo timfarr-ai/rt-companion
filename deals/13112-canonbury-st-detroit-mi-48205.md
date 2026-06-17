@@ -103,7 +103,7 @@ gives up equity. It's structural, not bad luck.
 Seller financing is the one structure that gets your client their FULL equity — over
 asking — instead of a discount:
 
-  - Price:      $85,000  (above your $77,500 ask)
+  - Price:      $85,000  (well over what the market will actually pay)
   - Down:       $8,500 at closing; I cover all closing costs (your commission paid from this)
   - Interest:   0% — the premium over asking is your client's return
   - Payment:    $400/month
@@ -111,8 +111,12 @@ asking — instead of a discount:
   - Protection: a deed of trust. If I'm ever 60 days late, your client takes the property
                back through the county and keeps every payment made — no foreclosure.
 
-Your client collects the full $85,000 over the term and defers the tax event, instead of
-handing equity to a lowball cash buyer today. I can close fast, no appraisal needed.
+And your client isn't a landlord — no tenants, no repairs, no vacancy risk. They're paid
+like the bank: $400 every month regardless of whether it's occupied, with their equity
+secured against the property. They collect the full $85,000 over the term and defer the
+tax event, instead of handing equity to a lowball cash buyer today.
+
+I can close fast, no appraisal needed.
 
 Regards,
 [You]
