@@ -101,8 +101,8 @@ discount that beats it — hence the offers stuck around $65K. Either way, your 
 gives up equity. It's structural, not bad luck.
 
 Seller financing fixes all of it: your client gets their full equity, above asking, and
-defers the tax event. The premium I pay over list is their return in place of interest;
-the monthly runs up to 40% of the rent; I cover every closing cost (your commission comes
+defers the tax event. The premium I pay over list is their return; the monthly runs up to
+40% of the rent; I cover every closing cost (your commission comes
 out of the down); and at year seven I refinance or sell them out of the balance. A deed of
 trust protects them throughout — if I'm ever 60 days late the property reverts to them and
 they keep every payment made, no foreclosure. Best of all, they're not a landlord: no
@@ -110,7 +110,6 @@ tenants, no repairs, no vacancy risk — just paid like the bank, every month, o
 
   - Price:      $85,000
   - Down:       $8,500
-  - Interest:   0%
   - Payment:    $400/month
   - Balloon:    ~$42,900 at year 7
   - Security:   deed of trust
