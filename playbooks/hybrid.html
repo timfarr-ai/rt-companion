@@ -69,81 +69,119 @@
   </header>
   <main>
     <div class="strategy-pill pill-b">🔀 Hybrid (medium equity)</div>
-    <h1>Hybrid — Canonical SOP</h1>
-<blockquote>
-<p>Single source of truth for Hybrid. Replaces <code>hybrid-mt-sf-carryback.md</code> (which wrongly used the SF
-40%-of-rent method — <strong>do NOT use that</strong>). Provenance: <code>assets/CAPTURED_SOURCES.md</code> #2, #5.
-One of 5 strategies.</p>
-</blockquote>
-<p><strong>What it is:</strong> the <strong>MEDIUM-equity</strong> middle of the spectrum — <strong>Seller Finance (high equity / no debt)
-fused with Mortgage Takeover (low equity)</strong>. Seller has an existing loan <strong>AND</strong> meaningful equity, so
-neither pure play fits: pure Sub-To undersells (they want their equity, not a $10K walk); pure SF ignores
-the cheap existing loan. <strong>Hybrid = assume the existing loan + carry the seller's equity as a note.</strong>
-<em>(There is no standalone Hybrid course — it's defined by the medium-equity position. Steve Ward §1.)</em></p>
-<hr />
-<h2>1. CRITERIA</h2>
-<ul>
-<li><strong>Determination:</strong> existing loan present + <strong>medium equity</strong> (real equity, not cornered) + <strong>rate
-  assumable (≤ ~6%)</strong>. By equity-after-costs: <code>seller_net = price − loan − 6%</code> is meaningfully <strong>&gt; ~$15K</strong>
-  (above the Sub-To cornered line) but there's still a loan worth assuming.</li>
-<li><strong>Real equity + 7%+ rate ⇒ no Hybrid</strong> (seller can sell conventionally; a 7%+ loan isn't worth assuming).</li>
-<li>Property types: SFH · condo · MFH (MFH uncapped). Confirm the existing rate <strong>first</strong> — if 7%+, pivot.</li>
-<li><strong>Triage:</strong> ranks within the Mortgage Takeover group (lowest equity → lowest rate), tagged Hybrid.</li>
-</ul>
-<h2>2. COMPS</h2>
-<ul>
-<li><strong>Load-bearing = ARV</strong> (to confirm the equity is real) <strong>+ rent</strong> (for the cash-flow headroom on the
-  carry-back). Pull SOLD comps (see <code>comps-sop.md</code>). Get the mortgage statement to confirm the balance.</li>
-</ul>
-<h2>3. MATH / OFFER  <em>(canonical — "Hybrid Multi Family Email Template")</em></h2>
-<p><strong>Three parts. NOT +15%/40%-of-rent. The carry-back is on the EQUITY, the monthly is NEGOTIATED.</strong></p>
-<pre><code>Buy price ≈ at/near asking      (e.g. $250,000)
- ├─ Cash / down at close        (e.g. $30,000 — negotiable; Sub-To-style $5-10K also common)
- ├─ Assume the existing loan     (e.g. $144,000 — you pay the bank its PITI; 4+ legal ways to take it over)
- └─ Carry back the EQUITY note:  carry-back = price − down − loan balance   (e.g. $76,000)
-        monthly to seller = NEGOTIATED (e.g. $400/mo) — keep ≤ cash-flow headroom (rent×0.80 − existing PITI)
-        balloon (5yr typical) payout = carry-back − (monthly × months)      (e.g. $52,000)
+    <h1>Hybrid — Playbook</h1>
+<p>The <strong>MEDIUM-equity</strong> middle of the spectrum. Seller has an existing loan <strong>AND</strong> real equity, so neither
+pure play fits: Sub-To undersells (they want their equity, not a $10K walk), and Seller Finance ignores
+the cheap loan that's already in place. <strong>Hybrid = assume the existing loan + carry the seller's equity as
+a note.</strong></p>
+<p><strong>Qualify:</strong> there's a loan <strong>and</strong> meaningful equity (<code>seller_net = price − loan − 6%</code> comfortably <strong>&gt;
+$15K</strong>) <strong>and</strong> the existing rate is <strong>assumable / low (≤ ~6%)</strong>. If the rate is 7%+, walk — the seller can
+just sell conventionally and the loan isn't worth taking over.</p>
+<pre><code> 1 FIND  →  2 VERIFY RATE+BAL+EQUITY  →  3 CALL  →  4 OFFER  →  5 EMAIL  →  6 SIGN  →  7 SUBMIT
 </code></pre>
-<ul>
-<li><strong>Flexibility is the edge:</strong> seller wants more cash now? Bump the down, trim the balloon — same total.</li>
-<li>Seasonal/negotiated monthlies are fine (canonical $3.8M example: $4K/mo slow season, $15K/mo peak).</li>
-</ul>
-<h2>4. SCRIPT</h2>
-<ul>
-<li><strong>Lead creative, never say "hybrid" or "subject-to" out loud</strong> — say <em>"take over the loan + carry your
-  equity."</em> Open: <em>"I noticed your seller probably has an existing loan they're paying down — are they
-  sitting on a low rate from a few years back?"</em> Confirm rate + balance first.</li>
-<li><strong>Pitch:</strong> <em>"$[cash] to your seller at close. I take over the existing loan and keep paying it — they're
-  off the mortgage. The remaining equity, about $[carry-back], I carry back at $[monthly]/mo for [N]
-  years, balloon at year [N]. They get the full asking, just spread out — no realtor cut, no capital-gains
-  hit all at once."</em></li>
-<li><strong>Objections:</strong> due-on-sale → land trust, banks don't call performing loans; "why not cash?" → compare:
-  cash nets them <code>equity − 6% realtor</code>, Hybrid gives cash now + monthly + balloon = full asking; default →
-  property reverts, seller keeps all payments; "too complicated" → "three numbers: cash now, monthly,
-  balloon — like a rental they don't manage; I'll put it in writing for their attorney."</li>
-<li><strong>Verbal yes</strong> = <em>"the structure makes sense, let me run it by my seller"</em> → text the proposal within 60s.</li>
-</ul>
-<h2>5. EMAIL TEMPLATES</h2>
-<ul>
-<li>In the Sub-To deck (<code>assets/sources/subto-email-templates-and-scripts.md</code>): <strong>"Hybrid Multi Family
-  Email Template"</strong>, "Subto Hybrid Email Template" (rare deals), "Multi Family Subject to Hybrid Email."
-  Canonical pattern = state what's owed → what they net at asking after commission → the 3-part
-  alternative (buy price / down / term / payout / monthly) with the breakdown.</li>
-</ul>
-<h2>6. CONTRACT</h2>
-<ul>
-<li>Same <strong>"Mortgage Takeover OR Seller Finance" .docx</strong> as Sub-To/SF + <strong>Trust Acquisition</strong> (revocable
-  living trust; buyer 90-95% / seller 5-10% beneficial interest; mortgage stays in seller's name; HUD-1
-  line 203) for the takeover portion, with the carry-back note documenting the equity. Land trust beats
-  due-on-sale.</li>
-</ul>
-<h2>7. TERMINOLOGY</h2>
-<p>Hybrid (assume + carry) · seller carry-back / carry-back note · beneficial interest · trust acquisition ·
-due-on-sale · cash-flow headroom · balloon · medium equity.</p>
 <hr />
-<h2>Sources</h2>
-<p>"Hybrid Multi Family Email Template" + deck L186 ($3.8M 3-part example) · MT course · Steve Ward §1 (the
-equity spectrum) · <code>assets/CAPTURED_SOURCES.md</code> #2/#5 · <code>triage.py</code> Hybrid banner (canonical, post-fix).</p>
+<h3>Step 1 — Find</h3>
+<p>Open the <strong><a href="/rt-companion/briefings/latest.html">Call Sheet</a></strong> — Hybrid rides inside the <em>Mortgage Takeover</em>
+section (ranked lowest-equity → lowest-rate) and is <strong>tagged Hybrid</strong> where there's real equity sitting on
+top of an assumable loan. Or search <a href="https://www.buyboxcartel.com/vip/lightning-leads">BBC Lightning Leads</a>.</p>
+<p>Best fit: <strong>1–3 unit multi-family</strong> and SFH/condo where the owner bought a few years ago at a low rate but
+still has equity. (MFH is uncapped.)</p>
+<h3>Step 2 — Verify rate + balance + equity before you dial</h3>
+<p>Three things, in this order:</p>
+<ol>
+<li><strong>Rate</strong> — confirm it's <strong>≤ ~6%</strong> in PropStream. If it's 7%+, this isn't a Hybrid; pivot or pass.</li>
+<li><strong>Balance</strong> — PropStream (or get the mortgage statement). You need it to size the carry-back.</li>
+<li><strong>Equity is real</strong> — pull SOLD comps (see <strong><a href="/rt-companion/playbooks/comps-and-pricing.html">Comps &amp; Pricing</a></strong>)
+   to confirm the value supports the equity you'll be carrying back.</li>
+</ol>
+<p>Walk away if it's a <strong>HELOC or reverse mortgage</strong>.</p>
+<h3>Step 3 — Call</h3>
+<p>These are agent-listed (real-equity sellers list with realtors). <strong>Never say "hybrid" or "subject-to" out
+loud</strong> — say <em>"take over the loan + carry your equity."</em> Confirm the rate and balance first:</p>
+<blockquote>
+<p>"Hey, I'm calling about [address]. I'm guessing your seller's got an existing loan they're paying down —
+are they sitting on a low rate from a few years back, by any chance?"</p>
+</blockquote>
+<p>Then pitch the structure:</p>
+<blockquote>
+<p>"Here's what I can do. I'll put $[cash] in your seller's pocket at close. I take over the existing loan
+and keep paying it — so they're off the mortgage. The remaining equity, about $[carry-back], I carry
+back at $[monthly]/month for [N] years, with a balloon at year [N]. They get the full asking price —
+just spread out — and they skip the realtor cut and the all-at-once capital-gains hit."</p>
+</blockquote>
+<p><strong>Objections — say exactly this:</strong></p>
+<blockquote>
+<p><strong>"Won't the bank call the loan?"</strong> — "We put it in a land trust, so title moves to the trust, not a new
+owner — there's no trigger. Banks don't call performing loans, and the Garn–St. Germain Act protects
+transfers into a trust."</p>
+<p><strong>"Why not just take cash?"</strong> — "Compare it: a cash sale nets them their equity minus your 6% — call it
+[equity − commission]. My structure gives them cash now, a monthly payment, <em>and</em> a balloon that adds up
+to the full asking. They come out ahead."</p>
+<p><strong>"What if you stop paying?"</strong> — "If I miss two payments the property reverts to your seller and they keep
+every payment I've made plus any work I've done. I've got real money in it."</p>
+<p><strong>"This is too complicated."</strong> — "It's three numbers: cash now, a monthly, and a balloon — like a rental
+they don't have to manage. I'll put it in writing so their attorney can review it."</p>
+</blockquote>
+<p><strong>Verbal yes</strong> = <em>"the structure makes sense, let me run it by my seller"</em> → text the proposal within 60s.</p>
+<h3>Step 4 — Offer</h3>
+<p>Three parts. <strong>NOT the Seller-Finance +15% / 40%-of-rent method.</strong> The carry-back is on the <strong>equity</strong>, and
+the monthly is <strong>negotiated</strong>:</p>
+<pre><code>Buy price ≈ at / near asking      (e.g. $250,000)
+ ├─ Cash / down at close          (e.g. $30,000 — negotiable; a Sub-To-style $5-10K also works)
+ ├─ Assume the existing loan       (e.g. $144,000 — you pay the bank its PITI; 4+ legal ways to take it over)
+ └─ Carry back the EQUITY note:    carry-back = price − down − loan balance     (e.g. $76,000)
+        monthly to seller = NEGOTIATED (e.g. $400/mo) — keep it ≤ your cash-flow headroom (rent×0.80 − existing PITI)
+        balloon (5yr typical) payout = carry-back − (monthly × months)          (e.g. $52,000)
+</code></pre>
+<p><strong>Flexibility is the edge.</strong> Seller wants more cash now? Bump the down and trim the balloon — same total.
+Seasonal monthlies are fine on big deals (the canonical $3.8M example ran $4K/mo slow season, $15K/mo peak).</p>
+<p>Run it + get the verdict:
+<strong><a href="/rt-companion/playbooks/offer-oven-calculator.html?otype=Hybrid">Offer Oven — Hybrid</a></strong> → enter the loan
+balance + existing payment in the Sub-To block; it returns <strong>PROCEED / COUNTER / KILL</strong>.</p>
+<h3>Step 5 — Email the offer</h3>
+<p>Send right after the call — the <strong>Hybrid Multi-Family email, verbatim</strong> (fill the [brackets]). It shows the
+seller what they net at asking, then lays out the 3-part alternative with the full breakdown:</p>
+<pre><code>Good Evening [Ali],
+Thank you for taking the time to speak with me today. On the phone I mentioned that your client owes
+[$144,000] on their mortgage. At their asking price, after paying a 5% listing commission, they walk away
+with [$46,000]. If anybody negotiates or asks for concessions, it could be [$30-40k] net to your client.
+
+Here's an alternative offer:
+- Buy Price: [$250,000]
+- Down Payment: [$30,000]
+- Term Length: 5 years
+- Payout on 5 years: [$52,000]
+- Monthly Payments: [$400]/month
+
+Here's how the [$250,000] breaks down. [$144,000] of it is owed on the existing mortgage, which I'd take
+over and keep paying — the loan doesn't have to be assumable, there are 4+ well-established legal ways to
+take over a mortgage. [$30,000] is a down payment, and I make payments on the remaining [$76,000]. My
+payments are [$400]/month for 60 months, and the payout would be [$52,000] on the 60th month, which I'd
+deliver by selling or refinancing.
+Regards, [You]
+</code></pre>
+<p>⚠ Only run this on <strong>1–3 unit</strong> multi-family. Full library (Subto-Hybrid, Multi-Family Subject-to Hybrid):
+<a href="https://docs.google.com/presentation/d/1faQLOfVvmOvZ5Yl4K9k6_wUvGCfbTwyMs2J6x7Mr7Kw/edit">Sub-To / Hybrid email deck ↗</a></p>
+<h3>Step 6 — Get it under contract</h3>
+<p><strong>Use BBC auto-contracts (primary).</strong> Open the lead's <strong>🏦 Create Offer in BBC</strong> → fill the offer → it
+generates the contract and <strong>Save to Pipeline</strong>. HMHW reviews &amp; signs creative auto-contracts for you.</p>
+<p><strong>The structure = a takeover + a carry-back note.</strong> The takeover portion uses a <strong>Trust Acquisition</strong>: a
+trust attorney puts the property into a revocable living trust; you take <strong>90–95%</strong> beneficial interest, the
+seller keeps <strong>5–10%</strong>, the <strong>mortgage stays in their name</strong>, and you make the payments. The land trust
+keeps the deal clear of the due-on-sale clause (Garn–St. Germain). The seller's <strong>equity</strong> is then
+documented as a <strong>carry-back note</strong> with its monthly + balloon.</p>
+<p><em>Fallback only (BBC contracts down):</em> the editable "Mortgage Takeover OR Seller Finance"
+<a href="https://docs.google.com/document/d/19sgM1zTQSvDYbiCvEYjYsBUfb1bouPZA/edit">contract .docx ↗</a> +
+<a href="https://drive.google.com/file/d/1L4JptVcCH2UXjau3QutEmLxraUuHYLl9/view">how to fill it — video ↗</a></p>
+<h3>Step 7 — Submit &amp; track</h3>
+<ol>
+<li><strong>Save to BBC Pipeline</strong> — the 🔑 button on the card.</li>
+<li><strong>Submit to Grand In Taylor (JV, 50/50)</strong> — use the form that matches the property (the card's 🤝 button
+   auto-picks it):
+   - Single-family → <a href="https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78">Creative / Hybrid form ↗</a>
+   - Multi-family / portfolio → <a href="https://grandintaylorllc.salesmate.io/webforms/#/f38acae6-368f-4660-aa74-fc48afaa99ca">Multi-Family form ↗</a></li>
+<li><strong>Track</strong> — the card's <em>Track</em> button logs it to Airtable Deal Flow (Contacted → Accepted → Paid).</li>
+</ol>
     <nav class="bottom">
       <a href="/rt-companion/">Dashboard</a> ·
       <a href="/rt-companion/briefings/latest.html">Today's Briefing</a> ·
