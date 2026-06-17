@@ -107,6 +107,8 @@ the payments. Add an **Assignment Disclosure** so you can assign it.
 ### Step 7 — Submit & track
 
 1. **Save to BBC Pipeline** — the 🔑 button on the card.
-2. **Submit to Grand In Taylor (JV, 50/50)** — they place it with their buyers:
-   [Creative JV form ↗](https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78)
+2. **Submit to Grand In Taylor (JV, 50/50)** — they place it with their buyers. Use the form that
+   matches the property (the card's 🤝 button auto-picks it):
+   - Single-family → [Creative / Hybrid form ↗](https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78)
+   - Multi-family / portfolio → [Multi-Family form ↗](https://grandintaylorllc.salesmate.io/webforms/#/f38acae6-368f-4660-aa74-fc48afaa99ca)
 3. **Track** — the card's *Track* button logs it to Airtable Deal Flow (Contacted → Accepted → Paid).

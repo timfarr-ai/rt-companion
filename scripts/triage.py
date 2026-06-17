@@ -1441,21 +1441,22 @@ def render_deal(d, t):
     bbc_property_link = ''
     if d.get('zpid'):
         bbc_property_link = f' <a class="btn" href="https://www.buyboxcartel.com/vip/property/{d["zpid"]}" target="_blank">🏦 Create Offer in BBC ↗</a>'
-    # Grand In Taylor JV submission — Richard Taylor's own wholesale company. Phase-1
-    # dispo channel: instead of self-listing on BBC Marketplace, Tim submits the deal
-    # here, Richard's team places it with their buyer network, JV split applies. Two
-    # forms by deal type: Creative Finance for A/B/MT/SF, Cash Alternative for FF/C.
-    # No URL prefill wired yet (Salesmate's hash-route params not verified) — opens
-    # clean form, Tim pastes address from triage. Later: add ?prefill[Field]=val once
-    # we capture Salesmate's accepted param format from one real submission.
-    gt_url = {
-        'A':  'https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78',
-        'B':  'https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78',
-        'MT': 'https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78',
-        'FF': 'https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587',
-        'C':  'https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587',
-    }.get(t, '')
-    gt_label = 'Creative' if t in ('A','B','HY','MT') else 'Cash'
+    # Grand In Taylor JV submission — Richard's dispo pipeline. THREE forms (verified from the
+    # dispo-announcements 2026-06-17): Cash · Creative/Hybrid · Multi-Family/Portfolio. Route by
+    # cash-vs-creative AND multi-family: cash deals → Cash; creative MFH/portfolio → MultiFam;
+    # creative single-family → Creative/Hybrid. (Prior map was missing HY entirely and sent MFH
+    # creative to the SFH Creative form.)
+    GT_CASH     = 'https://grandintaylorllc.salesmate.io/webforms/#/696ce9d7-457b-44ad-8e6f-a9574197e587'
+    GT_CREATIVE = 'https://grandintaylorllc.salesmate.io/webforms/#/5bddb679-43e9-4a91-aca2-ddaff898ff78'
+    GT_MULTIFAM = 'https://grandintaylorllc.salesmate.io/webforms/#/f38acae6-368f-4660-aa74-fc48afaa99ca'
+    _gt_mfh = (d.get('units') or 0) >= 2 or any(x in (d.get('type','') or '').lower()
+                  for x in ('multi','plex','duplex','triplex','fourplex','quad'))
+    if t in ('FF', 'C'):
+        gt_url, gt_label = GT_CASH, 'Cash'
+    elif _gt_mfh:
+        gt_url, gt_label = GT_MULTIFAM, 'Multi-Family / Portfolio'
+    else:
+        gt_url, gt_label = GT_CREATIVE, 'Creative / Hybrid'
     gt_link = f' <a class="btn" href="{gt_url}" target="_blank">🤝 Submit to Grand In Taylor ({gt_label}) ↗</a>' if gt_url else ''
     # HMHW calculator deep-links — tier-routed to the right calculator. The previous
     # #prefill={JSON} hash was a speculative no-op: HMHW's Vite app has zero URL-prefill

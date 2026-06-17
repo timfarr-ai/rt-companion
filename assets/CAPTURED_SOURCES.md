@@ -185,6 +185,16 @@ to match Richard's own framing, while keeping the dollar test for the cornered/H
 Cash contracts section → a process/termination video, NOT a strategy demo. Low priority. Richard's profile:
 `tiktok.com/@hold_my_hand_wholesale`.
 
+## #7 — Grand In Taylor submission forms (DEFINITIVE — Discord dispo-announcements, 2026-06-17)
+Three Salesmate webforms, routed by cash-vs-creative AND multi-family:
+- **Cash** (Fix & Flip, Section 8 cash): `696ce9d7-457b-44ad-8e6f-a9574197e587`
+- **Creative / Hybrid** (single-family creative: SF, Sub-To, Hybrid): `5bddb679-43e9-4a91-aca2-ddaff898ff78`
+- **Multi-Family & Portfolio** (creative MFH/portfolio contracts): `f38acae6-368f-4660-aa74-fc48afaa99ca`
+⚠ Prior triage/SOP only had 2 (missing MultiFam) and **was missing HY entirely** + sent MFH creative
+deals to the SFH "Creative/Hybrid" form. Fixed in `triage.py gt_url` (route by `_gt_mfh`) + Sub-To SOP.
+Also seen: Grand In Taylor emails `cash@grandintaylorproperties.com` / `tc@grandintaylorproperties.com`;
+MT-needs-new-loan submission `forms.gle/wjpqMW439noic3j47` (partner lender Andrew).
+
 ## DATA-SOURCING NOTES (for triage)
 - **Mortgage Takeover / Sub-To loan data:** the canonical fields (interest **rate**, loan **balance**,
   loan **type** to avoid HELOC/reverse) live in **PropStream** — but **PropStream has NO API**
