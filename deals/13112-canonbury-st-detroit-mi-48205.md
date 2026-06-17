@@ -53,10 +53,10 @@ free-&-clear seller to eat a ~$23K haircut — they'll say no (not a distressed 
 their full price on 0% terms AND yields a ~50% end-buyer CoC you can dispo. Fire the cash offer only as
 the **Trojan opener** → pivot to SF on rejection.
 
-**Chosen terms: $85,000 price · $8,500 down (10%) · 0% · $400/mo · 84-month balloon.** Seller realizes
-$8,500 + ($400×84) + $42,900 balloon = **$85,000 — their FULL equity, $7.5K over ask** (the equity-max hook).
+**Chosen terms: $85,000 price · $8,500 down (10%) · 0% · $400/mo · 72-month balloon.** Seller realizes
+$8,500 + ($400×72) + $47,700 balloon = **$85,000 — their FULL equity, $7.5K over ask** (the equity-max hook).
 - Implied amortization at $400/mo = $76,500 ÷ $400 = **~191 months** (genuinely low payment).
-- **Balloon ≈ $42,900 @ 84 months** ($47,700 @ 72 months) — **below the $65–75K market value → easy refi/resale exit.**
+- **Balloon ≈ $47,700 @ 72 months** ($42,900 @ 84 months) — **below the $65–75K market value → easy refi/resale exit.**
 - $400/mo ≈ 33% of $1,200 rent → end-buyer still cash-flows (~$130/mo + the ~$27K trapped-equity capture
   at refi: owe ~$43K on a ~$70K asset).
 
@@ -74,8 +74,8 @@ Re: Seller-Finance Offer — 13112 Canonbury St, Detroit, MI 48205
   Down Payment:       $8,500 cash + all closing/title fees (commission paid from this)
   Interest Rate:      0%
   Monthly Payment:    $400 / month to the seller
-  Term:               84-month balloon
-  Payout at balloon:  ~$42,900 (via refinance or sale)
+  Term:               72-month balloon
+  Payout at balloon:  ~$47,700 (via refinance or sale)
   EMD:                $1,000 non-refundable, after inspection
   Inspection:         7 business days
   COE:                on or before 30 days
@@ -97,7 +97,7 @@ Thanks for your time on the phone — here's my offer in writing.
   - Price:      $85,000
   - Down:       $8,500
   - Payment:    $400/month
-  - Balloon:    ~$42,900 at month 84
+  - Balloon:    ~$47,700 at month 72
   - EMD:        $1,000 non-refundable, submitted after inspection
   - Inspection: 7 business days
   - COE:        on or before 30 days
@@ -125,7 +125,7 @@ their full equity — above asking — while deferring the tax hit.
 The premium I pay over list is their return, and the monthly payment is the lion's share of
 what the property nets after taxes, insurance and upkeep. I cover every other closing cost too.
 
-At month 84 I refinance or sell them out of the balance. I set that term deliberately: the
+At the end of the term I refinance or sell them out of the balance. I set that term deliberately: the
 property needs time to appreciate so I can refinance and pay your client in full — a shorter
 balloon would risk leaving them short.
 

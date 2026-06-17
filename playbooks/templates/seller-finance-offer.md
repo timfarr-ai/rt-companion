@@ -49,7 +49,7 @@ their full equity — above asking — while deferring the tax hit.
 The premium I pay over list is their return, and the monthly payment is the lion's share of
 what the property nets after taxes, insurance and upkeep. I cover every other closing cost too.
 
-At month {{balloonMonths}} I refinance or sell them out of the balance. I set that term
+At the end of the term I refinance or sell them out of the balance. I set that term
 deliberately: the property needs time to appreciate so I can refinance and pay your client in
 full — a shorter balloon would risk leaving them short.
 
@@ -79,7 +79,7 @@ Regards,
 | `{{down}}` | calc | — |
 | `{{payment}}` | calc (monthly to seller) | — |
 | `{{balloonAmt}}` | calc (outstanding at balloon) | — |
-| `{{balloonMonths}}` | calc (balloon term, in months) | `84` |
+| `{{balloonMonths}}` | calc (balloon term, in months) | `72` |
 | `{{emd}}` | calc: `max(1000, round(price·1%))` | ~1% of price, floor $1,000 |
 | `{{inspectionDays}}` | constant (contract §1.10) | `7` |
 | `{{coeDays}}` | constant | `30` |
