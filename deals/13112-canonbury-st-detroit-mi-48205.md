@@ -12,10 +12,20 @@
 3. **DOM + price history** → leverage.
 4. **Condition** (1940 build) → rent-ready vs needs rehab changes the cash math.
 
-## Comps
-- 48205 **median ~$60–75K**, **~$47/sqft** (renovated comps $60–86/sqft).
-- 1,029 sqft → **as-is ~$48–55K · renovated ARV ~$78–85K.**
-- **$77,500 sits near a renovated ARV / above the median.** Fairly priced (not the wild overpricing $95K would've been) — so a **cash rental is now real**, and SF still works if they want full price.
+## Comps — address-level sold (3bd, built 1925–1955, ~900–1,200 sqft)
+*Pulled 2026-06-17 from public portals (Zillow/Trulia/Movoto). ⚠ Verify final set in PropStream; 1-mile radius approximate — same-block/nearest first, north-48205 streets may sit slightly beyond 1 mi.*
+
+| Address | Sold | Price | $/sqft | Sqft | Built | Note |
+|---|---|---|---|---|---|---|
+| 13108 Canonbury (same block) | Sep 2020 | $70,000 | $62 | 1,125 | 1950 | closest, stale |
+| 19324 Goulburn St | Apr 2026 | $75,000 | $77 | 978 | 1950 | freshest, mid-condition |
+| 16694 Collingham Dr | Sep 2025 | $103,500 | $99 | 1,050 | 1944 | renovated — top |
+| 18081 Strasburg St | Sep 2025 | $40,000 | $42 | 954 | 1940 | as-is — floor |
+| 11085 Kenmoor St | Aug 2022 | $69,000 | $61 | 1,126 | ~1950 | stale |
+
+- **Condition drives everything:** $42/sqft (as-is) → $77 (mid) → $99–133 (renovated).
+- 1,029 sqft → **as-is ~$43–64K · mid/light-reno ~$75–80K · renovated ARV ~$85–100K.**
+- Two freshest sales (Apr-26 $75K mid, Sep-25 $103.5K renovated) confirm **$77,500 list sits at mid-to-renovated value, not a discount** — cash only pencils well below list; SF still works if they want full price.
 
 ## The three plays (at $77,500, rent $1,200/mo)
 
