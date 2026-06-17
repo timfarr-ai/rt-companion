@@ -15,7 +15,9 @@ Subject: Full-price offer (and then some) — {{address}}
 
 Hi {{agent}},
 
-Thanks for your time on the phone — here's my offer in writing.
+Thanks for your time on the phone — here's my offer in writing. I have flexibility in the terms
+depending on your seller's needs{{#portfolio}}, and the means to take down multiple properties from
+your seller's portfolio — but let's strike terms on this one first{{/portfolio}}.
 
   - Price:      {{price}}
   - Down:       {{down}}
@@ -24,10 +26,9 @@ Thanks for your time on the phone — here's my offer in writing.
   - EMD:        {{emd}} non-refundable, submitted after inspection
   - Inspection: {{inspectionDays}} business days
   - COE:        on or before {{coeDays}} days
-  - Security:   deed of trust
+  - Security:   deed of trust / quit claim deed
 
-My proof of funds is attached, I can close fast, and no appraisal is needed. I have
-flexibility in the terms depending on your seller's needs.
+My proof of funds is attached, I can close fast, and no appraisal is needed.
 
 Here's the reasoning, so you can walk your seller through it:
 
@@ -39,24 +40,22 @@ cash flows, and at this rent it won't support a loan much above {{dscrValue}}.
 So financing fails above that{{#fellThrough}} — you saw the {{fellThrough}} offer fall through{{/fellThrough}}.
 And cash won't reach your number either: a cash buyer can earn 10%+ in the stock market, so
 they'll only buy at a discount steep enough to beat it{{#cashLevel}}, which is why offers are
-stuck around {{cashLevel}}{{/cashLevel}}. Either way your client loses equity — it's structural,
-not bad luck.
+stuck around {{cashLevel}}{{/cashLevel}}. Either way your client loses equity — it's a structural
+problem, with interest rates the highest they've been in 25 years.
 
 That's why I'm proposing seller financing — not my first choice either, but the only structure
 that works here. You're paid your full commission out of my down payment, and your client gets
-their full equity — above asking — while deferring the tax hit.
+their full equity — above asking — while deferring the tax hit. The premium I pay over list is
+their return, and the monthly payment is the lion's share of what the property nets after taxes,
+insurance and upkeep. I cover every other closing cost too.
 
-The premium I pay over list is their return, and the monthly payment is the lion's share of
-what the property nets after taxes, insurance and upkeep. I cover every other closing cost too.
+At the end of the term I refinance or sell them out of the balance. I set that term deliberately:
+the property needs time to appreciate so I can refinance and pay your client in full — a shorter
+balloon would risk leaving them short. And your client carries no risk: a deed of trust protects
+them throughout — miss 60 days and the property reverts to them, keeping every payment made, no
+foreclosure.
 
-At the end of the term I refinance or sell them out of the balance. I set that term
-deliberately: the property needs time to appreciate so I can refinance and pay your client in
-full — a shorter balloon would risk leaving them short.
-
-And your client carries no risk. A deed of trust protects them throughout — miss 60 days and
-the property reverts to them, keeping every payment made, no foreclosure.
-
-They're not a landlord either: no tenants, no repairs, no vacancy — just paid like the bank,
+They cease to be the landlord: no tenants, no repairs, no vacancy — just paid like the bank,
 every month, occupied or not.
 
 Regards,
@@ -71,6 +70,7 @@ Regards,
 |---|---|---|
 | `{{address}}` | Property section (identity) | — (required) |
 | `{{agent}}` | optional color input | `there` |
+| `{{portfolio}}` | optional flag — seller owns multiple properties | *(block hidden)* |
 | `{{dom}}` | optional input (e.g. `120 days`) | falls back to "given how long it's been listed" |
 | `{{dscrValue}}` | input / calc-suggested (value the rent supports) | — (required) |
 | `{{fellThrough}}` | optional color input (e.g. `$75K`) | *(block hidden)* |
