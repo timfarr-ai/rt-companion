@@ -113,11 +113,11 @@ tenants, no repairs, no vacancy risk — just paid like the bank, every month, o
   - Payment:    $400/month
   - Balloon:    ~$42,900 at year 7
   - EMD:        $1,500 non-refundable, submitted after inspection
-  - Inspection: 7 business days
+  - Inspection: 5 business days
   - COE:        on or before 30 days
   - Security:   deed of trust
 
-I can close fast, no appraisal needed.
+My proof of funds is attached. I can close fast, no appraisal needed.
 
 Regards,
 [You]
