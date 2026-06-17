@@ -94,11 +94,11 @@ Hi [Agent],
 
 Thanks for your time on the phone — here's my offer in writing.
 
-The math here is simple. The rent only supports a DSCR loan around $65K, so financing
-fails above that — you saw the $75K offer fall through. And cash won't reach your number
-either: a cash buyer can earn 10%+ in the stock market, so they only buy here at a
-discount that beats it — hence the offers stuck around $65K. Either way, your client
-gives up equity. It's structural, not bad luck.
+An investment property only makes sense if it cash flows — and at this rent, it doesn't
+support a loan above ~$65K. So financing fails above that (you saw the $75K offer fall
+through), and cash won't reach your number either: a cash buyer can earn 10%+ in the stock
+market, so they only buy here at a discount that beats it — hence the offers stuck around
+$65K. Either way, your client gives up equity. It's structural, not bad luck.
 
 Seller financing fixes all of it: your client gets their full equity, above asking, and
 defers the tax event. The premium I pay over list is their return; the monthly runs up to
